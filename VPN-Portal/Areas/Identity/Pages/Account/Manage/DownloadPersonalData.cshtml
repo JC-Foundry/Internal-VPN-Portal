@@ -1,11 +1,88 @@
-﻿@page
+@page
 @model DownloadPersonalDataModel
 @{
     ViewData["Title"] = "Download Your Data";
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-download me-2"></i>@ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="alert alert-success rounded-3">
+                    <i class="fa-solid fa-check-circle me-2"></i>
+                    <strong>Data Export Complete</strong>
+                    <p class="mb-0 mt-2">
+                        Your personal data has been successfully exported and is ready for download.
+                    </p>
+                </div>
+                
+                <div class="card bg-light border-0">
+                    <div class="card-body text-center py-4">
+                        <i class="fa-solid fa-file-zipper text-primary mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="mb-3">Your Data Export</h5>
+                        <p class="text-muted mb-4">
+                            Your exported data contains all personal information associated with your account.
+                        </p>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-primary btn-lg rounded-3" onclick="window.location.href='#'">
+                                <i class="fa-solid fa-download me-2"></i>Download ZIP File
+                            </button>
+                            <a asp-page="./PersonalData" class="btn btn-outline-secondary btn-lg rounded-3">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Back to Personal Data
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-info-circle me-1 text-primary"></i>Export Contents
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            Your data export includes:
+                        </p>
+                        <ul class="small text-muted mb-2">
+                            <li>Account information</li>
+                            <li>Profile settings</li>
+                            <li>VPN configuration data</li>
+                            <li>Activity logs</li>
+                            <li>Device information</li>
+                        </ul>
+                        <p class="small text-muted mb-0">
+                            <strong>Format:</strong> JSON files in a ZIP archive.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card bg-light border-0 mt-3">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-shield-halved me-1 text-warning"></i>Important Notes
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            <strong>Security:</strong> This file contains sensitive personal data.
+                        </p>
+                        <p class="small text-muted mb-2">
+                            <strong>Storage:</strong> Store the file securely and delete when no longer needed.
+                        </p>
+                        <p class="small text-muted mb-0">
+                            <strong>Expiry:</strong> Download link expires in 24 hours.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

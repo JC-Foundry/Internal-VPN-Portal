@@ -14,6 +14,13 @@ public class VpnServer
     public string VpnServerId { get; set; } = Guid.NewGuid().ToString();
     
     [Required]
+    [MaxLength(50)]
+    public string DnsPoolId { get; set; }
+    
+    [ForeignKey(nameof(DnsPoolId))]
+    public virtual DnsPool DnsPool { get; set; }
+    
+    [Required]
     [MaxLength(100)]
     public string Name { get; set; }
     
@@ -37,5 +44,6 @@ public class VpnServer
     [Required]
     [MaxLength(50)]
     [Column(TypeName = "varchar(50)")]
-    public string NetworkAddress { get; set; }
+    public string ServerAddress { get; set; }
+    
 }

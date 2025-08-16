@@ -41,6 +41,7 @@ public class DnsReservation
     
     [Column(TypeName = "datetime2")]
     public DateTime? ReleasedUtc { get; set; }
+    public bool IsActive => ReleasedUtc == null;
     
     public virtual ICollection<PeerToReservation>? PeerToReservations { get; set; }
 }

@@ -1,24 +1,82 @@
-﻿@page
+@page
 @model ResetAuthenticatorModel
 @{
-    ViewData["Title"] = "Reset authenticator key";
+    ViewData["Title"] = "Reset Authenticator Key";
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
-<partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
-<div class="alert alert-warning" role="alert">
-    <p>
-        <span class="glyphicon glyphicon-warning-sign"></span>
-        <strong>If you reset your authenticator key your authenticator app will not work until you reconfigure it.</strong>
-    </p>
-    <p>
-        This process disables 2FA until you verify your authenticator app.
-        If you do not complete your authenticator app configuration you may lose access to your account.
-    </p>
-</div>
-<div>
-    <form id="reset-authenticator-form" method="post">
-        <button id="reset-authenticator-button" class="btn btn-danger" type="submit">Reset authenticator key</button>
-    </form>
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-warning text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-arrows-rotate me-2"></i>@ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <partial name="_StatusMessage" for="StatusMessage" />
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="alert alert-warning rounded-3">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    <strong>Warning: This action will reset your authenticator configuration!</strong>
+                    <p class="mb-1 mt-2">
+                        If you reset your authenticator key, your authenticator app will not work until you reconfigure it.
+                    </p>
+                    <p class="mb-0">
+                        This process disables 2FA until you verify your authenticator app. If you do not complete your authenticator app configuration you may lose access to your account.
+                    </p>
+                </div>
+
+                <form id="reset-authenticator-form" method="post">
+                    <div class="d-grid gap-2">
+                        <button id="reset-authenticator-button" class="btn btn-danger btn-lg rounded-3" type="submit">
+                            <i class="fa-solid fa-arrows-rotate me-2"></i>Reset Authenticator Key
+                        </button>
+                        <a asp-page="./TwoFactorAuthentication" class="btn btn-outline-secondary btn-lg rounded-3">
+                            <i class="fa-solid fa-arrow-left me-2"></i>Back to 2FA Settings
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-info-circle me-1 text-primary"></i>What Happens When You Reset?
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            Resetting your authenticator key will:
+                        </p>
+                        <ul class="small text-muted mb-2">
+                            <li>Generate a new secret key</li>
+                            <li>Invalidate your current authenticator app setup</li>
+                            <li>Temporarily disable 2FA on your account</li>
+                            <li>Require you to reconfigure your authenticator app</li>
+                        </ul>
+                        <p class="small text-muted mb-0">
+                            <strong>Note:</strong> Your recovery codes will remain valid.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card bg-light border-0 mt-3">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-lightbulb me-1 text-warning"></i>When to Reset
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            Consider resetting your authenticator key if:
+                        </p>
+                        <ul class="small text-muted mb-0">
+                            <li>You lost your authenticator device</li>
+                            <li>Your authenticator app was compromised</li>
+                            <li>You want to use a different authenticator app</li>
+                            <li>You're experiencing authentication issues</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

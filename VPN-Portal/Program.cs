@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VPN_Portal.Authentication;
+using VPN_Portal.Authentication.UserClaims;
 using VPN_Portal.Data;
+using VPN_Portal.Middleware;
+using VPN_Portal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,11 +12,31 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString)
+        .EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine, LogLevel.Information));
+
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false; //TODO: Implement email confirmation
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequiredLength = 8;
+        options.User.RequireUniqueEmail = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddScoped<UserInfo>(sp => new UserInfo());
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, UserClaimsPrincipalFactory>();
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+//Services:
+builder.Services.AddScoped<DeviceService>();
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
@@ -39,4 +63,53 @@ app.MapStaticAssets();
 app.MapRazorPages()
     .WithStaticAssets();
 
+await HostDefaults();
 app.Run();
+
+
+async Task HostDefaults()
+{
+    using var scope = app.Services.CreateScope();
+    var sp = scope.ServiceProvider;
+    var context = sp.GetRequiredService<ApplicationDbContext>();
+    
+    var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+    
+    await context.Database.MigrateAsync();
+    app.UseUserInfo();
+    
+    async Task ConfirmRoleSetup(string role)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    await ConfirmRoleSetup(SystemRoles.SystemAdmin);
+    await ConfirmRoleSetup(SystemRoles.StandardUser);
+    await ConfirmRoleSetup(SystemRoles.ReadOnlyUser);
+    
+    var adminUser = await userManager.FindByNameAsync("portaladmin");
+    if (adminUser == null)
+    {
+        adminUser = new ApplicationUser
+        {
+            Email = "jcraik23@gmail.com",
+            UserName = "portaladmin",
+            DisplayName = "Portal Admin",
+            LastLogin = DateTime.Now,
+            EmailConfirmed = true,
+            TwoFactorEnabled = false
+        };
+        await userManager.CreateAsync(adminUser);
+        await userManager.AddToRoleAsync(adminUser, SystemRoles.SystemAdmin);
+        var p = "PortalAdmin@23";
+        await userManager.AddPasswordAsync(adminUser, p);
+    }
+    else if (!await userManager.IsInRoleAsync(adminUser, SystemRoles.SystemAdmin))
+    {
+        await userManager.AddToRoleAsync(adminUser, SystemRoles.SystemAdmin);
+    }
+}

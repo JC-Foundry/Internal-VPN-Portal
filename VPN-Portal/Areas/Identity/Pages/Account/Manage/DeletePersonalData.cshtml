@@ -1,31 +1,73 @@
-﻿@page
+@page
 @model DeletePersonalDataModel
 @{
     ViewData["Title"] = "Delete Personal Data";
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-danger text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-user-xmark me-2"></i>@ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="alert alert-danger rounded-3">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    <strong>Warning: This action is permanent and irreversible!</strong>
+                    <p class="mb-0 mt-2">Deleting this data will permanently remove your account, and this cannot be recovered.</p>
+                </div>
 
-<div class="alert alert-warning" role="alert">
-    <p>
-        <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
-    </p>
-</div>
-
-<div>
-    <form id="delete-user" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-        @if (Model.RequirePassword)
-        {
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
-                <label asp-for="Input.Password" class="form-label"></label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
+                <form id="delete-user" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+                    
+                    @if (Model.RequirePassword)
+                    {
+                        <div class="form-floating mb-4">
+                            <input asp-for="Input.Password" class="form-control form-control-lg rounded-3" autocomplete="current-password" aria-required="true" placeholder="Password" />
+                            <label asp-for="Input.Password" class="text-muted">
+                                <i class="fa-solid fa-lock me-1"></i>Password Confirmation
+                            </label>
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        </div>
+                    }
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-danger btn-lg rounded-3" type="submit">
+                            <i class="fa-solid fa-trash me-2"></i>Delete Data and Close Account
+                        </button>
+                        <a asp-page="./PersonalData" class="btn btn-outline-secondary btn-lg rounded-3">
+                            <i class="fa-solid fa-arrow-left me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
             </div>
-        }
-        <button class="w-100 btn btn-lg btn-danger" type="submit">Delete data and close my account</button>
-    </form>
+            
+            <div class="col-md-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-exclamation-triangle me-1 text-danger"></i>Account Deletion
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            This action will immediately and permanently:
+                        </p>
+                        <ul class="small text-muted mb-2">
+                            <li>Delete all your personal data</li>
+                            <li>Remove your account from our systems</li>
+                            <li>Disable all VPN access</li>
+                            <li>Cancel any active sessions</li>
+                        </ul>
+                        <p class="small text-muted mb-0">
+                            <strong>Note:</strong> This cannot be undone. Please ensure you have downloaded any data you wish to keep.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

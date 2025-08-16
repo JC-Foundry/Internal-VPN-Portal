@@ -1,53 +1,131 @@
-﻿@page
+@page
 @model ExternalLoginsModel
 @{
-    ViewData["Title"] = "Manage your external logins";
+    ViewData["Title"] = "External Logins";
     ViewData["ActivePage"] = ManageNavPages.ExternalLogins;
 }
 
-<partial name="_StatusMessage" for="StatusMessage" />
-@if (Model.CurrentLogins?.Count > 0)
-{
-    <h3>Registered Logins</h3>
-    <table class="table">
-        <tbody>
-            @foreach (var login in Model.CurrentLogins)
-            {
-                <tr>
-                    <td id="@($"login-provider-{login.LoginProvider}")">@login.ProviderDisplayName</td>
-                    <td>
-                        @if (Model.ShowRemoveButton)
-                        {
-                            <form id="@($"remove-login-{login.LoginProvider}")" asp-page-handler="RemoveLogin" method="post">
-                                <div>
-                                    <input asp-for="@login.LoginProvider" name="LoginProvider" type="hidden" />
-                                    <input asp-for="@login.ProviderKey" name="ProviderKey" type="hidden" />
-                                    <button type="submit" class="btn btn-primary" title="Remove this @login.ProviderDisplayName login from your account">Remove</button>
-                                </div>
-                            </form>
-                        }
-                        else
-                        {
-                            @: &nbsp;
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-@if (Model.OtherLogins?.Count > 0)
-{
-    <h4>Add another service to log in.</h4>
-    <hr />
-    <form id="link-login-form" asp-page-handler="LinkLogin" method="post" class="form-horizontal">
-        <div id="socialLoginList">
-            <p>
-                @foreach (var provider in Model.OtherLogins)
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-link me-2"></i>@ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <partial name="_StatusMessage" for="StatusMessage" />
+        
+        <div class="row">
+            <div class="col-md-8">
+                @if (Model.CurrentLogins?.Count > 0)
                 {
-                    <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="fa-solid fa-check-circle me-2 text-success"></i>Connected Accounts
+                        </h5>
+                        
+                        <div class="row g-3">
+                            @foreach (var login in Model.CurrentLogins)
+                            {
+                                <div class="col-md-6">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-user-check me-2 text-success"></i>
+                                                <span id="@($"login-provider-{login.LoginProvider}")" class="fw-semibold">@login.ProviderDisplayName</span>
+                                            </div>
+                                            @if (Model.ShowRemoveButton)
+                                            {
+                                                <form id="@($"remove-login-{login.LoginProvider}")" asp-page-handler="RemoveLogin" method="post" class="d-inline">
+                                                    <input asp-for="@login.LoginProvider" name="LoginProvider" type="hidden" />
+                                                    <input asp-for="@login.ProviderKey" name="ProviderKey" type="hidden" />
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-3" title="Remove this @login.ProviderDisplayName login from your account">
+                                                        <i class="fa-solid fa-unlink me-1"></i>Remove
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
-            </p>
+                else
+                {
+                    <div class="mb-4">
+                        <div class="card bg-light border-0">
+                            <div class="card-body text-center py-4">
+                                <i class="fa-solid fa-link-slash text-muted mb-2" style="font-size: 2rem;"></i>
+                                <h6 class="text-muted mb-0">No external accounts connected</h6>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.OtherLogins?.Count > 0)
+                {
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="fa-solid fa-plus-circle me-2 text-primary"></i>Connect Additional Services
+                        </h5>
+                        <p class="text-muted mb-3">Link additional login providers to your account for easier access.</p>
+                        
+                        <form id="link-login-form" asp-page-handler="LinkLogin" method="post">
+                            <div id="socialLoginList" class="d-flex flex-wrap gap-2">
+                                @foreach (var provider in Model.OtherLogins)
+                                {
+                                    <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-outline-primary rounded-3" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                        <i class="fa-solid fa-plus me-2"></i>@provider.DisplayName
+                                    </button>
+                                }
+                            </div>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    @if (Model.CurrentLogins?.Count == 0)
+                    {
+                        <div class="alert alert-info rounded-3">
+                            <i class="fa-solid fa-info-circle me-2"></i>
+                            No external login providers are currently configured.
+                        </div>
+                    }
+                }
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-info-circle me-1 text-primary"></i>External Logins
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            External login providers allow you to sign in using accounts from other services like Google, Microsoft, or GitHub.
+                        </p>
+                        <p class="small text-muted mb-2">
+                            <strong>Benefits:</strong> Faster login, no need to remember additional passwords.
+                        </p>
+                        <p class="small text-muted mb-0">
+                            <strong>Security:</strong> You can always remove connected accounts if needed.
+                        </p>
+                    </div>
+                </div>
+                
+                @if (Model.CurrentLogins?.Count > 0)
+                {
+                    <div class="card bg-light border-0 mt-3">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fa-solid fa-shield-halved me-1 text-warning"></i>Security Note
+                            </h6>
+                            <p class="small text-muted mb-0">
+                                Ensure you have at least one way to access your account. If you remove all external logins, make sure you have a password set.
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-    </form>
-}
+    </div>
+</div>

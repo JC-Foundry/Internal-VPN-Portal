@@ -1,0 +1,47 @@
+@page "{id?}"
+@model VPN_Portal.Pages.Devices.Edit
+
+@{
+    ViewData["Title"] = Model.IsAdding ? "Create Device" : "Edit Device";
+}
+
+<div class="row justify-content-center align-items-center my-5">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-header text-white bg-gradient-primary py-4 rounded-top-4">
+                <h2 class="mb-1 fw-bold">
+                    <i class="fa-solid fa-circle-plus me-2"></i> @ViewData["Title"]
+                </h2>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form method="post">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.DeviceName" class="form-control rounded-3" autocomplete="username" aria-required="true" placeholder="My Phone" />
+                        <label asp-for="Input.DeviceName" class="text-muted">
+                            <i class="fa-solid fa-laptop me-1"></i> Device Name
+                        </label>
+                        <span asp-validation-for="Input.DeviceName" class="text-danger small"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select asp-for="Input.DeviceType" class="form-select rounded-3" asp-items="Model.DeviceTypes" aria-required="true"></select>
+                        <label asp-for="Input.DeviceType" class="text-muted">
+                            <i class="fa-solid fa-list me-1"></i> Device Type
+                        </label>
+                        <span asp-validation-for="Input.DeviceType" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary rounded-3 shadow-sm">
+                            <i class="fa-solid fa-@(Model.IsAdding ? "plus" : "pencil") me-2"></i>@(Model.IsAdding ? "Create" : "Modify")
+                        </button>
+                        <button type="button" class="btn btn-danger mx-3 rounded-3 shadow-sm"
+                                onclick="location.assign('/Index')">
+                            <i class="fa-solid fa-ban me-2"></i>Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -58,6 +58,7 @@ public class DnsPool
                 SecondOctet = value;
                 return true;
             default:
+                SecondOctet = null;
                 return false;
         }
     }

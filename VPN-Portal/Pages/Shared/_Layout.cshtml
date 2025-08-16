@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - VPN_Portal</title>
+    <title>@ViewData["Title"] - VPN Portal</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
@@ -11,22 +11,33 @@
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-primary shadow-sm py-3 fancy-nav">
         <div class="container">
-            <a class="navbar-brand" asp-area="" asp-page="/Index">VPN_Portal</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+            <a class="navbar-brand d-flex align-items-center fw-bold" asp-area="" asp-page="/Index">
+                <i class="fa-solid fa-shield-halved me-2 brand-icon"></i>
+                <span>VPN Portal</span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                    </li>
-                </ul>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                @if(User?.Identity?.IsAuthenticated ?? false)
+                {
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                            <li class="nav-item">
+                                <a class="nav-link nav-hover-effect px-3" asp-area="" asp-page="/Index">
+                                    <i class="fa-solid fa-laptop me-1"></i>My Devices
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link nav-hover-effect px-3" asp-area="" asp-page="/Devices/Edit/@string.Empty">
+                                    <i class="fa-solid fa-circle-plus me-1"></i>New Device
+                                </a>
+                            </li>
+                        </ul>
+                }
                 <partial name="_LoginPartial"/>
             </div>
         </div>
@@ -47,6 +58,10 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/sweetalert2.min.js" asp-append-version="true"></script>
+<script src="~/js/chosen.jquery.js" asp-append-version="true"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://kit.fontawesome.com/29bf1169ee.js" crossorigin="anonymous"></script>
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>

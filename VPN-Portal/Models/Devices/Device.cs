@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VPN_Portal.Authentication;
 
@@ -30,7 +31,7 @@ public class Device
     
     [Required]
     [Column(TypeName = "int")]
-    public DeviceType DeviceType { get; set; } = DeviceType.Unknown;
+    public DeviceType DeviceType { get; set; } = DeviceType.Other;
     
     [Required]
     [Column(TypeName = "datetime2")]
@@ -41,14 +42,35 @@ public class Device
     public DateTime LastSeenUtc { get; set; } = DateTime.UtcNow;
     
     [Required]
-    public bool IsRevoked { get; set; }
+    public bool IsRevoked { get; private set; }
+
+    public void RevokeDevice()
+    {
+        IsRevoked = true;
+    }
+
+    public async Task<bool> UnRevokeDevice(UserManager<ApplicationUser>? userManager = null, ApplicationUser? user = null)
+    {
+        var isAdmin = false;
+        if (userManager != null && user != null)
+        {
+            isAdmin = await userManager.IsInRoleAsync(user, SystemRoles.SystemAdmin);
+        }
+        
+        //Can only un-revoke if admin:
+        if(!isAdmin) return false;
+        IsRevoked = false;
+        return true;
+    }
     
     public virtual ICollection<DevicePeer>? Peers { get; set; }
 }
 
 public enum DeviceType
 {
-    Unknown = -1,
     Desktop,
-    Mobile
+    Laptop,
+    Tablet,
+    Mobile,
+    Other
 }

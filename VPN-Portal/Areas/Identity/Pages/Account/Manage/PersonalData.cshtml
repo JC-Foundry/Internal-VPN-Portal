@@ -1,24 +1,82 @@
-﻿@page
+@page
 @model PersonalDataModel
 @{
     ViewData["Title"] = "Personal Data";
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
-
-<div class="row">
-    <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
-        <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
-        </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post">
-            <button class="btn btn-primary" type="submit">Download</button>
-        </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger">Delete</a>
-        </p>
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-user-shield me-2"></i>@ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-4">
+                    <h5 class="mb-3">
+                        <i class="fa-solid fa-info-circle me-2 text-primary"></i>Data Management
+                    </h5>
+                    <p class="text-muted mb-3">
+                        Your account contains personal data that you have given us. This page allows you to download or delete that data.
+                    </p>
+                    <div class="alert alert-warning rounded-3">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                        <strong>Important:</strong> Deleting this data will permanently remove your account, and this cannot be recovered.
+                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <form id="download-data" asp-page="DownloadPersonalData" method="post">
+                            <button class="btn btn-primary btn-lg w-100 rounded-3" type="submit">
+                                <i class="fa-solid fa-download me-2"></i>Download Data
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-sm-6">
+                        <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger btn-lg w-100 rounded-3">
+                            <i class="fa-solid fa-trash me-2"></i>Delete Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-shield-halved me-1 text-primary"></i>Data Privacy
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            <strong>Download:</strong> Get a copy of all your personal data in a portable format.
+                        </p>
+                        <p class="small text-muted mb-2">
+                            <strong>Delete:</strong> Permanently remove your account and all associated data from our systems.
+                        </p>
+                        <p class="small text-muted mb-0">
+                            <i class="fa-solid fa-exclamation-triangle me-1 text-warning"></i>
+                            <strong>Warning:</strong> Account deletion is irreversible!
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card bg-light border-0 mt-3">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-clock me-1 text-primary"></i>Processing Time
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            <strong>Download:</strong> Immediate - file will be generated instantly.
+                        </p>
+                        <p class="small text-muted mb-0">
+                            <strong>Deletion:</strong> Within 24 hours - account will be permanently removed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

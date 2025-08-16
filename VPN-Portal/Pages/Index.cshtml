@@ -1,10 +1,211 @@
-﻿@page
+@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "My Devices";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 fw-bold">
+            <i class="fa-solid fa-network-wired me-2"></i>My VPN Devices
+        </h1>
+        <a asp-page="/Devices/Edit" class="btn btn-primary">
+            <i class="fa-solid fa-plus-circle me-2"></i>Add New Device
+        </a>
+    </div>
+
+    @if (!Model.Devices.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fa-solid fa-laptop-file fa-5x text-muted mb-3"></i>
+            <h3 class="text-muted">No devices configured</h3>
+            <p class="text-muted">Get started by adding your first device to the VPN network.</p>
+            <a asp-page="/Devices/Edit" class="btn btn-primary btn-lg mt-3">
+                <i class="fa-solid fa-plus-circle me-2"></i>Add Your First Device
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var device in Model.Devices)
+            {
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 shadow-sm border-0 device-card">
+                        <div class="card-header bg-gradient-primary text-white py-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="@GetDeviceIcon(device.DeviceType) fa-2x me-3"></i>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0 fw-bold">@device.DeviceName</h5>
+                                    <small class="opacity-75">@device.DeviceType</small>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 mt-3">
+                                <button onclick="location.assign('/Devices/Edit/@(device.DeviceId)')"
+                                   class="btn btn-sm btn-light flex-fill">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i>Edit
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger flex-fill" 
+                                        onclick="confirmRevoke('@device.DeviceId', '@device.DeviceName')">
+                                    <i class="fa-solid fa-ban me-1"></i>Revoke
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">
+                                    <i class="fa-solid fa-calendar-plus me-1"></i>
+                                    Created: @device.CreatedUtc.ToLocalTime().ToString("MMM dd, yyyy")
+                                </small>
+                                <small class="text-muted d-block">
+                                    <i class="fa-solid fa-clock me-1"></i>
+                                    Last Seen: @device.LastSeenUtc.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")
+                                </small>
+                            </div>
+                            
+                            <hr class="my-3">
+                            
+                            <h6 class="fw-bold mb-3">
+                                <i class="fa-solid fa-sitemap me-1"></i>VPN Peers
+                            </h6>
+                            
+                            @if (device.Peers != null && device.Peers.Any())
+                            {
+                                <div class="list-group list-group-flush">
+                                    @foreach (var peer in device.Peers)
+                                    {
+                                        <div class="list-group-item px-0 py-2 border-0">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <div class="fw-semibold small">
+                                                        <i class="fa-solid fa-server me-1 text-primary"></i>
+                                                        @(peer.VpnServer?.Name ?? "Unknown Server")
+                                                    </div>
+                                                    @if (peer.PeerToReservations?.Any(ptr => ptr.IsActive) == true)
+                                                    {
+                                                        var assignedIp = peer.AssignedIp();
+                                                        if (!string.IsNullOrEmpty(assignedIp))
+                                                        {
+                                                            <small class="text-muted">
+                                                                <i class="fa-solid fa-ethernet me-1"></i>@assignedIp
+                                                            </small>
+                                                        }
+                                                    }
+                                                </div>
+                                                <span class="badge bg-success-subtle text-success">Active</span>
+                                            </div>
+                                            <div class="btn-group btn-group-sm w-100" role="group">
+                                                <button type="button" class="btn btn-outline-primary" 
+                                                        onclick="downloadPeerConfig('@peer.PeerId', '@device.DeviceName', '@peer.VpnServer?.Name')">
+                                                    <i class="fa-solid fa-download me-1"></i> Download
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                        onclick="confirmDeletePeer('@peer.PeerId', '@device.DeviceName', '@peer.VpnServer?.Name')">
+                                                    <i class="fa-solid fa-trash me-1"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted small mb-0">
+                                    <i class="fa-solid fa-info-circle me-1"></i>No peers configured
+                                </p>
+                            }
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-3" 
+                                    onclick="">
+                                <i class="fa-solid fa-circle-plus me-1"></i> New Peer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
+
+<!-- Revoke Confirmation Modal -->
+<div class="modal fade" id="revokeModal" tabindex="-1" aria-labelledby="revokeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="revokeModalLabel">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>Confirm Device Revocation
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to revoke the device "<span id="deviceName"></span>"?</p>
+                <p class="text-muted">This action will disconnect the device from the VPN network. The device will need to be reconfigured to reconnect.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-page-handler="Revoke" id="revokeForm">
+                    <input type="hidden" name="deviceId" id="deviceIdInput" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-ban me-1"></i>Revoke Device
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Peer Confirmation Modal -->
+<div class="modal fade" id="deletePeerModal" tabindex="-1" aria-labelledby="deletePeerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="deletePeerModalLabel">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>Confirm Peer Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the peer connection for device "<span id="peerDeviceName"></span>" to server "<span id="peerServerName"></span>"?</p>
+                <p class="text-muted">This will remove the VPN configuration for this specific server connection.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-page-handler="DeletePeer" id="deletePeerForm">
+                    <input type="hidden" name="peerId" id="peerIdInput" />
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fa-solid fa-trash me-1"></i>Delete Peer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmRevoke(deviceId, deviceName) {
+            document.getElementById('deviceIdInput').value = deviceId;
+            document.getElementById('deviceName').textContent = deviceName;
+            new bootstrap.Modal(document.getElementById('revokeModal')).show();
+        }
+        
+        function confirmDeletePeer(peerId, deviceName, serverName) {
+            document.getElementById('peerIdInput').value = peerId;
+            document.getElementById('peerDeviceName').textContent = deviceName;
+            document.getElementById('peerServerName').textContent = serverName || 'Unknown';
+            new bootstrap.Modal(document.getElementById('deletePeerModal')).show();
+        }
+    </script>
+}
+
+@functions {
+    private string GetDeviceIcon(VPN_Portal.Models.Devices.DeviceType deviceType)
+    {
+        return deviceType switch
+        {
+            VPN_Portal.Models.Devices.DeviceType.Desktop => "fa-solid fa-desktop",
+            VPN_Portal.Models.Devices.DeviceType.Tablet => "fa-solid fa-tablet-screen-button",
+            VPN_Portal.Models.Devices.DeviceType.Mobile => "fa-solid fa-mobile-screen",
+            _ => "fa-solid fa-laptop"
+        };
+    }
+}

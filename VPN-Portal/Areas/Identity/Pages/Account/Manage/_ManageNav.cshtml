@@ -1,15 +1,40 @@
-@inject SignInManager<IdentityUser> SignInManager
+@inject SignInManager<ApplicationUser> SignInManager
+@using VPN_Portal.Authentication
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
-<ul class="nav nav-pills flex-column">
-    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
+<div class="list-group list-group-flush">
+    <a class="list-group-item list-group-item-action d-flex align-items-center @(ManageNavPages.IndexNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+       id="profile" asp-page="./Index">
+        <i class="fa-solid fa-user me-3 @(ManageNavPages.IndexNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+        <span>Profile</span>
+    </a>
+    <a class="list-group-item list-group-item-action d-flex align-items-center @(ManageNavPages.EmailNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+       id="email" asp-page="./Email">
+        <i class="fa-solid fa-envelope me-3 @(ManageNavPages.EmailNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+        <span>Email</span>
+    </a>
+    <a class="list-group-item list-group-item-action d-flex align-items-center @(ManageNavPages.ChangePasswordNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+       id="change-password" asp-page="./ChangePassword">
+        <i class="fa-solid fa-key me-3 @(ManageNavPages.ChangePasswordNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+        <span>Password</span>
+    </a>
     @if (hasExternalLogins)
     {
-        <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li>
+        <a class="list-group-item list-group-item-action d-flex align-items-center @(ManageNavPages.ExternalLoginsNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+           id="external-login" asp-page="./ExternalLogins">
+            <i class="fa-solid fa-link me-3 @(ManageNavPages.ExternalLoginsNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+            <span>External logins</span>
+        </a>
     }
-    <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
-</ul>
+    <a class="list-group-item list-group-item-action d-flex align-items-center @(ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+       id="two-factor" asp-page="./TwoFactorAuthentication">
+        <i class="fa-solid fa-shield-halved me-3 @(ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+        <span>Two-factor authentication</span>
+    </a>
+    <a class="list-group-item list-group-item-action d-flex align-items-center @(ManageNavPages.PersonalDataNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+       id="personal-data" asp-page="./PersonalData">
+        <i class="fa-solid fa-database me-3 @(ManageNavPages.PersonalDataNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+        <span>Personal data</span>
+    </a>
+</div>

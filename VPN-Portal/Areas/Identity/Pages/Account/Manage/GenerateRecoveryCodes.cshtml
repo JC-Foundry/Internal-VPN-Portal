@@ -1,27 +1,84 @@
-﻿@page
+@page
 @model GenerateRecoveryCodesModel
 @{
-    ViewData["Title"] = "Generate two-factor authentication (2FA) recovery codes";
+    ViewData["Title"] = "Generate Recovery Codes";
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
-<partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
-<div class="alert alert-warning" role="alert">
-    <p>
-        <span class="glyphicon glyphicon-warning-sign"></span>
-        <strong>Put these codes in a safe place.</strong>
-    </p>
-    <p>
-        If you lose your device and don't have the recovery codes you will lose access to your account.
-    </p>
-    <p>
-        Generating new recovery codes does not change the keys used in authenticator apps. If you wish to change the key
-        used in an authenticator app you should <a asp-page="./ResetAuthenticator">reset your authenticator keys.</a>
-    </p>
-</div>
-<div>
-    <form method="post">
-        <button class="btn btn-danger" type="submit">Generate Recovery Codes</button>
-    </form>
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-key me-2"></i>@ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <partial name="_StatusMessage" for="StatusMessage" />
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="alert alert-warning rounded-3">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    <strong>Important Security Information</strong>
+                    <p class="mb-1 mt-2">
+                        <strong>Put these codes in a safe place.</strong> If you lose your device and don't have the recovery codes you will lose access to your account.
+                    </p>
+                    <p class="mb-0">
+                        Generating new recovery codes does not change the keys used in authenticator apps. If you wish to change the key
+                        used in an authenticator app you should <a asp-page="./ResetAuthenticator" class="fw-bold">reset your authenticator keys</a>.
+                    </p>
+                </div>
+
+                <form method="post">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg rounded-3" type="submit">
+                            <i class="fa-solid fa-arrows-rotate me-2"></i>Generate New Recovery Codes
+                        </button>
+                        <a asp-page="./TwoFactorAuthentication" class="btn btn-outline-secondary btn-lg rounded-3">
+                            <i class="fa-solid fa-arrow-left me-2"></i>Back to 2FA Settings
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-info-circle me-1 text-primary"></i>About Recovery Codes
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            Recovery codes are backup codes that allow you to access your account if you lose your authenticator device.
+                        </p>
+                        <p class="small text-muted mb-2">
+                            <strong>Best Practices:</strong>
+                        </p>
+                        <ul class="small text-muted mb-2">
+                            <li>Store codes in a secure location</li>
+                            <li>Don't share codes with anyone</li>
+                            <li>Generate new codes periodically</li>
+                        </ul>
+                        <p class="small text-muted mb-0">
+                            <strong>Note:</strong> Each code can only be used once.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card bg-light border-0 mt-3">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa-solid fa-shield-check me-1 text-success"></i>What Happens Next?
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            After generating new codes:
+                        </p>
+                        <ul class="small text-muted mb-0">
+                            <li>Your old recovery codes will be invalidated</li>
+                            <li>New codes will be displayed for download</li>
+                            <li>Your authenticator app will continue to work normally</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
