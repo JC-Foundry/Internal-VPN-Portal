@@ -68,9 +68,15 @@ public class IpAddressHelper
         return $"{ip.GetAddressBytes()[0]}.{ip.GetAddressBytes()[1]}.{ip.GetAddressBytes()[2]}.{ip.GetAddressBytes()[3]}";
     }
 
-    public IPAddress? ParseIpAddress(string address)
+    public static IPAddress? ParseIpAddress(string address)
     {
         var res = IPAddress.TryParse(address, out var ip);
         return res ? ip?.MapToIPv4() : IPAddress.None;
+    }
+
+    public static string? EnsureIpv4(string address)
+    {
+        var ip = ParseIpAddress(address);
+        return ip == null ? null : ParseIpAddress(ip);
     }
 }

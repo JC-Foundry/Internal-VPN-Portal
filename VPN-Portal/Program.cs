@@ -6,6 +6,8 @@ using VPN_Portal.Authentication.UserClaims;
 using VPN_Portal.Data;
 using VPN_Portal.Middleware;
 using VPN_Portal.Services;
+using VPN_Portal.Services.Config;
+using VPN_Portal.Services.DNS;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,11 @@ builder.Services.AddScoped<DeviceService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<VpnManagementService>();
 builder.Services.AddScoped<DnsManagementService>();
+builder.Services.AddScoped<ReservationService>();
+builder.Services.AddScoped<VpnService>();
+builder.Services.AddScoped<VpnConfigService>();
+builder.Services.AddTransient<KeyGenerationService>();
+builder.Services.AddScoped<PeerService>();
 
 builder.Services.AddRazorPages();
 

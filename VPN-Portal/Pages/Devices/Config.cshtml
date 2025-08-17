@@ -1,0 +1,154 @@
+@page "{peerId}"
+@model VPN_Portal.Pages.Devices.ConfigModel
+@{
+    ViewData["Title"] = "Download Configuration";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header Card -->
+            <div class="card border-0 shadow-lg mb-4">
+                <div class="card-header bg-gradient-primary text-white py-4">
+                    <div class="text-center">
+                        <i class="fa-solid fa-download fa-3x mb-3"></i>
+                        <h2 class="mb-0 fw-bold">VPN Configuration Ready</h2>
+                        <p class="mb-0 mt-2 opacity-90">Choose how you'd like to access your configuration</p>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-success rounded-3 mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-check-circle fa-2x me-3"></i>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Configuration Successfully Generated!</h6>
+                                <small>Your VPN peer has been provisioned and is ready to use.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Device Info -->
+                    @if (Model.Peer != null)
+                    {
+                        <div class="bg-light rounded-3 p-3 mb-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Device</small>
+                                    <span class="fw-semibold">
+                                        <i class="fa-solid fa-laptop text-primary me-1"></i>
+                                        @Model.Peer.Device?.DeviceName
+                                    </span>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">VPN Server</small>
+                                    <span class="fw-semibold">
+                                        <i class="fa-solid fa-server text-primary me-1"></i>
+                                        @Model.Peer.VpnServer?.Name
+                                    </span>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Assigned IP</small>
+                                    <span class="fw-semibold font-monospace">
+                                        <i class="fa-solid fa-ethernet text-primary me-1"></i>
+                                        @Model.Peer.AssignedIp()
+                                    </span>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Created</small>
+                                    <span class="fw-semibold">
+                                        <i class="fa-solid fa-clock text-primary me-1"></i>
+                                        @Model.Peer.CreatedUtc.ToLocalTime().ToString("g")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Download Options -->
+            <div class="row g-4">
+                <!-- Download File Option -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100 hover-card">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fa-solid fa-file-download fa-2x text-primary"></i>
+                                </div>
+                            </div>
+                            <h4 class="fw-bold mb-3">Download Config File</h4>
+                            <p class="text-muted mb-4">
+                                Download a <code>.conf</code> file to import into your WireGuard client.
+                                Perfect for desktop installations.
+                            </p>
+                            <form method="post" asp-page-handler="DownloadFile">
+                                <input type="hidden" name="peerId" value="@Model.PeerId" />
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fa-solid fa-download me-2"></i>Download .conf File
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code Option -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100 hover-card">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <i class="fa-solid fa-qrcode fa-2x text-success"></i>
+                                </div>
+                            </div>
+                            <h4 class="fw-bold mb-3">Show QR Code</h4>
+                            <p class="text-muted mb-4">
+                                Display a QR code to scan with the WireGuard mobile app.
+                                Ideal for quick mobile setup.
+                            </p>
+                            <form method="post" asp-page-handler="ShowQRCode">
+                                <input type="hidden" name="peerId" value="@Model.PeerId" />
+                                <button type="submit" class="btn btn-success btn-lg w-100">
+                                    <i class="fa-solid fa-qrcode me-2"></i>Show QR Code
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fa-solid fa-question-circle text-primary me-2"></i>What's Next?
+                    </h5>
+                    <ol class="mb-0">
+                        <li class="mb-2">Download your configuration using one of the options above</li>
+                        <li class="mb-2">Open the WireGuard application on your device</li>
+                        <li class="mb-2">Import the configuration file or scan the QR code</li>
+                        <li class="mb-2">Activate the VPN connection</li>
+                    </ol>
+                    <div class="mt-3">
+                        <a asp-page="/WireGuardGuide" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-book me-2"></i>View Setup Guide
+                        </a>
+                        <a asp-page="/Index" class="btn btn-outline-secondary ms-2">
+                            <i class="fa-solid fa-home me-2"></i>Back to Devices
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+</style>

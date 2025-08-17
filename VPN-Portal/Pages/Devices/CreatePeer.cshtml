@@ -1,0 +1,77 @@
+@page "{deviceId}"
+@model VPN_Portal.Pages.Devices.CreatePeerModel
+@{
+    ViewData["Title"] = "Select VPN Server";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-server me-2"></i> Select VPN Server for @Model.Device.DeviceName
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info rounded-3 mb-4">
+                        <i class="fa-solid fa-info-circle me-2"></i>
+                        Select a VPN server to create a new peer connection for your device.
+                    </div>
+
+                    <ejs-grid id="vpnServersGrid" dataSource="@Model.VpnServersData" allowPaging="true" allowSorting="true" allowFiltering="true">
+                        <e-grid-pagesettings pageSize="20"></e-grid-pagesettings>
+                        <e-grid-filtersettings type="Excel"></e-grid-filtersettings>
+                        <e-grid-columns>
+                            <e-grid-column field="Name" headerText="Server Name" template="#serverNameTemplate"></e-grid-column>
+                            <e-grid-column field="EndpointHost" headerText="Endpoint" width="180"></e-grid-column>
+                            <e-grid-column field="DnsPoolRange" headerText="DNS Pool Range" template="#dnsPoolTemplate"></e-grid-column>
+                            <e-grid-column field="Usage" headerText="Usage" width="120" template="#usageTemplate"></e-grid-column>
+                            <e-grid-column headerText="Action" width="100" textAlign="Center" template="#actionTemplate"></e-grid-column>
+                        </e-grid-columns>
+                    </ejs-grid>
+
+                    <div class="mt-4">
+                        <a asp-page="/Index" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Back to Devices
+                        </a>
+                    </div>
+                    
+                    @* Hidden form for server selection *@
+                    <form method="post" id="serverSelectForm" hidden="@true">
+                        <input type="hidden" name="vpnServerId" id="vpnServerIdInput" value=""/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="serverNameTemplate" type="text/x-template">
+    <div class="d-flex align-items-center">
+        <i class="fa-solid fa-server text-primary me-2"></i>
+        <span class="fw-semibold">${Name}</span>
+    </div>
+</script>
+
+<script id="dnsPoolTemplate" type="text/x-template">
+    <code>${DnsPoolRange}</code>
+</script>
+
+<script id="usageTemplate" type="text/x-template">
+    <span class="badge bg-info bg-opacity-10 text-info">${UsageText}</span>
+</script>
+
+<script id="actionTemplate" type="text/x-template">
+    <button type="button" class="btn btn-primary btn-sm" onclick="@("selectVpnServer('${VpnServerId}')")">
+        <i class="fa-solid fa-check me-1"></i> Select
+    </button>
+</script>
+
+<script>
+    function selectVpnServer(vpnServerId) {
+        document.getElementById('vpnServerIdInput').value = vpnServerId;
+        document.getElementById('serverSelectForm').submit();
+    }
+</script>
+

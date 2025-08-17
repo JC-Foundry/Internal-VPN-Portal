@@ -15,10 +15,13 @@ public class VpnManagementService
         _context = context;
     }
 
-    public async Task<List<VpnServer>> GetVpnServers(bool asNoTracking = true)
+    public async Task<List<VpnServer>> GetVpnServers(bool asNoTracking = true, bool includePool = true, bool includeReservations = true, bool includePeers = false)
     {
-        var query = _context.VpnServers.Include(v => v.DnsPool)
-            .Where(v => v.IsEnabled);
+        var query = _context.VpnServers.Where(v => v.IsEnabled);
+        if(includePool && !includeReservations) query = query.Include(v => v.DnsPool);
+        if (includePool && includeReservations) query = query.Include(v => v.DnsPool).ThenInclude(p => p!.Reservations);
+        if(includePeers) query = query.Include(v => v.Peers);
+        
         if (asNoTracking) query = query.AsNoTracking();
         return await query.ToListAsync();
     }

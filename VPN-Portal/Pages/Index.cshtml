@@ -5,6 +5,22 @@
 }
 
 <div class="container-fluid py-4">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h2 fw-bold">
             <i class="fa-solid fa-network-wired me-2"></i>My VPN Devices
@@ -42,10 +58,10 @@
                             </div>
                             <div class="d-flex gap-2 mt-3">
                                 <button onclick="location.assign('/Devices/Edit/@(device.DeviceId)')"
-                                   class="btn btn-sm btn-light flex-fill">
+                                        class="btn btn-sm btn-light flex-fill">
                                     <i class="fa-solid fa-pen-to-square me-1"></i>Edit
                                 </button>
-                                <button type="button" class="btn btn-sm btn-danger flex-fill" 
+                                <button type="button" class="btn btn-sm btn-danger flex-fill"
                                         onclick="confirmRevoke('@device.DeviceId', '@device.DeviceName')">
                                     <i class="fa-solid fa-ban me-1"></i>Revoke
                                 </button>
@@ -62,13 +78,13 @@
                                     Last Seen: @device.LastSeenUtc.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")
                                 </small>
                             </div>
-                            
+
                             <hr class="my-3">
-                            
+
                             <h6 class="fw-bold mb-3">
                                 <i class="fa-solid fa-sitemap me-1"></i>VPN Peers
                             </h6>
-                            
+
                             @if (device.Peers != null && device.Peers.Any())
                             {
                                 <div class="list-group list-group-flush">
@@ -95,11 +111,11 @@
                                                 <span class="badge bg-success-subtle text-success">Active</span>
                                             </div>
                                             <div class="btn-group btn-group-sm w-100" role="group">
-                                                <button type="button" class="btn btn-outline-primary" 
-                                                        onclick="downloadPeerConfig('@peer.PeerId', '@device.DeviceName', '@peer.VpnServer?.Name')">
+                                                <button type="button" class="btn btn-outline-primary"
+                                                        onclick="location.assign('/Devices/Config/@(peer.PeerId)')">
                                                     <i class="fa-solid fa-download me-1"></i> Download
                                                 </button>
-                                                <button type="button" class="btn btn-outline-danger" 
+                                                <button type="button" class="btn btn-outline-danger"
                                                         onclick="confirmDeletePeer('@peer.PeerId', '@device.DeviceName', '@peer.VpnServer?.Name')">
                                                     <i class="fa-solid fa-trash me-1"></i> Delete
                                                 </button>
@@ -114,8 +130,8 @@
                                     <i class="fa-solid fa-info-circle me-1"></i>No peers configured
                                 </p>
                             }
-                            <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-3" 
-                                    onclick="">
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-3"
+                                    onclick="location.assign('/Devices/CreatePeer/@(device.DeviceId)')">
                                 <i class="fa-solid fa-circle-plus me-1"></i> New Peer
                             </button>
                         </div>

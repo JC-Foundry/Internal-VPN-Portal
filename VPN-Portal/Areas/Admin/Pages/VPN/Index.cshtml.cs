@@ -21,7 +21,7 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        VpnServers = await _vpnManagementService.GetVpnServers();
+        VpnServers = await _vpnManagementService.GetVpnServers(includeReservations: false);
         return Page();
     }
 

@@ -11,12 +11,15 @@ public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> _logger;
     private readonly DeviceService _deviceService;
+    private readonly PeerService _peerService;
 
     public IndexModel(ILogger<IndexModel> logger,
-        DeviceService deviceService)
+        DeviceService deviceService,
+        PeerService peerService)
     {
         _logger = logger;
         _deviceService = deviceService;
+        _peerService = peerService;
     }
 
     public List<Device> Devices { get; set; } = new();
@@ -31,19 +34,19 @@ public class IndexModel : PageModel
     {
         if (string.IsNullOrEmpty(deviceId))
         {
-            TempData["Error"] = "Invalid device ID.";
+            TempData["ErrorMessage"] = "Invalid device ID.";
             return RedirectToPage();
         }
         
         var success = await _deviceService.RevokeDevice(deviceId);
         if (success)
         {
-            TempData["Success"] = "Device revoked successfully.";
+            TempData["SuccessMessage"] = "Device revoked successfully.";
             _logger.LogInformation("Device {DeviceId} revoked successfully", deviceId);
         }
         else
         {
-            TempData["Error"] = "Failed to revoke device. Please try again.";
+            TempData["ErrorMessage"] = "Failed to revoke device. Please try again.";
             _logger.LogWarning("Failed to revoke device {DeviceId}", deviceId);
         }
         
@@ -54,13 +57,20 @@ public class IndexModel : PageModel
     {
         if (string.IsNullOrEmpty(peerId))
         {
-            TempData["Error"] = "Invalid peer ID.";
+            TempData["ErrorMessage"] = "Invalid peer ID.";
             return RedirectToPage();
         }
         
-        // TODO: Implement peer deletion in DeviceService
-        TempData["Info"] = "Peer deletion functionality will be implemented soon.";
-        _logger.LogInformation("Attempted to delete peer {PeerId}", peerId);
+        var res = await _peerService.TryDeletePeer(peerId);
+        if (res)
+        {
+            TempData["SuccessMessage"] = "Peer deleted successfully.";
+            _logger.LogInformation("Peer {PeerId} deleted successfully", peerId);
+            return RedirectToPage();
+        }
+        
+        TempData["ErrorMessage"] = "Failed to delete peer. Please try again.";
+        _logger.LogWarning("Failed to delete peer {PeerId}", peerId);
         
         return RedirectToPage();
     }
@@ -69,12 +79,12 @@ public class IndexModel : PageModel
     {
         if (string.IsNullOrEmpty(peerId))
         {
-            TempData["Error"] = "Invalid peer ID.";
+            TempData["ErrorMessage"] = "Invalid peer ID.";
             return RedirectToPage();
         }
         
         // TODO: Implement config generation and download
-        TempData["Info"] = "Configuration download functionality will be implemented soon.";
+        TempData["SuccessMessage"] = "Configuration download functionality will be implemented soon.";
         _logger.LogInformation("Attempted to download config for peer {PeerId}", peerId);
         
         // For now, redirect back to the page

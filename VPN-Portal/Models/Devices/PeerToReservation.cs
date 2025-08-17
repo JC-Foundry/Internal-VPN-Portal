@@ -16,14 +16,14 @@ public class PeerToReservation
     public string PeerId { get; set; }
     
     [ForeignKey(nameof(PeerId))]
-    public virtual DevicePeer? Peer { get; set; }
+    public virtual DevicePeer Peer { get; set; }
     
     [Required]
     [MaxLength(50)]
     public string ReservationId { get; set; }
     
     [ForeignKey(nameof(ReservationId))]
-    public virtual DnsReservation? DnsReservation { get; set; }
+    public virtual DnsReservation DnsReservation { get; set; }
 
     [NotMapped]
     public bool IsActive => DnsReservation?.ReleasedUtc == null;

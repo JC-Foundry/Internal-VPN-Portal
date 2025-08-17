@@ -24,6 +24,8 @@ public class DevicePeer
     public string VpnServerId { get; set; } 
     [ForeignKey(nameof(VpnServerId))]
     public virtual VpnServer? VpnServer { get; set; }
+    
+    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     public string? AssignedIp()
     {
@@ -44,8 +46,8 @@ public class DevicePeer
         if (activeReservation.DnsReservation.DnsPool.Family != NetworkFamily.Net192)
             ip += $"{activeReservation.DnsReservation.DnsPool.SecondOctet}.";
 
-        return $"{ip}{activeReservation.DnsReservation.DnsPool.Subnet}.{activeReservation.DnsReservation.HostOctet}";
+        return $"{ip}.{activeReservation.DnsReservation.DnsPool.Subnet}.{activeReservation.DnsReservation.HostOctet}";
     }
     
-    public virtual ICollection<PeerToReservation>? PeerToReservations { get; set; }
+    public virtual ICollection<PeerToReservation> PeerToReservations { get; set; }
 }

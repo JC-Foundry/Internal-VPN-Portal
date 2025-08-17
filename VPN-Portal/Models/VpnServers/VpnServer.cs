@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using VPN_Portal.Models.Devices;
 
 namespace VPN_Portal.Models.VpnServers;
 
@@ -49,4 +50,6 @@ public class VpnServer
     public string ServerAddress { get; set; }
     
     public bool IsEnabled { get; set; } = true;
+    
+    public virtual ICollection<DevicePeer>? Peers { get; set; }
 }

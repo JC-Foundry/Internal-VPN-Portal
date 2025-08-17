@@ -43,5 +43,5 @@ public class DnsReservation
     public DateTime? ReleasedUtc { get; set; }
     public bool IsActive => ReleasedUtc == null;
     
-    public virtual ICollection<PeerToReservation>? PeerToReservations { get; set; }
+    public virtual ICollection<PeerToReservation> PeerToReservations { get; set; }
 }
