@@ -18,7 +18,7 @@ public class VpnServer
     public string DnsPoolId { get; set; }
     
     [ForeignKey(nameof(DnsPoolId))]
-    public virtual DnsPool DnsPool { get; set; }
+    public virtual DnsPool? DnsPool { get; set; }
     
     [Required]
     [MaxLength(100)]
@@ -39,11 +39,14 @@ public class VpnServer
     [Required]
     [MaxLength(50)]
     [Column(TypeName = "varchar(50)")]
+    //This is the subnet used by the VPN Server, e.g., 192.168.50.0/24
     public string AddressCidr { get; set; }
     
     [Required]
     [MaxLength(50)]
     [Column(TypeName = "varchar(50)")]
+    //Gateway address of vpn server, e.g, 192.168.50.1/24
     public string ServerAddress { get; set; }
     
+    public bool IsEnabled { get; set; } = true;
 }

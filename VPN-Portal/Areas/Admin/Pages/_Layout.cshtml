@@ -1,0 +1,39 @@
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-4">
+                <i class="fa-solid fa-shield-halved fa-2x text-primary me-3"></i>
+                <div>
+                    <h1 class="h2 mb-0 fw-bold">Admin Portal</h1>
+                    <p class="text-muted mb-0">System administration and configuration</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 1rem;">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-tools me-2"></i>Admin Menu
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <partial name="_AdminNav" />
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 col-md-8">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

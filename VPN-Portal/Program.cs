@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VPN_Portal.Areas.Admin.Services;
 using VPN_Portal.Authentication;
 using VPN_Portal.Authentication.UserClaims;
 using VPN_Portal.Data;
@@ -36,8 +37,15 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 //Services:
 builder.Services.AddScoped<DeviceService>();
+builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<VpnManagementService>();
+builder.Services.AddScoped<DnsManagementService>();
 
 builder.Services.AddRazorPages();
+
+// Add Syncfusion services
+var syncfusionLicenseKey = builder.Configuration.GetSection("SYNCFUSION-KEY").Value;
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncfusionLicenseKey);;
 
 var app = builder.Build();
 

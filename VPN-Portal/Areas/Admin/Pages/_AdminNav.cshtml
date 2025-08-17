@@ -1,0 +1,92 @@
+@using VPN_Portal.Areas.Admin.Pages
+
+<div class="accordion accordion-flush" id="adminNavAccordion">
+    <!-- Users Section -->
+    <div class="accordion-item border-0">
+        <h2 class="accordion-header">
+            <button class="accordion-button px-3 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#usersSection" aria-expanded="true">
+                <i class="fa-solid fa-users me-2 text-primary"></i>
+                <span class="fw-semibold">Users</span>
+            </button>
+        </h2>
+        <div id="usersSection" class="accordion-collapse collapse show">
+            <div class="accordion-body p-0">
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.UsersIndexNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+                       asp-area="Admin" asp-page="/Users/Index">
+                        <i class="fa-solid fa-dashboard me-2 @(AdminNavPages.UsersIndexNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        Overview
+                    </a>
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.UsersManageNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+                       asp-area="Admin" asp-page="/Users/Manage">
+                        <i class="fa-solid fa-user-gear me-2 @(AdminNavPages.UsersManageNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        Manage Users
+                    </a>
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.UsersCreateNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+                       asp-area="Admin" asp-page="/Users/Create">
+                        <i class="fa-solid fa-user-plus me-2 @(AdminNavPages.UsersCreateNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        Create User
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- VPN Section -->
+    <div class="accordion-item border-0">
+        <h2 class="accordion-header">
+            <button class="accordion-button px-3 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#vpnSection" aria-expanded="true">
+                <i class="fa-solid fa-network-wired me-2 text-primary"></i>
+                <span class="fw-semibold">VPN</span>
+            </button>
+        </h2>
+        <div id="vpnSection" class="accordion-collapse collapse show">
+            <div class="accordion-body p-0">
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.VpnIndexNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+                       asp-area="Admin" asp-page="/VPN/Index">
+                        <i class="fa-solid fa-dashboard me-2 @(AdminNavPages.VpnIndexNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        Overview
+                    </a>
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.VpnServersNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+                       asp-area="Admin" asp-page="/VPN/Edit">
+                        <i class="fa-solid fa-plus me-2 @(AdminNavPages.VpnServersNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        Create VPN Server
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- DNS Section -->
+    <div class="accordion-item border-0">
+        <h2 class="accordion-header">
+            <button class="accordion-button px-3 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#dnsSection" aria-expanded="true">
+                <i class="fa-solid fa-globe me-2 text-primary"></i>
+                <span class="fw-semibold">DNS</span>
+            </button>
+        </h2>
+        <div id="dnsSection" class="accordion-collapse collapse show">
+            <div class="accordion-body p-0">
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.DnsIndexNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+                       asp-area="Admin" asp-page="/DNS/Index">
+                        <i class="fa-solid fa-dashboard me-2 @(AdminNavPages.DnsIndexNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        Overview
+                    </a>
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.DnsPoolsNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+                       asp-area="Admin" asp-page="/DNS/Pools">
+                        <i class="fa-solid fa-layer-group me-2 @(AdminNavPages.DnsPoolsNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        DNS Pools
+                    </a>
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.DnsAddPoolNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")" 
+                       asp-area="Admin" asp-page="/DNS/Edit">
+                        <i class="fa-solid fa-plus me-2 @(AdminNavPages.DnsAddPoolNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        Create DNS Pool
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

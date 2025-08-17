@@ -11,7 +11,7 @@ public class UserClaimsPrincipalFactory : UserClaimsPrincipalFactory<Application
         var defaultClaims = await base.GenerateClaimsAsync(user);
         
         defaultClaims.AddClaim((new Claim(UserClaims.DisplayNameClaim, user.DisplayName ?? "")));
-        defaultClaims.AddClaim((new Claim(UserClaims.LastLoginClaim, user.LastLogin.ToString("G"))));
+        defaultClaims.AddClaim((new Claim(UserClaims.LastLoginClaim, user.LastLogin?.ToString("G") ?? string.Empty)));
         defaultClaims.AddClaim((new Claim(UserClaims.MaxDeviceCountClaim, user.MaxDevices.ToString() ?? "UNLIMITED")));
 
         return defaultClaims;

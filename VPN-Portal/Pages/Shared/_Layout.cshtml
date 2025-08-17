@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/VPN_Portal.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/ej2.min.css" />
+    <script src="~/js/ej2.min.js"></script>
 </head>
 <body>
 <header>
@@ -28,12 +30,17 @@
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                             <li class="nav-item">
                                 <a class="nav-link nav-hover-effect px-3" asp-area="" asp-page="/Index">
-                                    <i class="fa-solid fa-laptop me-1"></i>My Devices
+                                    <i class="fa-solid fa-laptop me-1"></i> My Devices
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link nav-hover-effect px-3" asp-area="" asp-page="/Devices/Edit/@string.Empty">
-                                    <i class="fa-solid fa-circle-plus me-1"></i>New Device
+                                <a class="nav-link nav-hover-effect px-3" asp-area="" asp-page="/Devices/Edit">
+                                    <i class="fa-solid fa-circle-plus me-1"></i> New Device
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link nav-hover-effect px-3" asp-area="" asp-page="/WireGuardGuide">
+                                    <i class="fa-solid fa-book me-1"></i> Setup Guide
                                 </a>
                             </li>
                         </ul>
@@ -46,6 +53,7 @@
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
+        <ejs-scripts></ejs-scripts>
     </main>
 </div>
 

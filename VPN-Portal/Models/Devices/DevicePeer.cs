@@ -48,5 +48,4 @@ public class DevicePeer
     }
     
     public virtual ICollection<PeerToReservation>? PeerToReservations { get; set; }
-    public virtual ICollection<AllowedIp>? AllowedIps { get; set; }
 }

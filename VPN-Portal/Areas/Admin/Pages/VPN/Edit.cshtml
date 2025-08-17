@@ -1,0 +1,128 @@
+@page "{id?}"
+@model VPN_Portal.Areas.Admin.Pages.VPN.EditModel
+
+@{
+    ViewData["Title"] = Model.IsAdding ? "Create VPN Server" : "Edit VPN Server";
+    ViewData["ActivePage"] = AdminNavPages.VpnServers;
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-gradient-primary text-white text-center py-4 rounded-top-4">
+                    <h2 class="mb-1 fw-bold">
+                        <i class="fa-solid fa-@(Model.IsAdding ? "plus" : "edit") me-2"></i>@ViewData["Title"]
+                    </h2>
+                    <p class="mb-0 opacity-75">@(Model.IsAdding ? "Add a new VPN server configuration" : "Modify VPN server configuration")</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-3 text-primary">
+                                    <i class="fa-solid fa-info-circle me-2"></i>Server Information
+                                </h5>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.Name" class="form-control rounded-3" placeholder="Server Name" />
+                                    <label asp-for="Input.Name" class="text-muted">
+                                        <i class="fa-solid fa-server me-1"></i>Server Name
+                                    </label>
+                                    <span asp-validation-for="Input.Name" class="text-danger small"></span>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.EndpointHost" class="form-control rounded-3" placeholder="vpn.example.com" />
+                                    <label asp-for="Input.EndpointHost" class="text-muted">
+                                        <i class="fa-solid fa-globe me-1"></i>Endpoint Host
+                                    </label>
+                                    <span asp-validation-for="Input.EndpointHost" class="text-danger small"></span>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.EndpointPort" class="form-control rounded-3" placeholder="51820" />
+                                    <label asp-for="Input.EndpointPort" class="text-muted">
+                                        <i class="fa-solid fa-ethernet me-1"></i>Endpoint Port
+                                    </label>
+                                    <span asp-validation-for="Input.EndpointPort" class="text-danger small"></span>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <textarea asp-for="Input.PublicKey" class="form-control rounded-3" placeholder="Public Key" style="height: 100px"></textarea>
+                                    <label asp-for="Input.PublicKey" class="text-muted">
+                                        <i class="fa-solid fa-key me-1"></i>Public Key
+                                    </label>
+                                    <span asp-validation-for="Input.PublicKey" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5 class="mb-3 text-primary">
+                                    <i class="fa-solid fa-network-wired me-2"></i>Network Configuration
+                                </h5>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.AddressCidr" class="form-control rounded-3" placeholder="192.168.50.0/24" />
+                                    <label asp-for="Input.AddressCidr" class="text-muted">
+                                        <i class="fa-solid fa-sitemap me-1"></i>Address CIDR
+                                    </label>
+                                    <span asp-validation-for="Input.AddressCidr" class="text-danger small"></span>
+                                    <small class="text-muted">Example: 192.168.50.0/24</small>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.ServerAddress" class="form-control rounded-3" placeholder="192.168.50.1/24" />
+                                    <label asp-for="Input.ServerAddress" class="text-muted">
+                                        <i class="fa-solid fa-location-dot me-1"></i>Server Gateway Address
+                                    </label>
+                                    <span asp-validation-for="Input.ServerAddress" class="text-danger small"></span>
+                                    <small class="text-muted">Example: 192.168.50.1/24</small>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <select asp-for="Input.DnsPoolId" class="form-select rounded-3" asp-items="Model.DnsPools">
+                                        <option value="">-- Select DNS Pool --</option>
+                                    </select>
+                                    <label asp-for="Input.DnsPoolId" class="text-muted">
+                                        <i class="fa-solid fa-layer-group me-1"></i>DNS Pool
+                                    </label>
+                                    <span asp-validation-for="Input.DnsPoolId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info rounded-3 mb-4">
+                            <i class="fa-solid fa-info-circle me-2"></i>
+                            <small>
+                                Ensure all network configurations are correct. Changes to server settings may affect connected clients.
+                            </small>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm">
+                                <i class="fa-solid fa-@(Model.IsAdding ? "plus" : "save") me-2"></i>@(Model.IsAdding ? "Create Server" : "Save Changes")
+                            </button>
+                            <a asp-area="Admin" asp-page="/VPN/Index" class="btn btn-outline-secondary btn-lg rounded-3">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Back to VPN Servers
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3 rounded-bottom-4">
+                    <small class="text-muted">
+                        <i class="fa-solid fa-shield-halved me-1"></i>Admin Portal - VPN Management
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

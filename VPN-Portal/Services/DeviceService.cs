@@ -30,6 +30,20 @@ public class DeviceService
         return await query.OrderBy(d => d.DeviceName).ToListAsync();
     }
     
+    public async Task<List<Device>> GetDevicesForUser(string userId, bool includeRevoked = false, bool asNoTracking = true)
+    {
+        var query = _context.Devices
+            .Include(d => d.Peers)!
+            .ThenInclude(p => p.VpnServer)
+            .Where(d => d.UserId == userId);
+        
+        if (!includeRevoked)
+            query = query.Where(d => !d.IsRevoked);
+        
+        if (asNoTracking) query = query.AsNoTracking();
+        return await query.OrderBy(d => d.DeviceName).ToListAsync();
+    }
+    
     public async Task<Device?> GetDevice(string deviceId, bool asNoTracking = true)
     {
         IQueryable<Device> query = _context.Devices;
@@ -40,7 +54,7 @@ public class DeviceService
     }
 
     
-    private async Task ValidateDevice(Device device, ModelStateDictionary modelState)
+    private async Task ValidateDevice(bool adding, Device device, ModelStateDictionary modelState)
     {
         var existingDevice = await _context.Devices.FirstOrDefaultAsync(d => d.UserId == device.UserId 
                                                                              && d.DeviceName == device.DeviceName
@@ -49,11 +63,21 @@ public class DeviceService
         {
             modelState.AddModelError($"Input.{nameof(device.DeviceName)}", "A device with this name already exists.");
         }
+
+        if (adding)
+        {
+            var userDeviceCount = await _context.Devices.CountAsync(d => d.UserId == device.UserId && !d.IsRevoked);
+            var maxCount = _userInfo.MaxDeviceCount ?? 0;
+            if (userDeviceCount >= maxCount)
+            {
+                modelState.AddModelError($"Input", "You have reached the maximum number of devices.");
+            }
+        }
     }
 
     public async Task<bool> TryAddDevice(Device device, ModelStateDictionary modelState)
     {
-        await ValidateDevice(device, modelState);
+        await ValidateDevice(true, device, modelState);
         if (!modelState.IsValid) return false;
         
         _context.Devices.Add(device);
@@ -63,7 +87,7 @@ public class DeviceService
 
     public async Task<bool> TryUpdateDevice(Device device, ModelStateDictionary modelState)
     {
-        await ValidateDevice(device, modelState);
+        await ValidateDevice(false, device, modelState);
         if (!modelState.IsValid) return false;
         
         _context.Devices.Update(device);

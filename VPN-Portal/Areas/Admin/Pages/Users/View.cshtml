@@ -1,0 +1,252 @@
+@page "{userId}"
+@using VPN_Portal.Authentication
+@model VPN_Portal.Areas.Admin.Pages.Users.View
+
+@{
+    ViewData["Title"] = $"View {Model.User.DisplayName ?? Model.User.Username}";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+        <i class="fa-solid fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        @if (TempData["ResetUsername"] != null && TempData["ResetPassword"] != null)
+        {
+            <hr class="my-2">
+            <p class="mb-0">
+                <strong>Username:</strong> @TempData["ResetUsername"]<br/>
+                <strong>New Password:</strong> 
+                <code class="bg-light text-dark p-1 rounded">@TempData["ResetPassword"]</code>
+            </p>
+            <small class="text-muted">
+                <i class="fa-solid fa-info-circle me-1"></i>
+                Please save this password securely. The user will be prompted to change it on next login.
+            </small>
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-user me-2"></i> User Information
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Username</label>
+                    <p class="form-control-plaintext">@(Model.User.Username ?? "N/A")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Display Name</label>
+                    <p class="form-control-plaintext">@(Model.User.DisplayName ?? "N/A")</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Email</label>
+                    <p class="form-control-plaintext">@(Model.User.Email ?? "N/A")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Last Login</label>
+                    <p class="form-control-plaintext">
+                        @if(Model.User.LastLogin.HasValue)
+                        {
+                            @Model.User.LastLogin.Value.ToString("yyyy-MM-dd HH:mm:ss UTC")
+                        }
+                        else
+                        {
+                            <span>Never</span>
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-shield-halved me-2"></i> Role Management
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="mb-3">
+                    <i class="fa-solid fa-door-open me-2 text-primary"></i> Add to Role
+                </h5>
+                <div class="my-3">
+                    <form method="post" asp-page-handler="AddRole">
+                        <div class="mb-3">
+                            <select asp-for="SelectedRole" asp-items="Model.AddRoles" class="form-select">
+                                <option value="">-- Select Role --</option>
+                            </select>
+                            <span class="text-danger" asp-validation-for="SelectedRole"></span>
+                        </div>
+                        <button class="btn btn-success" type="submit" disabled="@(!Model.AddRoles.Any())">
+                            <i class="fa-solid fa-plus me-2"></i> Add Role
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5 class="mb-3">
+                    <i class="fa-solid fa-door-closed me-2 text-primary"></i> Remove from Role
+                </h5>
+                <div class="my-3">
+                    <form method="post" asp-page-handler="RemoveRole">
+                        <div class="mb-3">
+                            <select asp-for="SelectedRole" asp-items="Model.RemoveRoles" class="form-select">
+                                <option value="">-- Select Role --</option>
+                            </select>
+                            <span class="text-danger" asp-validation-for="SelectedRole"></span>
+                        </div>
+                        <button class="btn btn-warning" type="submit" disabled="@(!Model.RemoveRoles.Any())">
+                            <i class="fa-solid fa-minus me-2"></i> Remove Role
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <h6 class="text-muted">Current Roles:</h6>
+                @if(Model.User.Roles.Any())
+                {
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach(var role in Model.User.Roles.Where(r => !string.IsNullOrEmpty(r)))
+                        {
+                            <span class="badge bg-@(role switch
+                                                  {
+                                                      SystemRoles.SystemAdmin => "danger",
+                                                      SystemRoles.ReadOnlyUser => "warning",
+                                                      _ => "primary"
+                                                  })">@role</span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No roles assigned</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-laptop me-2"></i> User Devices
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        @if (Model.UserDevices.Any())
+        {
+            var deviceData = Model.UserDevices.Select(d => new {
+                DeviceId = d.DeviceId,
+                DeviceName = d.DeviceName,
+                DeviceType = d.DeviceType.ToString(),
+                CreatedUtc = d.CreatedUtc.ToLocalTime(),
+                LastSeenUtc = d.LastSeenUtc.ToLocalTime(),
+                PeerCount = d.Peers?.Count ?? 0,
+                Peers = d.Peers?.Select(p => new {
+                    VpnServer = p.VpnServer?.Name ?? "Unknown",
+                    AssignedIp = p.AssignedIp() ?? "N/A"
+                }).ToList()
+            }).ToList();
+            
+            <ejs-grid id="devicesGrid" dataSource="@deviceData" allowPaging="true" allowSorting="true" allowFiltering="true"
+                      clipMode="EllipsisWithTooltip">
+                <e-grid-pagesettings pageSize="10"></e-grid-pagesettings>
+                <e-grid-filtersettings type="Excel"></e-grid-filtersettings>
+                <e-grid-columns>
+                    <e-grid-column field="DeviceName" headerText="Device Name"></e-grid-column>
+                    <e-grid-column field="DeviceType" headerText="Type"></e-grid-column>
+                    <e-grid-column field="CreatedUtc" headerText="Created"></e-grid-column>
+                    <e-grid-column field="LastSeenUtc" headerText="Last Seen"></e-grid-column>
+                    <e-grid-column field="PeerCount" headerText="Peers" width="80" textAlign="Center"></e-grid-column>
+                    <e-grid-column field="Peers" headerText="Peer Details" template="#peerDetailsTemplate"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="fa-solid fa-laptop fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No devices found for this user.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-exclamation-triangle me-2"></i>Danger Zone
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="mb-3">User Actions</h5>
+                <p class="text-muted">Manage user account settings and access.</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-warning" 
+                            title="Reset Password"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#resetPasswordModal"
+                            data-user-id="@Model.User.UserId"
+                            data-username="@Model.User.Username">
+                        <i class="fa-solid fa-key"></i> Reset Password
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" 
+                            title="Delete User"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#deleteUserModal"
+                            data-user-id="@Model.User.UserId"
+                            data-username="@Model.User.Username">
+                        <i class="fa-solid fa-trash"></i> Delete User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="Shared/_UserActions" model="1"/>
+
+<script id="peerDetailsTemplate" type="text/x-template">
+    <div class="peer-details">
+        ${if(Peers && Peers.length > 0)}
+            <ul class="list-unstyled mb-0">
+            ${Peers.map(p => `<li><small><strong>${p.VpnServer}</strong> - IP: ${p.AssignedIp}</small></li>`).join('')}
+            </ul>
+        ${else}
+            <span class="text-muted">No peers configured</span>
+        ${/if}
+    </div>
+</script>
+
+<style>
+    .peer-details ul {
+        margin: 0;
+        font-size: 0.85rem;
+    }
+    .peer-details li {
+        padding: 2px 0;
+    }
+</style>

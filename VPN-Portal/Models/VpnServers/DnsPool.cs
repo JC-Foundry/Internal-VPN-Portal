@@ -44,6 +44,7 @@ public class DnsPool
     public bool Enabled { get; set; } = true;
     
     public virtual ICollection<DnsReservation>? Reservations { get; set; }
+    public virtual ICollection<VpnServer>? VpnServers { get; set; }
 
     public bool SetSecondOctet(ushort value)
     {
@@ -62,7 +63,19 @@ public class DnsPool
                 return false;
         }
     }
-        
+
+    public string GetRange()
+    {
+        switch (Family)
+        {
+            case NetworkFamily.Net10:
+                return $"10.{SecondOctet}.{Subnet}.{MinHost}-{MaxHost}";
+            case NetworkFamily.Net172:
+                return $"172.{SecondOctet}.{Subnet}.{MinHost}-{MaxHost}";
+            default:
+                return $"192.168.{Subnet}.{MinHost}-{MaxHost}";
+        }
+    }
 }
 
 public enum NetworkFamily

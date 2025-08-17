@@ -1,0 +1,155 @@
+@page "{id?}"
+@model VPN_Portal.Areas.Admin.Pages.DNS.EditModel
+@using VPN_Portal.Areas.Admin.Pages
+
+@{
+    ViewData["Title"] = Model.IsAdding ? "Create DNS Pool" : "Edit DNS Pool";
+    ViewData["ActivePage"] = AdminNavPages.AddPool;
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-gradient-primary text-white text-center py-4 rounded-top-4">
+                    <h2 class="mb-1 fw-bold">
+                        <i class="fa-solid fa-@(Model.IsAdding ? "plus" : "edit") me-2"></i>@ViewData["Title"]
+                    </h2>
+                    <p class="mb-0 opacity-75">@(Model.IsAdding ? "Add a new DNS pool configuration" : "Modify DNS pool configuration")</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-3 text-primary">
+                                    <i class="fa-solid fa-info-circle me-2"></i>Pool Information
+                                </h5>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.Name" class="form-control rounded-3" placeholder="Pool Name" />
+                                    <label asp-for="Input.Name" class="text-muted">
+                                        <i class="fa-solid fa-tag me-1"></i>Pool Name
+                                    </label>
+                                    <span asp-validation-for="Input.Name" class="text-danger small"></span>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <select asp-for="Input.Family" class="form-select rounded-3" asp-items="Model.NetworkFamilies">
+                                        <option value="">-- Select Network Family --</option>
+                                    </select>
+                                    <label asp-for="Input.Family" class="text-muted">
+                                        <i class="fa-solid fa-network-wired me-1"></i>Network Family
+                                    </label>
+                                    <span asp-validation-for="Input.Family" class="text-danger small"></span>
+                                    <small class="text-muted">Choose the IP address family for this pool</small>
+                                </div>
+                                
+                                <div class="form-floating mb-3" id="secondOctetDiv" style="display: none;">
+                                    <input asp-for="Input.SecondOctet" class="form-control rounded-3" placeholder="Second Octet" />
+                                    <label asp-for="Input.SecondOctet" class="text-muted">
+                                        <i class="fa-solid fa-hashtag me-1"></i>Second Octet
+                                    </label>
+                                    <span asp-validation-for="Input.SecondOctet" class="text-danger small"></span>
+                                    <small class="text-muted" id="secondOctetHelp"></small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5 class="mb-3 text-primary">
+                                    <i class="fa-solid fa-sliders me-2"></i>Range Configuration
+                                </h5>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.Subnet" class="form-control rounded-3" placeholder="Subnet" />
+                                    <label asp-for="Input.Subnet" class="text-muted">
+                                        <i class="fa-solid fa-sitemap me-1"></i>Subnet (Third Octet)
+                                    </label>
+                                    <span asp-validation-for="Input.Subnet" class="text-danger small"></span>
+                                    <small class="text-muted">Third octet value (0-255)</small>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.MinHost" class="form-control rounded-3" placeholder="2" />
+                                    <label asp-for="Input.MinHost" class="text-muted">
+                                        <i class="fa-solid fa-arrow-down-1-9 me-1"></i>Minimum Host
+                                    </label>
+                                    <span asp-validation-for="Input.MinHost" class="text-danger small"></span>
+                                    <small class="text-muted">Starting host address (2-254)</small>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Input.MaxHost" class="form-control rounded-3" placeholder="254" />
+                                    <label asp-for="Input.MaxHost" class="text-muted">
+                                        <i class="fa-solid fa-arrow-up-9-1 me-1"></i>Maximum Host
+                                    </label>
+                                    <span asp-validation-for="Input.MaxHost" class="text-danger small"></span>
+                                    <small class="text-muted">Ending host address (2-254)</small>
+                                </div>
+                                
+                                <div class="form-check form-switch mb-3">
+                                    <input asp-for="Input.Enabled" class="form-check-input" type="checkbox" />
+                                    <label asp-for="Input.Enabled" class="form-check-label">
+                                        <i class="fa-solid fa-power-off me-1"></i>Pool Enabled
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info rounded-3 mb-4">
+                            <i class="fa-solid fa-info-circle me-2"></i>
+                            <small>
+                                The DNS pool defines the IP address range that can be assigned to VPN servers and their clients.
+                            </small>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm">
+                                <i class="fa-solid fa-@(Model.IsAdding ? "plus" : "save") me-2"></i>@(Model.IsAdding ? "Create Pool" : "Save Changes")
+                            </button>
+                            <a asp-area="Admin" asp-page="/DNS/Pools" class="btn btn-outline-secondary btn-lg rounded-3">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Back to DNS Pools
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3 rounded-bottom-4">
+                    <small class="text-muted">
+                        <i class="fa-solid fa-shield-halved me-1"></i>Admin Portal - DNS Management
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Show/hide second octet field based on network family selection
+        document.addEventListener('DOMContentLoaded', function() {
+            var familySelect = document.getElementById('Input_Family');
+            var secondOctetDiv = document.getElementById('secondOctetDiv');
+            var secondOctetHelp = document.getElementById('secondOctetHelp');
+            
+            function updateSecondOctetVisibility() {
+                var selectedFamily = familySelect.value;
+                if (selectedFamily === '0') { // Net10
+                    secondOctetDiv.style.display = 'block';
+                    secondOctetHelp.textContent = 'For 10.x.x.x network (0-255)';
+                } else if (selectedFamily === '1') { // Net172
+                    secondOctetDiv.style.display = 'block';
+                    secondOctetHelp.textContent = 'For 172.x.x.x network (16-31)';
+                } else {
+                    secondOctetDiv.style.display = 'none';
+                }
+            }
+            
+            familySelect.addEventListener('change', updateSecondOctetVisibility);
+            updateSecondOctetVisibility(); // Initial check
+        });
+    </script>
+}

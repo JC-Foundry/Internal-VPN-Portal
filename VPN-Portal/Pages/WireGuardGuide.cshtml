@@ -1,0 +1,466 @@
+@page
+@model VPN_Portal.Pages.WireGuardGuideModel
+@{
+    ViewData["Title"] = "WireGuard Setup Guide";
+}
+
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="text-center mb-5">
+        <div class="mb-4">
+            <i class="fa-solid fa-shield-halved fa-4x text-primary"></i>
+        </div>
+        <h1 class="display-4 fw-bold mb-3">WireGuard Setup Guide</h1>
+        <p class="lead text-muted">Get connected to your VPN in just a few simple steps</p>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <a href="#windows" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 hover-shadow">
+                    <div class="card-body text-center py-4">
+                        <i class="fa-brands fa-windows fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Windows</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#macos" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 hover-shadow">
+                    <div class="card-body text-center py-4">
+                        <i class="fa-brands fa-apple fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">macOS</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#android" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 hover-shadow">
+                    <div class="card-body text-center py-4">
+                        <i class="fa-brands fa-android fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Android</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#ios" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 hover-shadow">
+                    <div class="card-body text-center py-4">
+                        <i class="fa-brands fa-apple fa-3x text-dark mb-3"></i>
+                        <h5 class="card-title">iOS</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Step 1: Download WireGuard -->
+    <div class="card border-0 shadow-lg mb-5">
+        <div class="card-header bg-gradient-primary text-white py-4">
+            <h2 class="mb-0 fw-bold">
+                <span class="badge bg-white text-primary me-3">1</span>
+                Download WireGuard
+            </h2>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-6" id="windows">
+                    <div class="d-flex align-items-start">
+                        <i class="fa-brands fa-windows fa-2x text-primary me-3 mt-1"></i>
+                        <div>
+                            <h4 class="fw-bold">Windows</h4>
+                            <p class="text-muted">Download the official WireGuard client for Windows</p>
+                            <a href="https://download.wireguard.com/windows-client/wireguard-installer.exe" 
+                               class="btn btn-primary" target="_blank">
+                                <i class="fa-solid fa-download me-2"></i>Download for Windows
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6" id="macos">
+                    <div class="d-flex align-items-start">
+                        <i class="fa-brands fa-apple fa-2x text-primary me-3 mt-1"></i>
+                        <div>
+                            <h4 class="fw-bold">macOS</h4>
+                            <p class="text-muted">Get WireGuard from the Mac App Store</p>
+                            <a href="https://apps.apple.com/us/app/wireguard/id1451685025" 
+                               class="btn btn-primary" target="_blank">
+                                <i class="fa-brands fa-app-store me-2"></i>View in App Store
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6" id="android">
+                    <div class="d-flex align-items-start">
+                        <i class="fa-brands fa-android fa-2x text-success me-3 mt-1"></i>
+                        <div>
+                            <h4 class="fw-bold">Android</h4>
+                            <p class="text-muted">Install from Google Play Store</p>
+                            <a href="https://play.google.com/store/apps/details?id=com.wireguard.android" 
+                               class="btn btn-success" target="_blank">
+                                <i class="fa-brands fa-google-play me-2"></i>Get on Google Play
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6" id="ios">
+                    <div class="d-flex align-items-start">
+                        <i class="fa-brands fa-apple fa-2x text-dark me-3 mt-1"></i>
+                        <div>
+                            <h4 class="fw-bold">iOS (iPhone/iPad)</h4>
+                            <p class="text-muted">Download from the App Store</p>
+                            <a href="https://apps.apple.com/us/app/wireguard/id1441195209" 
+                               class="btn btn-dark" target="_blank">
+                                <i class="fa-brands fa-app-store me-2"></i>View in App Store
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Get Your Configuration -->
+    <div class="card border-0 shadow-lg mb-5">
+        <div class="card-header bg-gradient-primary text-white py-4">
+            <h2 class="mb-0 fw-bold">
+                <span class="badge bg-white text-primary me-3">2</span>
+                Create Your VPN Configuration
+            </h2>
+        </div>
+        <div class="card-body p-4">
+            <div class="alert alert-info rounded-3 mb-4">
+                <i class="fa-solid fa-info-circle me-2"></i>
+                Log into the VPN Portal to create your device and generate a peer configuration.
+            </div>
+            
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <p class="fw-semibold">Add a Device</p>
+                        <p class="text-muted small">Navigate to "My Devices" and click "New Device" to register your device</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <p class="fw-semibold">Add a Peer</p>
+                        <p class="text-muted small">Click "Add Peer" on your device and select a VPN server from the dropdown</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <p class="fw-semibold">Get Configuration</p>
+                        <p class="text-muted small">Download the config file or view the QR code for your peer</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body">
+                            <h4 class="fw-bold mb-3">
+                                <i class="fa-solid fa-file-code text-primary me-2"></i>Download Configuration
+                            </h4>
+                            <p>After creating a peer, you can download the configuration file:</p>
+                            <ul class="mb-3">
+                                <li>Click the <strong>"Download"</strong> button next to your peer</li>
+                                <li>Save the <code>.conf</code> file to your device</li>
+                                <li>Keep this file secure - it contains your private keys</li>
+                            </ul>
+                            <p class="text-muted mb-0">Best for desktop installations.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body">
+                            <h4 class="fw-bold mb-3">
+                                <i class="fa-solid fa-qrcode text-primary me-2"></i>QR Code
+                            </h4>
+                            <p>For mobile devices, use the QR code option:</p>
+                            <ul class="mb-3">
+                                <li>Click the <strong>"View QR Code"</strong> button</li>
+                                <li>Scan the code with WireGuard mobile app</li>
+                                <li>The configuration will be imported automatically</li>
+                            </ul>
+                            <p class="text-muted mb-0">Perfect for quick mobile setup.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            @if(User.Identity?.IsAuthenticated ?? false)
+            {
+                <div class="text-center mt-4">
+                    <a asp-page="/Devices/Edit" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-circle-plus me-2"></i>Create New Device
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="text-center mt-4">
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-sign-in-alt me-2"></i>Login to Create Device
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Step 3: Import Configuration -->
+    <div class="card border-0 shadow-lg mb-5">
+        <div class="card-header bg-gradient-primary text-white py-4">
+            <h2 class="mb-0 fw-bold">
+                <span class="badge bg-white text-primary me-3">3</span>
+                Import Your Configuration
+            </h2>
+        </div>
+        <div class="card-body p-4">
+            <!-- Desktop Instructions -->
+            <div class="mb-5">
+                <h3 class="fw-bold mb-4">
+                    <i class="fa-solid fa-desktop text-primary me-2"></i>Desktop (Windows/macOS)
+                </h3>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <p class="fw-semibold">Open WireGuard</p>
+                            <p class="text-muted small">Launch the WireGuard application you just installed</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <p class="fw-semibold">Import Tunnel</p>
+                            <p class="text-muted small">Click "Import tunnel(s) from file" or drag and drop your .conf file</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <p class="fw-semibold">Activate</p>
+                            <p class="text-muted small">Click "Activate" to connect to the VPN</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Instructions -->
+            <div>
+                <h3 class="fw-bold mb-4">
+                    <i class="fa-solid fa-mobile-screen text-primary me-2"></i>Mobile (Android/iOS)
+                </h3>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <p class="fw-semibold">Open WireGuard</p>
+                            <p class="text-muted small">Launch the WireGuard app on your device</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <p class="fw-semibold">Add Tunnel</p>
+                            <p class="text-muted small">Tap the "+" button and choose:</p>
+                            <ul class="small text-muted">
+                                <li><strong>Scan QR Code:</strong> For QR codes</li>
+                                <li><strong>Create from file:</strong> For .conf files</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <p class="fw-semibold">Connect</p>
+                            <p class="text-muted small">Toggle the switch to connect to your VPN</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: Verify Connection -->
+    <div class="card border-0 shadow-lg mb-5">
+        <div class="card-header bg-success text-white py-4">
+            <h2 class="mb-0 fw-bold">
+                <span class="badge bg-white text-success me-3">4</span>
+                Verify Your Connection
+            </h2>
+        </div>
+        <div class="card-body p-4">
+            <p class="lead mb-4">Once connected, you should see:</p>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="alert alert-success rounded-3">
+                        <h5 class="alert-heading">
+                            <i class="fa-solid fa-circle-check me-2"></i>Connection Status
+                        </h5>
+                        <p class="mb-0">The tunnel will show as "Active" with a green indicator</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="alert alert-success rounded-3">
+                        <h5 class="alert-heading">
+                            <i class="fa-solid fa-chart-line me-2"></i>Data Transfer
+                        </h5>
+                        <p class="mb-0">You'll see data being transferred (received/sent bytes increasing)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-light rounded-3">
+                <h5 class="fw-bold mb-3">
+                    <i class="fa-solid fa-globe text-primary me-2"></i>Test Your Connection
+                </h5>
+                <p>Visit <a href="https://whatismyipaddress.com" target="_blank" class="fw-bold">whatismyipaddress.com</a> to verify your IP address has changed to the VPN server's IP.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="card border-0 shadow-lg mb-5">
+        <div class="card-header bg-gradient-warning text-dark py-4">
+            <h2 class="mb-0 fw-bold">
+                <i class="fa-solid fa-wrench me-2"></i>Troubleshooting
+            </h2>
+        </div>
+        <div class="card-body p-4">
+            <div class="accordion" id="troubleshootingAccordion">
+                <div class="accordion-item border-0 mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trouble1">
+                            Connection fails immediately
+                        </button>
+                    </h2>
+                    <div id="trouble1" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                        <div class="accordion-body">
+                            <ul>
+                                <li>Check your internet connection</li>
+                                <li>Verify the configuration file is not corrupted</li>
+                                <li>Ensure the VPN server is online</li>
+                                <li>Check if your firewall is blocking WireGuard</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trouble2">
+                            Connected but no internet
+                        </button>
+                    </h2>
+                    <div id="trouble2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                        <div class="accordion-body">
+                            <ul>
+                                <li>Try disconnecting and reconnecting</li>
+                                <li>Check DNS settings in your configuration</li>
+                                <li>Verify allowed IPs in the configuration</li>
+                                <li>Contact your administrator for updated configuration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trouble3">
+                            Slow connection speed
+                        </button>
+                    </h2>
+                    <div id="trouble3" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                        <div class="accordion-body">
+                            <ul>
+                                <li>Check your internet speed without VPN</li>
+                                <li>Try connecting to a different server if available</li>
+                                <li>Reduce MTU size in configuration (try 1420)</li>
+                                <li>Contact administrator about server load</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Need Help -->
+    <div class="text-center py-5">
+        <div class="card border-0 shadow-lg d-inline-block">
+            <div class="card-body p-5">
+                <i class="fa-solid fa-headset fa-3x text-primary mb-3"></i>
+                <h3 class="fw-bold mb-3">Still Need Help?</h3>
+                <p class="text-muted mb-4">Contact your system administrator for assistance with your VPN configuration.</p>
+                @if(User.Identity?.IsAuthenticated ?? false)
+                {
+                    <a asp-page="/Index" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Back to Devices
+                    </a>
+                }
+                else
+                {
+                    <a asp-page="/Index" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-home me-2"></i>Go to Homepage
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+    
+    .step-card {
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        height: 100%;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: var(--bs-primary);
+        color: white;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    pre {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: var(--bs-warning);
+        color: var(--bs-dark);
+    }
+</style>

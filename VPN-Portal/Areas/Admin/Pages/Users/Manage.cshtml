@@ -1,0 +1,70 @@
+@page
+@model VPN_Portal.Areas.Admin.Pages.Users.ManageModel
+@using VPN_Portal.Areas.Admin.Pages
+
+@{
+    ViewData["Title"] = "Manage Users";
+    ViewData["ActivePage"] = AdminNavPages.UsersManage;
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-semibold">
+                <i class="fa-solid fa-user-gear me-2"></i>@ViewData["Title"]
+            </h4>
+            <a asp-area="Admin" asp-page="/Users/Create" class="btn btn-light btn-sm">
+                <i class="fa-solid fa-user-plus me-1"></i>Create New User
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+                <i class="fa-solid fa-check-circle me-2"></i>@Model.SuccessMessage
+                @if (TempData["ResetUsername"] != null && TempData["ResetPassword"] != null)
+                {
+                    <hr class="my-2">
+                    <p class="mb-0">
+                        <strong>Username:</strong> @TempData["ResetUsername"]<br/>
+                        <strong>New Password:</strong> 
+                        <code class="bg-light text-dark p-1 rounded">@TempData["ResetPassword"]</code>
+                    </p>
+                    <small class="text-muted">
+                        <i class="fa-solid fa-info-circle me-1"></i>
+                        Please save this password securely. The user will be prompted to change it on next login.
+                    </small>
+                }
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+                <i class="fa-solid fa-exclamation-circle me-2"></i>@Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Users Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fa-solid fa-list me-2 text-primary"></i>All Users
+                    </h5>
+                    <span class="badge bg-primary">@Model.Users.Count Users</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div>
+                    <partial name="Shared/_UserTable" model="Model.Users" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

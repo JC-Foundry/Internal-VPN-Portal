@@ -233,31 +233,6 @@ namespace VPN_Portal.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("VPN_Portal.Models.Devices.AllowedIp", b =>
-                {
-                    b.Property<string>("AllowedIpId")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("IpAddress")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("PeerId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("AllowedIpId");
-
-                    b.HasIndex("IpAddress");
-
-                    b.HasIndex("PeerId");
-
-                    b.ToTable("AllowedIps");
-                });
-
             modelBuilder.Entity("VPN_Portal.Models.Devices.Device", b =>
                 {
                     b.Property<string>("DeviceId")
@@ -490,6 +465,9 @@ namespace VPN_Portal.Data.Migrations
                     b.Property<long>("EndpointPort")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -523,7 +501,7 @@ namespace VPN_Portal.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime>("LastLogin")
+                    b.Property<DateTime?>("LastLogin")
                         .HasColumnType("datetime2");
 
                     b.Property<long?>("MaxDevices")
@@ -585,17 +563,6 @@ namespace VPN_Portal.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("VPN_Portal.Models.Devices.AllowedIp", b =>
-                {
-                    b.HasOne("VPN_Portal.Models.Devices.DevicePeer", "Peer")
-                        .WithMany("AllowedIps")
-                        .HasForeignKey("PeerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Peer");
                 });
 
             modelBuilder.Entity("VPN_Portal.Models.Devices.Device", b =>
@@ -688,7 +655,7 @@ namespace VPN_Portal.Data.Migrations
             modelBuilder.Entity("VPN_Portal.Models.VpnServers.VpnServer", b =>
                 {
                     b.HasOne("VPN_Portal.Models.VpnServers.DnsPool", "DnsPool")
-                        .WithMany()
+                        .WithMany("VpnServers")
                         .HasForeignKey("DnsPoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -703,14 +670,14 @@ namespace VPN_Portal.Data.Migrations
 
             modelBuilder.Entity("VPN_Portal.Models.Devices.DevicePeer", b =>
                 {
-                    b.Navigation("AllowedIps");
-
                     b.Navigation("PeerToReservations");
                 });
 
             modelBuilder.Entity("VPN_Portal.Models.VpnServers.DnsPool", b =>
                 {
                     b.Navigation("Reservations");
+
+                    b.Navigation("VpnServers");
                 });
 
             modelBuilder.Entity("VPN_Portal.Models.VpnServers.DnsReservation", b =>

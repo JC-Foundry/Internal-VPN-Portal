@@ -1,0 +1,96 @@
+@page
+@model VPN_Portal.Areas.Admin.Pages.Users.CreateModel
+
+@{
+    ViewData["Title"] = "Create User";
+    ViewData["ActivePage"] = AdminNavPages.UsersCreate;
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            @if (Model.ShowSuccess)
+            {
+                <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+                    <div class="d-flex align-items-start">
+                        <i class="fa-solid fa-check-circle fa-2x me-3 text-success"></i>
+                        <div class="flex-grow-1">
+                            <h5 class="alert-heading mb-2">User Created Successfully!</h5>
+                            <p class="mb-2">
+                                <strong>Username:</strong> @Model.CreatedUsername<br/>
+                                <strong>Temporary Password:</strong> 
+                                <code class="bg-light text-dark p-1 rounded">@Model.CreatedPassword</code>
+                            </p>
+                            <small class="text-muted">
+                                <i class="fa-solid fa-info-circle me-1"></i>
+                                Please save this password securely. It is only visible once.
+                            </small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-gradient-primary text-white text-center py-4 rounded-top-4">
+                    <h2 class="mb-1 fw-bold">
+                        <i class="fa-solid fa-user-plus me-2"></i>Create New User
+                    </h2>
+                    <p class="mb-0 opacity-75">Add a new user to the VPN Portal</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+                        
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Username" class="form-control form-control-lg rounded-3" placeholder="Username" />
+                            <label asp-for="Input.Username" class="text-muted">
+                                <i class="fa-solid fa-user me-1"></i>Username
+                            </label>
+                            <span asp-validation-for="Input.Username" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email" class="form-control form-control-lg rounded-3" placeholder="Email" />
+                            <label asp-for="Input.Email" class="text-muted">
+                                <i class="fa-solid fa-envelope me-1"></i>Email Address
+                            </label>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="form-floating mb-4">
+                            <input asp-for="Input.DisplayName" class="form-control form-control-lg rounded-3" placeholder="Display Name (Optional)" />
+                            <label asp-for="Input.DisplayName" class="text-muted">
+                                <i class="fa-solid fa-id-card me-1"></i>Display Name (Optional)
+                            </label>
+                            <span asp-validation-for="Input.DisplayName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="alert alert-info rounded-3 mb-4">
+                            <i class="fa-solid fa-info-circle me-2"></i>
+                            <small>
+                                A secure temporary password will be generated automatically. The user will be required to change it on first login.
+                            </small>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm">
+                                <i class="fa-solid fa-user-plus me-2"></i>Create User
+                            </button>
+                            <a asp-area="Admin" asp-page="/Users/Index" class="btn btn-outline-secondary btn-lg rounded-3">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Back to Users
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3 rounded-bottom-4">
+                    <small class="text-muted">
+                        <i class="fa-solid fa-shield-halved me-1"></i>Admin Portal
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

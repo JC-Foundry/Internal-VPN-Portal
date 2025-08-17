@@ -1,0 +1,162 @@
+@page
+@using VPN_Portal.Areas.Admin.Pages
+@model VPN_Portal.Areas.Admin.Pages.VPN.IndexModel
+@{
+    ViewData["Title"] = "VPN Servers";
+    ViewData["ActivePage"] = AdminNavPages.VpnIndex;
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+        <i class="fa-solid fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+        <i class="fa-solid fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-semibold">
+                <i class="fa-solid fa-network-wired me-2"></i>@ViewData["Title"]
+            </h4>
+            <a asp-area="Admin" asp-page="/VPN/Edit" class="btn btn-light btn-sm">
+                <i class="fa-solid fa-plus me-1"></i>Create New Server
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        @if (Model.VpnServers.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Server Name</th>
+                            <th>Endpoint</th>
+                            <th>Address CIDR</th>
+                            <th>DNS Pool</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var server in Model.VpnServers)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa-solid fa-server fa-lg text-primary me-2"></i>
+                                        <div>
+                                            <div class="fw-semibold">@server.Name</div>
+                                            <small class="text-muted">ID: @server.VpnServerId.Substring(0, 8)...</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <code>@server.EndpointHost:@server.EndpointPort</code>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info bg-opacity-10 text-info">
+                                        <i class="fa-solid fa-network-wired me-1"></i>@server.AddressCidr
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (server.DnsPool != null)
+                                    {
+                                        <div>
+                                            <div class="fw-semibold">@server.DnsPool.Name</div>
+                                            <small class="text-muted">@server.DnsPool.GetRange()</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-area="Admin" asp-page="/VPN/Edit" asp-route-id="@server.VpnServerId" 
+                                           class="btn btn-outline-primary" title="Edit Server">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                title="Delete Server"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteServerModal"
+                                                data-server-id="@server.VpnServerId"
+                                                data-server-name="@server.Name">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fa-solid fa-server fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No VPN Servers Configured</h5>
+                <p class="text-muted">Get started by creating your first VPN server.</p>
+                <a asp-area="Admin" asp-page="/VPN/Edit" class="btn btn-primary">
+                    <i class="fa-solid fa-plus me-2"></i>Create VPN Server
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Server Modal -->
+<div class="modal fade" id="deleteServerModal" tabindex="-1" aria-labelledby="deleteServerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteServerModalLabel">
+                    <i class="fa-solid fa-trash me-2"></i>Delete VPN Server
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete VPN server <strong id="deleteServerName"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    This will disable the server. The server configuration will be retained but marked as disabled.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-page-handler="Delete" id="deleteServerForm">
+                    <input type="hidden" name="serverId" id="deleteServerId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-trash me-2"></i>Delete Server
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Handle Delete Modal
+        document.getElementById('deleteServerModal').addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var serverId = button.getAttribute('data-server-id');
+            var serverName = button.getAttribute('data-server-name');
+            
+            document.getElementById('deleteServerId').value = serverId;
+            document.getElementById('deleteServerName').textContent = serverName;
+        });
+    </script>
+}

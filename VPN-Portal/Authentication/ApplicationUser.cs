@@ -13,9 +13,8 @@ public class ApplicationUser : IdentityUser
     [MaxLength(100)]
     public string? DisplayName { get; set; }
     
-    [Required]
     [Column(TypeName = "datetime2")]
-    public DateTime LastLogin { get; set; }
+    public DateTime? LastLogin { get; set; }
     
     [Range(0, int.MaxValue)]
     public uint? MaxDevices { get; set; }

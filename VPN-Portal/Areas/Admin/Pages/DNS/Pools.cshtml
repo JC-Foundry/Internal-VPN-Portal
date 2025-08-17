@@ -1,0 +1,165 @@
+@page
+@model VPN_Portal.Areas.Admin.Pages.DNS.PoolsModel
+@{
+    ViewData["Title"] = "DNS Pools";
+    ViewData["ActivePage"] = AdminNavPages.DnsPools;
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+        <i class="fa-solid fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+        <i class="fa-solid fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-semibold">
+                <i class="fa-solid fa-layer-group me-2"></i>@ViewData["Title"]
+            </h4>
+            <a asp-area="Admin" asp-page="/DNS/Edit" class="btn btn-light btn-sm">
+                <i class="fa-solid fa-plus me-1"></i>Create New Pool
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        @if (Model.DnsPools.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Pool Name</th>
+                            <th>Network Family</th>
+                            <th>Range</th>
+                            <th>Capacity</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pool in Model.DnsPools)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa-solid fa-layer-group fa-lg text-primary me-2"></i>
+                                        <div>
+                                            <div class="fw-semibold">@pool.Name</div>
+                                            <small class="text-muted">ID: @pool.DnsPoolId.Substring(0, 8)...</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info bg-opacity-10 text-info">
+                                        <i class="fa-solid fa-network-wired me-1"></i>@pool.Family.ToString()
+                                    </span>
+                                </td>
+                                <td>
+                                    <code>@pool.GetRange()</code>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span class="fw-semibold">@(pool.MaxHost - pool.MinHost + 1)</span> addresses
+                                        <div class="progress" style="height: 5px; margin-top: 5px;">
+                                            @{
+                                                var used = pool.Reservations?.Where(r => r.IsActive).Count() ?? 0;
+                                                var total = pool.MaxHost - pool.MinHost + 1;
+                                                var percentage = total > 0 ? (used * 100 / total) : 0;
+                                            }
+                                            <div class="progress-bar @(percentage > 80 ? "bg-danger" : percentage > 60 ? "bg-warning" : "bg-success")" 
+                                                 role="progressbar" 
+                                                 style="width: @percentage%">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">@used / @total used</small>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-area="Admin" asp-page="/DNS/Edit" asp-route-id="@pool.DnsPoolId" 
+                                           class="btn btn-outline-primary" title="Edit Pool">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                title="Delete Pool"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deletePoolModal"
+                                                data-pool-id="@pool.DnsPoolId"
+                                                data-pool-name="@pool.Name">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fa-solid fa-layer-group fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No DNS Pools Configured</h5>
+                <p class="text-muted">Get started by creating your first DNS pool.</p>
+                <a asp-area="Admin" asp-page="/DNS/Edit" class="btn btn-primary">
+                    <i class="fa-solid fa-plus me-2"></i>Create DNS Pool
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Pool Modal -->
+<div class="modal fade" id="deletePoolModal" tabindex="-1" aria-labelledby="deletePoolModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deletePoolModalLabel">
+                    <i class="fa-solid fa-trash me-2"></i>Delete DNS Pool
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete DNS pool <strong id="deletePoolName"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    This will disable the pool. The pool configuration will be retained but marked as disabled.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-page-handler="Delete" id="deletePoolForm">
+                    <input type="hidden" name="poolId" id="deletePoolId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-trash me-2"></i>Delete Pool
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Handle Delete Modal
+        document.getElementById('deletePoolModal').addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var poolId = button.getAttribute('data-pool-id');
+            var poolName = button.getAttribute('data-pool-name');
+            
+            document.getElementById('deletePoolId').value = poolId;
+            document.getElementById('deletePoolName').textContent = poolName;
+        });
+    </script>
+}

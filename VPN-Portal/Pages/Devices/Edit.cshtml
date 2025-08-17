@@ -15,8 +15,10 @@
             </div>
             <div class="card-body p-4 p-md-5">
                 <form method="post">
+                    <div asp-validation-summary="All" class="alert alert-danger rounded-3" role="alert"></div>
+                    
                     <div class="form-floating mb-3">
-                        <input asp-for="Input.DeviceName" class="form-control rounded-3" autocomplete="username" aria-required="true" placeholder="My Phone" />
+                        <input asp-for="Input.DeviceName" class="form-control rounded-3" autocomplete="username" aria-required="true" placeholder="My Phone"/>
                         <label asp-for="Input.DeviceName" class="text-muted">
                             <i class="fa-solid fa-laptop me-1"></i> Device Name
                         </label>

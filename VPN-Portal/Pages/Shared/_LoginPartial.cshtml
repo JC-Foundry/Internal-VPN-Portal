@@ -8,22 +8,31 @@
 <ul class="navbar-nav ms-auto">
     @if (SignInManager.IsSignedIn(User))
     {
+        if (User.IsInRole(SystemRoles.SystemAdmin))
+        {
+            <li class="nav-item">
+                <a class="nav-link nav-hover-effect px-3" asp-area="Admin" asp-page="/Users/Index">
+                    <i class="fa-solid fa-user-tie me-1"></i> Admin
+                </a>
+            </li>    
+        }
+        
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle nav-hover-effect px-3 d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fa-solid fa-user-circle me-2"></i>
-                <span>@(UserInfo.DisplayName ?? User.Identity?.Name)</span>
+                <span> @(UserInfo.DisplayName ?? User.Identity?.Name)</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" aria-labelledby="userDropdown">
                 <li>
                     <a class="dropdown-item py-2" asp-area="Identity" asp-page="/Account/Manage/Index">
-                        <i class="fa-solid fa-user-gear me-2 text-primary"></i>My Account
+                        <i class="fa-solid fa-user-gear me-2 text-primary"></i> My Account
                     </a>
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <form class="px-3" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
                         <button type="submit" class="btn btn-danger btn-sm w-100">
-                            <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
                         </button>
                     </form>
                 </li>
@@ -34,7 +43,7 @@
     {
         <li class="nav-item">
             <a class="nav-link nav-hover-effect px-3" asp-area="Identity" asp-page="/Account/Login">
-                <i class="fa-solid fa-right-to-bracket me-1"></i>Login
+                <i class="fa-solid fa-right-to-bracket me-1"></i> Login
             </a>
         </li>
     }

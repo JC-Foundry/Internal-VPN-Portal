@@ -17,7 +17,6 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Device> Devices { get; set; }
     public DbSet<DevicePeer> DevicePeers { get; set; }
     public DbSet<PeerToReservation> PeerToReservations { get; set; }
-    public DbSet<AllowedIp> AllowedIps { get; set; }
     
     public DbSet<VpnServer> VpnServers { get; set; }
     public DbSet<DnsPool> DnsPools { get; set; }

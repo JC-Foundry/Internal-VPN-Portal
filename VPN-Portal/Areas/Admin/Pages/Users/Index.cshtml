@@ -1,0 +1,91 @@
+@page
+@using VPN_Portal.Areas.Admin.Pages
+@model VPN_Portal.Areas.Admin.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "Users Overview";
+    ViewData["ActivePage"] = AdminNavPages.UsersIndex;
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-users me-2"></i>@ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <!-- Statistics Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary bg-opacity-10 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-users fa-2x text-primary me-3"></i>
+                            <div>
+                                <h5 class="mb-0">@Model.TotalUsers</h5>
+                                <small class="text-muted">Total Users</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info bg-opacity-10 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-laptop fa-2x text-info me-3"></i>
+                            <div>
+                                <h5 class="mb-0">@Model.TotalDevices</h5>
+                                <small class="text-muted">Total Devices</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success bg-opacity-10 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-user fa-2x text-success me-3"></i>
+                            <div>
+                                <h5 class="mb-0">@Model.TotalStandardUsers</h5>
+                                <small class="text-muted">System Users</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning bg-opacity-10 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-user-lock fa-2x text-warning me-3"></i>
+                            <div>
+                                <h5 class="mb-0">@Model.TotalReadOnlyUsers</h5>
+                                <small class="text-muted">RO Users</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i> Recent Users
+                    </h5>
+                    <a asp-area="Admin" asp-page="/Users/Manage" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-list me-1"></i> View All
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div>
+                    <partial name="Shared/_UserTable" model="Model.RecentUsers" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

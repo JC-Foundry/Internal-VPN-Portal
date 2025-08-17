@@ -1,0 +1,108 @@
+@using VPN_Portal.Authentication
+@model List<VPN_Portal.Areas.Admin.Models.UserViewModel>
+
+<div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead>
+        <tr>
+            <th class="border-0">User</th>
+            <th class="border-0">Email</th>
+            <th class="border-0">Roles</th>
+            <th class="border-0">Last Login</th>
+            <th class="border-0">Max Devices</th>
+            <th class="border-0 text-end">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-user-circle fa-lg text-muted me-2"></i>
+                        <div>
+                            <div class="fw-semibold">@(user.DisplayName ?? user.Username)</div>
+                            <small class="text-muted">@@@user.Username</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <a href="mailto:@user.Email" class="text-decoration-none">@user.Email</a>
+                </td>
+                <td>
+                    @if (user.Roles.Any())
+                    {
+                        foreach (var role in user.Roles)
+                        {
+                            <span class="badge bg-@(role switch
+                                                  {
+                                                      SystemRoles.SystemAdmin => "danger",
+                                                      SystemRoles.ReadOnlyUser => "warning",
+                                                      _ => "primary"
+                                                  }) bg-opacity-10 text-@(role switch
+                                                                        {
+                                                                            SystemRoles.SystemAdmin => "danger",
+                                                                            SystemRoles.ReadOnlyUser => "warning",
+                                                                            _ => "primary"
+                                                                        }) me-1">@role</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary">No Roles</span>
+                    }
+                </td>
+                <td>
+                    @if (user.LastLogin.HasValue)
+                    {
+                        <span title="@user.LastLogin.Value.ToLocalTime().ToString("F")">
+                            @user.LastLogin.Value.ToLocalTime().ToString("g")
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Never</span>
+                    }
+                </td>
+                <td>
+                    @if (user.MaxDevices.HasValue)
+                    {
+                        <span class="badge bg-info bg-opacity-10 text-info">@user.MaxDevices</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success bg-opacity-10 text-success">Unlimited</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary" 
+                                title="View User" 
+                                onclick="location.assign('/Admin/Users/View/@(user.UserId)')">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-warning" 
+                                title="Reset Password"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#resetPasswordModal"
+                                data-user-id="@user.UserId"
+                                data-username="@user.Username">
+                            <i class="fa-solid fa-key"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" 
+                                title="Delete User"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#deleteUserModal"
+                                data-user-id="@user.UserId"
+                                data-username="@user.Username">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<partial name="Shared/_UserActions" model="1"/>
