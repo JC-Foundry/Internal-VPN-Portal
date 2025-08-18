@@ -56,13 +56,13 @@ public class VpnConfigService
         var config = BuildConfig(peer);
         if(string.IsNullOrEmpty(config)) return false;
         
-        await _configFiles.SaveFile($"{peer.PeerId}.txt", config, peer.DeviceId);
+        await _configFiles.SaveFile($"{peer.PeerId}.conf", config, peer.DeviceId);
         return true;
     }
 
     public string GetConfig(DevicePeer peer)
     {
-        var config = _configFiles.GetFile($"{peer.PeerId}.txt", peer.DeviceId);
+        var config = _configFiles.GetFile($"{peer.PeerId}.conf", peer.DeviceId);
         return string.IsNullOrEmpty(config) ? "" : config;
     }
 }
