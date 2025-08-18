@@ -67,8 +67,8 @@ public class DeviceService
         if (adding)
         {
             var userDeviceCount = await _context.Devices.CountAsync(d => d.UserId == device.UserId && !d.IsRevoked);
-            var maxCount = _userInfo.MaxDeviceCount ?? 0;
-            if (userDeviceCount >= maxCount)
+            var maxCount = _userInfo.MaxDeviceCount;
+            if (maxCount != null && userDeviceCount >= maxCount)
             {
                 modelState.AddModelError($"Input", "You have reached the maximum number of devices.");
             }
