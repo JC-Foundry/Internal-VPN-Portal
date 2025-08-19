@@ -80,6 +80,40 @@ public class PeerService
         var peer = await _context.DevicePeers.FirstOrDefaultAsync(p => p.PeerId == peerId);
         if (peer == null) return false;
         
+        //Remove from router:
+         var res = await _vpnService.RemovePeerFromRouter(peer);
+         if(!res) return false;
+        
+        //Delete config:
+        res = _vpnConfigService.TryDeleteConfig(peer);
+        if(!res) return false;
+        
+        //Delete keys:
+        res = _keyGenerationService.TryDeleteKeys(peer);
+        if(!res) return false;
+        
+        //Delete reservations:
+        res = await _reservationService.TryRelease(peer);
+        if(!res) return false;
+        
+        //Clear tokens:
+        var tokens = await _context.DownloadTokens
+            .Where(t => t.UserId == _userInfo.UserId && t.PeerId == peerId)
+            .ToListAsync();
+        if (tokens.Count != 0)
+        {
+            _context.DownloadTokens.RemoveRange(tokens);
+        }
+
+        //Clear events:
+        var events = await _context.DownloadEvents
+            .Where(de => de.PeerId == peerId && de.UserId == _userInfo.UserId)
+            .ToListAsync();
+        if (events.Count != 0)
+        {
+            _context.DownloadEvents.RemoveRange(events);
+        }
+        
         _context.DevicePeers.Remove(peer);
         await _context.SaveChangesAsync();
         return true;

@@ -7,6 +7,8 @@ public class IpAddressHelper
 {
     public static bool ValidateIpAddress(string ipAddress)
     {
+        if(ipAddress == "0.0.0.0/0") return true;
+        
         //Get Octets:
         var octets = ipAddress.Split('.');
         if(octets.Length != 4) return false;

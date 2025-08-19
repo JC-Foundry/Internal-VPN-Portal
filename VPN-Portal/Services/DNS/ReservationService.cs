@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using VPN_Portal.Areas.Admin.Services;
 using VPN_Portal.Data;
 using VPN_Portal.Models.Devices;
@@ -62,5 +63,32 @@ public class ReservationService
         await _context.PeerToReservations.AddAsync(peerToReservation);
         await _context.SaveChangesAsync();
         return reservation;
+    }
+
+    public async Task<bool> TryRelease(DevicePeer peer)
+    {
+        if (peer.PeerToReservations == null!)
+        {
+            peer.PeerToReservations = await _context.PeerToReservations
+                .Include(ptr => ptr.DnsReservation)
+                .Where(ptr => ptr.PeerId == peer.PeerId)
+                .ToListAsync();
+        }
+        
+        foreach (var ptr in peer.PeerToReservations)
+        {
+            var reservation = ptr.DnsReservation;
+            if (reservation == null!)
+            {
+                reservation = await _context.DnsReservations.FirstOrDefaultAsync(r => r.ReservationId == ptr.ReservationId);
+            }
+            
+            reservation!.ReleasedUtc = DateTime.UtcNow;
+            _context.DnsReservations.Update(reservation);
+        }
+        
+        _context.PeerToReservations.RemoveRange(peer.PeerToReservations);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

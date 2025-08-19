@@ -45,8 +45,9 @@ builder.Services.AddScoped<DnsManagementService>();
 builder.Services.AddScoped<ReservationService>();
 builder.Services.AddScoped<VpnService>();
 builder.Services.AddScoped<VpnConfigService>();
-builder.Services.AddTransient<KeyGenerationService>();
 builder.Services.AddScoped<PeerService>();
+builder.Services.AddScoped<DownloadTokenService>();
+builder.Services.AddTransient<KeyGenerationService>();
 
 builder.Services.AddRazorPages();
 

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using VPN_Portal.Authentication;
 using VPN_Portal.Models.Devices;
 
 namespace VPN_Portal.Models;
@@ -17,32 +18,39 @@ public class DownloadToken
 
     [Required]
     [MaxLength(50)]
-    public string PeerId { get; set; } = default!;
+    public string PeerId { get; set; }
     [ForeignKey(nameof(PeerId))]
     public virtual DevicePeer? Peer { get; set; }
     
     [Required]
+    [MaxLength(450)]
+    public string UserId { get; set; }
+    [ForeignKey(nameof(UserId))]
+    public virtual ApplicationUser? User { get; set; }
+    
+    
+    [Required]
     [Column(TypeName = "int")]
     public DownloadTokenPurpose Purpose { get; set; } = DownloadTokenPurpose.Config;
-
+    
     [Required]
-    [Column(TypeName = "nvarchar(500)")]
-    public string ConfigPath { get; set; }
+    [Column(TypeName = "datetime2")]
+    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     
     [Required]
     [Column(TypeName = "datetime2")]
     public DateTime ExpiresUtc { get; set; }
-    
-    [Required]
-    public bool OneTime { get; set; } = true;
 
-    [Required]
-    [Column(TypeName = "datetime2")]
-    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     [Column(TypeName = "datetime2")]
     public DateTime? UsedUtc { get; set; }
 
+    /// <summary>
+    /// Will return a 404 not found after 5hrs from expiry
+    /// </summary>
+    [NotMapped]
+    public DateTime NotFoundUtc => ExpiresUtc.AddHours(5);
+    
     [NotMapped]
     public bool IsExpired => DateTime.UtcNow > ExpiresUtc;
 
@@ -52,6 +60,6 @@ public class DownloadToken
 
 public enum DownloadTokenPurpose
 {
-    Config,
-    Qr
+    Config = 1,
+    Qr = 2
 }

@@ -43,12 +43,54 @@ public class FileService
         await stream.FlushAsync();
     }
 
-    public string GetFile(string fileName, params string[] subFolders)
+    public async Task<string?> GetFileText(string fileName, params string[] subFolders)
     {
-        var subPath = GetSubPath();
-        var path = Path.Combine(_basePath, subPath);
-        path = subFolders.Aggregate(path, Path.Combine);
-        path = Path.Combine(path, fileName);
-        return File.ReadAllText(path);
+        try
+        {
+            var subPath = GetSubPath();
+            var path = Path.Combine(_basePath, subPath);
+            path = subFolders.Aggregate(path, Path.Combine);
+            path = Path.Combine(path, fileName);
+            return await File.ReadAllTextAsync(path);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+    
+    public async Task<byte[]?> GetFileBytes(string fileName, params string[] subFolders)
+    {
+        try
+        {
+            var subPath = GetSubPath();
+            var path = Path.Combine(_basePath, subPath);
+            path = subFolders.Aggregate(path, Path.Combine);
+            path = Path.Combine(path, fileName);
+            return await File.ReadAllBytesAsync(path);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public bool DeleteFile(string fileName, params string[] subFolders)
+    {
+        try
+        {
+            var subPath = GetSubPath();
+            var path = Path.Combine(_basePath, subPath);
+            path = subFolders.Aggregate(path, Path.Combine);
+            path = Path.Combine(path, fileName);
+            
+            if (!File.Exists(path)) return false;
+            File.Delete(path);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

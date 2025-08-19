@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using VPN_Portal.Models;
 using VPN_Portal.Models.Devices;
 using VPN_Portal.Services;
 
@@ -10,10 +11,13 @@ namespace VPN_Portal.Pages.Devices;
 public class ConfigModel : PageModel
 {
     private readonly PeerService _peerService;
+    private readonly DownloadTokenService _downloadTokenService;
 
-    public ConfigModel(PeerService peerService)
+    public ConfigModel(PeerService peerService, 
+        DownloadTokenService downloadTokenService)
     {
         _peerService = peerService;
+        _downloadTokenService = downloadTokenService;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -42,17 +46,19 @@ public class ConfigModel : PageModel
     
     public async Task<IActionResult> OnPostDownloadFileAsync(string peerId)
     {
-        // TODO: Implement file download logic
-        // This will redirect to the Download page with appropriate parameters
+        var (result, token) = await _downloadTokenService.TryCreateToken(peerId);
+        if (result) return RedirectToPage("/Download", new { tokenId = token, purpose = DownloadTokenPurpose.Config });
         
-        return RedirectToPage("/Download", new { peerId = peerId, type = "file" });
+        TempData["ErrorMessage"] = "Failed to download config file. Please try again.";
+        return RedirectToPage("/Index");
     }
     
     public async Task<IActionResult> OnPostShowQRCodeAsync(string peerId)
     {
-        // TODO: Implement QR code display logic
-        // This will redirect to the Download page with appropriate parameters
+        var (result, token) = await _downloadTokenService.TryCreateToken(peerId, purpose: DownloadTokenPurpose.Qr);
+        if (result) return RedirectToPage("/Download", new { tokenId = token, purpose = DownloadTokenPurpose.Qr });
         
-        return RedirectToPage("/Download", new { peerId = peerId, type = "qr" });
+        TempData["ErrorMessage"] = "Failed to create QR code. Please try again.";
+        return RedirectToPage("/Index");
     }
 }

@@ -30,16 +30,17 @@ public class DnsManagementService
         return await query.FirstOrDefaultAsync(p => p.DnsPoolId == dnsPoolId);
     }
 
-    private async Task ValidateDnsPool(bool adding, DnsPool dnsPool, ushort? secondSubnet, ModelStateDictionary modelState)
+    private async Task ValidateDnsPool(DnsPool dnsPool, ushort? secondSubnet, ModelStateDictionary modelState)
     {
         var existing = await _context.DnsPools.AnyAsync(p => p.Name == dnsPool.Name 
-                                                             && p.DnsPoolId != dnsPool.DnsPoolId);
+                                                             && p.DnsPoolId != dnsPool.DnsPoolId
+                                                             && p.Enabled);
         if (existing)
         {
             modelState.AddModelError($"Input.{nameof(dnsPool.Name)}", "A DNS pool with this name already exists.");
         }
         
-        if (dnsPool.MaxHost <= dnsPool.MinHost)
+        if (dnsPool.MaxHost < dnsPool.MinHost)
         {
             modelState.AddModelError($"Input.{nameof(dnsPool.MaxHost)}", "The maximum host count must be greater than the minimum host count.");
         }
@@ -60,7 +61,7 @@ public class DnsManagementService
 
     public async Task<bool> TryAddDnsPool(DnsPool dnsPool, ushort? secondSubnet, ModelStateDictionary modelState)
     {
-        await ValidateDnsPool(true, dnsPool, secondSubnet, modelState);
+        await ValidateDnsPool(dnsPool, secondSubnet, modelState);
         if (!modelState.IsValid) return false;
         
         _context.DnsPools.Add(dnsPool);
@@ -70,7 +71,7 @@ public class DnsManagementService
     
     public async Task<bool> TryUpdateDnsPool(DnsPool dnsPool, ushort? secondSubnet, ModelStateDictionary modelState)
     {
-        await ValidateDnsPool(false, dnsPool, secondSubnet, modelState);
+        await ValidateDnsPool(dnsPool, secondSubnet, modelState);
         if (!modelState.IsValid) return false;
         
         _context.DnsPools.Update(dnsPool);

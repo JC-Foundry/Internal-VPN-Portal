@@ -19,9 +19,9 @@ public class VpnConfigService
         _privateKeyFiles = new FileService(path, FileService.FileType.PrivateKey);
     }
     
-    private string? BuildConfig(DevicePeer peer)
+    private async Task<string?> BuildConfig(DevicePeer peer)
     {
-        var privateKey = _privateKeyFiles.GetFile($"{peer.PeerId}.txt", peer.DeviceId)?.Trim();
+        var privateKey = (await _privateKeyFiles.GetFileText($"{peer.PeerId}.txt", peer.DeviceId))?.Trim();
         if(string.IsNullOrEmpty(privateKey)) return "";
         try { _ = Convert.FromBase64String(privateKey); } catch { return null; }
         
@@ -53,16 +53,19 @@ public class VpnConfigService
 
     public async Task<bool> TryCreateConfig(DevicePeer peer)
     {
-        var config = BuildConfig(peer);
+        var config = await BuildConfig(peer);
         if(string.IsNullOrEmpty(config)) return false;
         
         await _configFiles.SaveFile($"{peer.PeerId}.conf", config, peer.DeviceId);
         return true;
     }
 
-    public string GetConfig(DevicePeer peer)
+    public async Task<(byte[]? ConfigBytes, string? ConfigText)> GetConfig(DevicePeer peer)
     {
-        var config = _configFiles.GetFile($"{peer.PeerId}.conf", peer.DeviceId);
-        return string.IsNullOrEmpty(config) ? "" : config;
+        var configBytes = await _configFiles.GetFileBytes($"{peer.PeerId}.conf", peer.DeviceId);
+        var configText = await _configFiles.GetFileText($"{peer.PeerId}.conf", peer.DeviceId);
+        return (configBytes, configText);
     }
+
+    public bool TryDeleteConfig(DevicePeer peer) => _configFiles.DeleteFile($"{peer.PeerId}.conf", peer.DeviceId); 
 }

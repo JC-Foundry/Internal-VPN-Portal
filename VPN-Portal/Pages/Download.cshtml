@@ -1,0 +1,115 @@
+@page "{tokenId}"
+@model VPN_Portal.Pages.Download
+
+@{
+    ViewData["Title"] = "Download VPN Configuration";
+}
+
+<div class="container">
+    @if (Model.IsError)
+    {
+        <!-- Error Card -->
+        <div class="card border-0 shadow-lg">
+            <div class="card-header bg-danger text-white py-4">
+                <div class="text-center">
+                    <i class="fa-solid fa-exclamation-circle fa-4x mb-3"></i>
+                    <h2 class="mb-0 fw-bold">@(Model.ErrorTitle ?? "Error")</h2>
+                </div>
+            </div>
+            <div class="card-body p-5 text-center">
+                <p class="fs-5 text-muted mb-4">@Model.ErrorMessage</p>
+                        
+                <div class="text-center">
+                    <a href="/" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-home me-2"></i>Return to Devices
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- QR Code Display Card -->
+        <div class="card border-0 shadow-lg">
+            <div class="card-header bg-gradient-success text-white py-4">
+                <div class="text-center">
+                    <i class="fa-solid fa-qrcode fa-3x mb-3"></i>
+                    <h2 class="mb-0 fw-bold">VPN Configuration QR Code</h2>
+                    <p class="mb-0 mt-2 opacity-90">Scan with WireGuard mobile app to configure</p>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-success rounded-3 mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h6 class="mb-1 fw-bold">Configuration Ready!</h6>
+                            <small>Scan the QR code below with your WireGuard mobile app.</small>
+                        </div>
+                    </div>
+                </div>
+                        
+                <!-- QR Code Container -->
+                <div class="text-center mb-4">
+                    <div class="qr-code-wrapper bg-white p-4 rounded-3 shadow-sm d-inline-block">
+                        @Html.Raw(Model.QrSvg)
+                    </div>
+                </div>
+                        
+                <!-- Instructions -->
+                <div class="bg-light rounded-3 p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fa-solid fa-mobile-alt text-success me-2"></i>Quick Setup Instructions
+                    </h5>
+                    <ol class="mb-0">
+                        <li class="mb-2">Open the WireGuard app on your mobile device</li>
+                        <li class="mb-2">Tap the <strong>+</strong> button to add a new tunnel</li>
+                        <li class="mb-2">Select <strong>"Create from QR code"</strong></li>
+                        <li class="mb-2">Point your camera at the QR code above</li>
+                        <li class="mb-2">Name your tunnel and save</li>
+                        <li class="mb-2">Toggle the connection switch to connect</li>
+                    </ol>
+                </div>
+                        
+                <!-- Additional Options -->
+                <div class="text-center mt-4">
+                    <a asp-page="/WireGuardGuide" class="btn btn-outline-success btn-lg me-2">
+                        <i class="fa-solid fa-book me-2"></i>View Setup Guide
+                    </a>
+                    <a href="/" class="btn btn-outline-secondary btn-lg">
+                        <i class="fa-solid fa-home me-2"></i>Back to Devices
+                    </a>
+                </div>
+            </div>
+        </div>
+                
+        <!-- Security Notice -->
+        <div class="alert alert-warning mt-4 rounded-3">
+            <div class="d-flex align-items-start">
+                <i class="fa-solid fa-shield-alt fa-lg me-3 mt-1"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Security Notice</h6>
+                    <small>This QR code contains your private VPN credentials. Do not share or screenshot this page. The QR code will only be displayed once for security reasons.</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<style>
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+    }
+    
+    .qr-code-wrapper {
+        border: 2px dashed #dee2e6;
+        max-width: fit-content;
+    }
+    
+    .qr-code-wrapper svg {
+        display: block;
+        max-width: 350px;
+        height: auto;
+    }
+</style>

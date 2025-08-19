@@ -68,7 +68,7 @@ public class CreatePeerModel : PageModel
         }
         
         TempData["SuccessMessage"] = $"Peer created successfully for device '{Device.DeviceName}'.";
-        return RedirectToPage($"/Devices/Config/{peerId}");
+        return RedirectToPage($"/Devices/Config", new { peerId });
     }
 
     private async Task LoadVpnServers()

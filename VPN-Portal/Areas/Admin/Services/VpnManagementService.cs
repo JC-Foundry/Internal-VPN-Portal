@@ -37,24 +37,11 @@ public class VpnManagementService
     private async Task ValidateVpnServer(bool adding, VpnServer vpnServer, ModelStateDictionary modelState)
     {
         var res = await _context.VpnServers.AnyAsync(v => v.Name == vpnServer.Name 
-                                                                    && v.VpnServerId != vpnServer.VpnServerId);
+                                                                    && v.VpnServerId != vpnServer.VpnServerId
+                                                                    && v.IsEnabled);
         if (res)
         {
             modelState.AddModelError($"Input.{nameof(vpnServer.Name)}", "A VPN server with this name already exists.");
-        }
-        
-        res = await _context.VpnServers.AnyAsync(v => v.EndpointHost == vpnServer.EndpointHost 
-                                                                    && v.VpnServerId != vpnServer.VpnServerId);
-        if (res)
-        {
-            modelState.AddModelError($"Input.{nameof(vpnServer.EndpointHost)}", "A VPN server with this endpoint already exists.");
-        }
-        
-        res = await _context.VpnServers.AnyAsync(v => v.PublicKey == vpnServer.PublicKey 
-                                                                    && v.VpnServerId != vpnServer.VpnServerId);
-        if (res)
-        {
-            modelState.AddModelError($"Input.{nameof(vpnServer.PublicKey)}", "A VPN server with this public key already exists.");
         }
 
         var validCidr = IpAddressHelper.ValidateIpAddress(vpnServer.AddressCidr);
@@ -69,7 +56,7 @@ public class VpnManagementService
             modelState.AddModelError($"Input.{nameof(vpnServer.ServerAddress)}", "Invalid server address.");
         }
         
-        var validDnsPool = await _context.DnsPools.AnyAsync(p => p.DnsPoolId == vpnServer.DnsPoolId);
+        var validDnsPool = await _context.DnsPools.AnyAsync(p => p.DnsPoolId == vpnServer.DnsPoolId && p.Enabled);;
         if (!validDnsPool)
         {
             modelState.AddModelError($"Input.{nameof(vpnServer.DnsPoolId)}", "Invalid DNS pool.");

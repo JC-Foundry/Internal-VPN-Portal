@@ -40,4 +40,11 @@ public class KeyGenerationService
         
         return (publicKey, privateKey);
     }
+
+    public bool TryDeleteKeys(DevicePeer peer)
+    {
+        var res = _publicKeyFiles.DeleteFile($"{peer.PeerId}.txt", peer.DeviceId);
+        res &= _privateKeyFiles.DeleteFile($"{peer.PeerId}.txt", peer.DeviceId);
+        return res;
+    }
 }

@@ -22,7 +22,7 @@ public class VpnService
     
     public async Task<bool> AddPeerToRouter(DevicePeer peer)
     {
-        var publicKey = _publicKeyFiles.GetFile($"{peer.PeerId}.txt", peer.DeviceId);
+        var publicKey = await _publicKeyFiles.GetFileText($"{peer.PeerId}.txt", peer.DeviceId);
         if(string.IsNullOrEmpty(publicKey)) return false;
         
         var allowedIp = peer.AssignedIp();
@@ -47,7 +47,7 @@ public class VpnService
 
     public async Task<bool> RemovePeerFromRouter(DevicePeer peer)
     {
-        var publicKey = _publicKeyFiles.GetFile($"{peer.PeerId}.txt", peer.DeviceId);
+        var publicKey = await _publicKeyFiles.GetFileText($"{peer.PeerId}.txt", peer.DeviceId);
         if(string.IsNullOrEmpty(publicKey)) return false;
         
         using var connection = ConnectionFactory.CreateConnection(TikConnectionType.Api);
