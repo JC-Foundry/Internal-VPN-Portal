@@ -152,3 +152,12 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
     }
 </style>
+
+<script>
+    const poll = setInterval(function () {
+        if(document.cookie.includes('dl=1')) {
+            clearInterval(poll);
+            location.assign('/Index');
+        }
+    }, 500)
+</script>

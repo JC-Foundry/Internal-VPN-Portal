@@ -66,7 +66,7 @@ public class DownloadTokenService
     {
         var now = DateTime.UtcNow;
         
-        var token = await _context.DownloadTokens.AsNoTracking()
+        var token = await _context.DownloadTokens
             .Include(t => t.Peer)
             .ThenInclude(p => p!.Device)
             .FirstOrDefaultAsync(t => t.DownloadTokenId == tokenId 
@@ -141,6 +141,10 @@ public class DownloadTokenService
             };
         }
         
+        //Use token:
+        token.UsedUtc = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        
         //Return success:
         var fileName = purpose == DownloadTokenPurpose.Config ? $"{token.Peer.Device?.DeviceName}-VPN.conf" : null;
         _ = await CreateDownloadEvent(token.PeerId, tokenId, token.Purpose, DownloadOutcome.Success);
@@ -158,8 +162,10 @@ public class DownloadTokenService
     {
         using var generator = new QRCodeGenerator();
         using var data = generator.CreateQrCode(content, QRCodeGenerator.ECCLevel.Q);
-        var svg = new SvgQRCode(data).GetGraphic(5);
-        return svg;
+
+        var pngBytes = new PngByteQRCode(data).GetGraphic(pixelsPerModule: 10);
+        var base64 = Convert.ToBase64String(pngBytes);
+        return $"data:image/png;base64,{base64}";
     }
 }
 

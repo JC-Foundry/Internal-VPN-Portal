@@ -15,14 +15,17 @@ public class EditModel : PageModel
 {
     private readonly VpnManagementService _vpnManagementService;
     private readonly DnsManagementService _dnsManagementService;
+    private readonly AdminService _adminService;
 
     public bool IsAdding { get; set; } = true;
 
     public EditModel(VpnManagementService vpnManagementService,
-        DnsManagementService dnsManagementService)
+        DnsManagementService dnsManagementService,
+        AdminService adminService)
     {
         _vpnManagementService = vpnManagementService;
         _dnsManagementService = dnsManagementService;
+        _adminService = adminService;
     }
     
     public class VpnServerInputModel
@@ -41,6 +44,11 @@ public class EditModel : PageModel
         [DisplayName("Endpoint Port")]
         [Range(1, 65535)]
         public uint EndpointPort { get; set; }
+
+        [Required]
+        [DisplayName("Interface Name")]
+        [StringLength(150)]
+        public string InterfaceName { get; set; }
         
         [Required]
         [DisplayName("Public Key")]
@@ -70,6 +78,7 @@ public class EditModel : PageModel
             Name = vpnServer.Name;
             EndpointHost = vpnServer.EndpointHost;
             EndpointPort = vpnServer.EndpointPort;
+            InterfaceName = vpnServer.InterfaceName;
             PublicKey = vpnServer.PublicKey;
             AddressCidr = vpnServer.AddressCidr;
             ServerAddress = vpnServer.ServerAddress;
@@ -81,6 +90,7 @@ public class EditModel : PageModel
             vpnServer.Name = Name;
             vpnServer.EndpointHost = EndpointHost;
             vpnServer.EndpointPort = EndpointPort;
+            vpnServer.InterfaceName = InterfaceName;
             vpnServer.PublicKey = PublicKey;
             vpnServer.AddressCidr = AddressCidr;
             vpnServer.ServerAddress = ServerAddress;
@@ -90,6 +100,9 @@ public class EditModel : PageModel
     
     [BindProperty]
     public VpnServerInputModel Input { get; set; }
+    [BindProperty]
+    public List<string> UserIds { get; set; }
+    public List<(string UserName, string UserId)> Users { get; set; }
     
     public List<SelectListItem> DnsPools { get; set; }
 
@@ -100,13 +113,16 @@ public class EditModel : PageModel
 
     public async Task SetupPage()
     {
-        // As requested, leaving this empty for now - will be implemented later
         DnsPools = (await _dnsManagementService.GetDnsPools()).Select(p => new SelectListItem
         {
             Text =
                 $"{p.Name} - {p.GetRange()}",
             Value = p.DnsPoolId
         }).ToList();
+
+        var users = await _adminService.GetUsers(true);
+        Users = users.Where(u => u.UserName != null)
+            .Select(u => (u.UserName!, u.Id)).ToList();
     }
 
     public async Task<IActionResult> OnGetAsync(string? id)
@@ -123,6 +139,7 @@ public class EditModel : PageModel
         var vpnServer = await _vpnManagementService.GetVpnServer(id!, includePool: false);
         if (vpnServer == null) return NotFound();
         
+        UserIds = await _vpnManagementService.GetVpnServerUserIds(vpnServer.VpnServerId);
         Input = new VpnServerInputModel(vpnServer);
         return Page();
     }
@@ -139,7 +156,7 @@ public class EditModel : PageModel
         {
             var vpnServer = new VpnServer();
             Input.Fill(vpnServer);
-            res = await _vpnManagementService.TryAddVpnServer(vpnServer, ModelState);
+            res = await _vpnManagementService.TryAddVpnServer(vpnServer, UserIds, ModelState);
         }
         else
         {
@@ -147,7 +164,7 @@ public class EditModel : PageModel
             if (vpnServer == null) return NotFound();
             
             Input.Fill(vpnServer);
-            res = await _vpnManagementService.TryUpdateVpnServer(vpnServer, ModelState);
+            res = await _vpnManagementService.TryUpdateVpnServer(vpnServer, UserIds, ModelState);
         }
         
         return res ? RedirectToPage("/VPN/Index", new { area = "Admin" }) : Page();

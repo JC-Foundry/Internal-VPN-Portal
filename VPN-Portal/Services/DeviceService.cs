@@ -58,6 +58,7 @@ public class DeviceService
     {
         var existingDevice = await _context.Devices.FirstOrDefaultAsync(d => d.UserId == device.UserId 
                                                                              && d.DeviceName == device.DeviceName
+                                                                             && !d.IsRevoked
                                                                              && d.DeviceId != device.DeviceId);
         if (existingDevice != null)
         {

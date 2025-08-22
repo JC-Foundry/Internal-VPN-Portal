@@ -6,7 +6,7 @@ using VPN_Portal.Models.Devices;
 namespace VPN_Portal.Models.VpnServers;
 
 [Table("DnsReservations")]
-[Index(nameof(DnsPoolId), nameof(HostOctet), IsUnique = true)]
+[Index(nameof(DnsPoolId), nameof(HostOctet), nameof(ReleasedUtc), IsUnique = true)]
 [Index(nameof(DeviceId))]
 [Index(nameof(ReleasedUtc))]
 public class DnsReservation
@@ -42,6 +42,22 @@ public class DnsReservation
     [Column(TypeName = "datetime2")]
     public DateTime? ReleasedUtc { get; set; }
     public bool IsActive => ReleasedUtc == null;
+
+    public string GetAddress()
+    {
+        if(DnsPool == null!) return "Unknown";
+        
+        var family = DnsPool.Family;
+        var ip = family switch
+        {
+            NetworkFamily.Net10 => $"10.{DnsPool.SecondOctet}.{DnsPool.Subnet}.{HostOctet}",
+            NetworkFamily.Net172 => $"172.{DnsPool.SecondOctet}.{DnsPool.Subnet}.{HostOctet}",
+            NetworkFamily.Net192 => $"192.168.{DnsPool.Subnet}.{HostOctet}",
+            _ => null
+        };
+        
+        return ip ?? "Unknown";
+    }
     
     public virtual ICollection<PeerToReservation> PeerToReservations { get; set; }
 }

@@ -42,7 +42,7 @@ public class IndexModel : PageModel
 
         // Set IsEnabled to false instead of deleting
         server.IsEnabled = false;
-        await _vpnManagementService.TryUpdateVpnServer(server, ModelState);
+        await _vpnManagementService.TryUpdateVpnServer(server, [], ModelState);
         
         TempData["SuccessMessage"] = $"VPN server '{server.Name}' has been disabled successfully.";
         return RedirectToPage();

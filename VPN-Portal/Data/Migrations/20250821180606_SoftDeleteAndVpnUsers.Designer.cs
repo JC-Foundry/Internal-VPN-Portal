@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VPN_Portal.Data;
 
@@ -11,9 +12,11 @@ using VPN_Portal.Data;
 namespace VPN_Portal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250821180606_SoftDeleteAndVpnUsers")]
+    partial class SoftDeleteAndVpnUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -351,7 +354,7 @@ namespace VPN_Portal.Data.Migrations
                     b.Property<int>("Purpose")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("RedeemedUtc")
+                    b.Property<DateTime>("RedeemedUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TokenId")
@@ -486,9 +489,8 @@ namespace VPN_Portal.Data.Migrations
 
                     b.HasIndex("ReleasedUtc");
 
-                    b.HasIndex("DnsPoolId", "HostOctet", "ReleasedUtc")
-                        .IsUnique()
-                        .HasFilter("[ReleasedUtc] IS NOT NULL");
+                    b.HasIndex("DnsPoolId", "HostOctet")
+                        .IsUnique();
 
                     b.ToTable("DnsReservations");
                 });
@@ -516,11 +518,6 @@ namespace VPN_Portal.Data.Migrations
 
                     b.Property<long>("EndpointPort")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("InterfaceName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("bit");

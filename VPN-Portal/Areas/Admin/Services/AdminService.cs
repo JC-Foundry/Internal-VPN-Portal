@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using tik4net.Objects.User;
 using VPN_Portal.Areas.Admin.Models;
 using VPN_Portal.Authentication;
 using VPN_Portal.Data;
@@ -53,6 +54,13 @@ public class AdminService
         }
         
         return viewModels;
+    }
+
+    public async Task<List<ApplicationUser>> GetUsers(bool asNoTracking)
+    {
+        var query = _context.Users.AsQueryable();
+        if (asNoTracking) query = query.AsNoTracking();
+        return await query.Select(u => (ApplicationUser)u).ToListAsync();
     }
 
     public async Task<UserViewModel?> GetUser(string userId)

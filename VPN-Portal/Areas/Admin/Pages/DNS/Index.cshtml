@@ -69,15 +69,88 @@
             </div>
         </div>
 
-        <!-- DNS Pools -->
+        <!-- Last 10 Reservations -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-light">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="fa-solid fa-layer-group me-2 text-primary"></i>DNS Pools
+                        <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Last 10 Reservations
                     </h5>
-                    <a href="#" class="btn btn-sm btn-primary">
-                        <i class="fa-solid fa-plus me-1"></i>Add Pool
+                    <a asp-area="Admin" asp-page="/DNS/Pools" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-list me-1"></i>View All
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th class="border-0">IP Address</th>
+                                <th class="border-0">User</th>
+                                <th class="border-0">Device</th>
+                                <th class="border-0">Pool</th>
+                                <th class="border-0">Reserved At</th>
+                                <th class="border-0">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentReservations.Any())
+                            {
+                                foreach (var reservation in Model.RecentReservations)
+                                {
+                                    <tr>
+                                        <td>
+                                            <code>@reservation.IPAddress</code>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">
+                                                <i class="fa-solid fa-user me-2 text-info"></i>@reservation.User
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">
+                                                <i class="fa-solid fa-laptop me-2 text-info"></i>@reservation.DeviceName
+                                            </div>
+                                        </td>
+                                        <td>@reservation.PoolName</td>
+                                        <td>
+                                            <small class="text-muted">@reservation.ReservedAt.ToLocalTime().ToString("g")</small>
+                                        </td>
+                                        <td>
+                                            @if (reservation.IsReleased)
+                                            {
+                                                <span class="badge bg-secondary-subtle text-secondary">Released</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success-subtle text-success">Active</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">No reservations found</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 5 Most Used DNS Pools -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fa-solid fa-chart-bar me-2 text-primary"></i>Top 5 Most Used DNS Pools
+                    </h5>
+                    <a asp-area="Admin" asp-page="/DNS/Pools" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-layer-group me-1"></i>Manage Pools
                     </a>
                 </div>
             </div>
@@ -87,7 +160,6 @@
                         <thead>
                             <tr>
                                 <th class="border-0">Pool Name</th>
-                                <th class="border-0">Network</th>
                                 <th class="border-0">Subnet</th>
                                 <th class="border-0">Total IPs</th>
                                 <th class="border-0">Used</th>
@@ -97,47 +169,47 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var pool in Model.DnsPools)
+                            @if (Model.TopDnsPools.Any())
+                            {
+                                @foreach (var pool in Model.TopDnsPools)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">
+                                                <i class="fa-solid fa-network-wired me-2 text-primary"></i>@pool.Name
+                                            </div>
+                                        </td>
+                                        <td>@pool.Subnet</td>
+                                        <td>@pool.TotalIPs</td>
+                                        <td>
+                                            <span class="badge bg-success-subtle text-success">@pool.UsedIPs</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info-subtle text-info">@pool.AvailableIPs</span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px; min-width: 100px;">
+                                                <div class="progress-bar @(pool.UsagePercentage > 80 ? "bg-danger" : pool.UsagePercentage > 60 ? "bg-warning" : "bg-success")" 
+                                                     role="progressbar" 
+                                                     style="width: @(pool.UsagePercentage)%">
+                                                    @pool.UsagePercentage%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-area="Admin" asp-page="/DNS/Edit" asp-route-id="@pool.Id" class="btn btn-outline-primary" title="View">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
                             {
                                 <tr>
-                                    <td>
-                                        <div class="fw-semibold">
-                                            <i class="fa-solid fa-network-wired me-2 text-primary"></i>@pool.Name
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <code>@pool.Network</code>
-                                    </td>
-                                    <td>@pool.Subnet</td>
-                                    <td>@pool.TotalIPs</td>
-                                    <td>
-                                        <span class="badge bg-success-subtle text-success">@pool.UsedIPs</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info-subtle text-info">@pool.AvailableIPs</span>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 20px; min-width: 100px;">
-                                            <div class="progress-bar @(pool.UsagePercentage > 80 ? "bg-danger" : pool.UsagePercentage > 60 ? "bg-warning" : "bg-success")" 
-                                                 role="progressbar" 
-                                                 style="width: @(pool.UsagePercentage)%">
-                                                @pool.UsagePercentage%
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-primary" title="View">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-warning" title="Edit">
-                                                <i class="fa-solid fa-pen"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" title="Delete">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
+                                    <td colspan="8" class="text-center text-muted py-3">No DNS pools found</td>
                                 </tr>
                             }
                         </tbody>
@@ -146,80 +218,25 @@
             </div>
         </div>
 
-        <!-- Recent Reservations -->
+        <!-- Quick Actions -->
         <div class="row g-3">
-            <div class="col-md-8">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">
-                            <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Recent Reservations
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="list-group list-group-flush">
-                            @foreach (var reservation in Model.RecentReservations)
-                            {
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-semibold">
-                                                <code>@reservation.IPAddress</code>
-                                            </div>
-                                            <small class="text-muted">
-                                                Device: @reservation.DeviceName | Pool: @reservation.PoolName
-                                            </small>
-                                        </div>
-                                        <div class="text-end">
-                                            <span class="badge bg-success-subtle text-success">Active</span>
-                                            <div>
-                                                <small class="text-muted">@reservation.ReservedAt.ToString("MMM dd, h:mm tt")</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-12">
                 <div class="card border-0 bg-light">
                     <div class="card-body">
                         <h6 class="fw-bold mb-3">
-                            <i class="fa-solid fa-chart-pie me-2 text-info"></i>IP Allocation
+                            <i class="fa-solid fa-bolt me-2 text-warning"></i>Quick Actions
                         </h6>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small>10.0.0.0/8</small>
-                                <small class="text-muted">45%</small>
+                        <div class="row g-2">
+                            <div class="col-auto">
+                                <a asp-area="Admin" asp-page="/DNS/Pools" class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-layer-group me-1"></i>Manage DNS Pools
+                                </a>
                             </div>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar bg-primary" style="width: 45%"></div>
+                            <div class="col-auto">
+                                <a asp-area="Admin" asp-page="/DNS/Edit" class="btn btn-sm btn-outline-success">
+                                    <i class="fa-solid fa-plus me-1"></i>Create New Pool
+                                </a>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small>172.16.0.0/12</small>
-                                <small class="text-muted">62%</small>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar bg-warning" style="width: 62%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small>192.168.0.0/16</small>
-                                <small class="text-muted">28%</small>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar bg-success" style="width: 28%"></div>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="d-grid">
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="fa-solid fa-chart-line me-1"></i>View Details
-                            </button>
                         </div>
                     </div>
                 </div>

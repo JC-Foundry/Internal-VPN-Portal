@@ -55,7 +55,9 @@ public class DownloadToken
     public bool IsExpired => DateTime.UtcNow > ExpiresUtc;
 
     [NotMapped]
-    public bool IsUsed => UsedUtc != null;
+    public bool IsUsed => UsedUtc != null || IsCleared;
+    
+    public bool IsCleared { get; set; } = false;
 }
 
 public enum DownloadTokenPurpose

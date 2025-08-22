@@ -5,7 +5,7 @@
     ViewData["Title"] = "Download VPN Configuration";
 }
 
-<div class="container">
+<div class="container my-5">
     @if (Model.IsError)
     {
         <!-- Error Card -->
@@ -51,8 +51,8 @@
                         
                 <!-- QR Code Container -->
                 <div class="text-center mb-4">
-                    <div class="qr-code-wrapper bg-white p-4 rounded-3 shadow-sm d-inline-block">
-                        @Html.Raw(Model.QrSvg)
+                    <div class="bg-white p-4 rounded-3 shadow-sm d-inline-block">
+                        <img src="@Model.ImgUrl" alt="VPN Configuration" style="width: 100%; max-width: 320px;"/>
                     </div>
                 </div>
                         
@@ -101,15 +101,10 @@
     .bg-gradient-success {
         background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
     }
-    
-    .qr-code-wrapper {
-        border: 2px dashed #dee2e6;
-        max-width: fit-content;
-    }
-    
-    .qr-code-wrapper svg {
-        display: block;
-        max-width: 350px;
-        height: auto;
-    }
 </style>
+
+<script>
+    setTimeout(function () {
+        location.reload();
+    }, 300000)
+</script>

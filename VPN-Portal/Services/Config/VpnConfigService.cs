@@ -31,7 +31,7 @@ public class VpnConfigService
         var valid = IpAddressHelper.ValidateIpAddress(allowedIp);
         if(!valid) return null;
         
-        var sb = new StringBuilder();
+        var sb = new StringBuilder(256);
         
         //Interface
         sb.AppendLine("[Interface]");
@@ -47,8 +47,11 @@ public class VpnConfigService
         sb.AppendLine($"Endpoint = {peer.VpnServer!.EndpointHost}:{peer.VpnServer!.EndpointPort}");
         sb.AppendLine("PersistentKeepalive = 25");
         sb.AppendLine();
-        
-        return sb.ToString().Replace("\r\n", "\n");
+
+        var str = sb.ToString();
+        var crlf = str.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
+        if(!crlf.EndsWith("\r\n")) crlf += "\r\n";
+        return crlf;
     }
 
     public async Task<bool> TryCreateConfig(DevicePeer peer)

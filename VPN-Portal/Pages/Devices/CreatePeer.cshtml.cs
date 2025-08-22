@@ -73,7 +73,7 @@ public class CreatePeerModel : PageModel
 
     private async Task LoadVpnServers()
     {
-        var vpnServers = (await _vpnManagementService.GetVpnServers(includePeers: true))
+        var vpnServers = (await _vpnManagementService.GetVpnServers(includePeers: true, includePool: true, excludeFullServers: true, filterVpnUsers: true))
             .Where(v => !v.Peers!.Select(p => p.DeviceId).Contains(Device.DeviceId));
         
         VpnServersData = vpnServers.Select(server => 

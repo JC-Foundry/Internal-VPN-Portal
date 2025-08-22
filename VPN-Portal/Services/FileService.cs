@@ -1,9 +1,12 @@
+using System.Text;
+
 namespace VPN_Portal.Services;
 
 public class FileService
 {
     private readonly string _basePath;
     private readonly FileType _fileType;
+    private readonly UTF8Encoding Utf8NoBom = new (encoderShouldEmitUTF8Identifier: false);
 
     public FileService(string basePath, FileType fileType)
     {
@@ -33,11 +36,12 @@ public class FileService
         
         var path = Path.Combine(_basePath, subPath);
         path = subFolders.Aggregate(path, Path.Combine);
-        Directory.CreateDirectory(path);
+        if(!Directory.Exists(path)) Directory.CreateDirectory(path);
 
         path = Path.Combine(path, fileName);
         await using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
-        await using var writer = new StreamWriter(stream);
+        await using var writer = new StreamWriter(stream, Utf8NoBom, bufferSize: 4096);
+        writer.NewLine = "\r\n";
         await writer.WriteAsync(content);
         await writer.FlushAsync();
         await stream.FlushAsync();

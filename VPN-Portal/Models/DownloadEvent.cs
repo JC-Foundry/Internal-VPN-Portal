@@ -36,7 +36,6 @@ public class DownloadEvent
     [Column(TypeName = "datetime2")]
     public DateTime AttemptedUtc { get; set; } = DateTime.UtcNow;
     
-    [Required]
     [Column(TypeName = "datetime2")]
     public DateTime? RedeemedUtc { get; set; } = DateTime.UtcNow;
 

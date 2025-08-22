@@ -87,7 +87,6 @@ public class ReservationService
             _context.DnsReservations.Update(reservation);
         }
         
-        _context.PeerToReservations.RemoveRange(peer.PeerToReservations);
         await _context.SaveChangesAsync();
         return true;
     }

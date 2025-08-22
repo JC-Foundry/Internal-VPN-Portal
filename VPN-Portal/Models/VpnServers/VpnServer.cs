@@ -34,6 +34,10 @@ public class VpnServer
     public string EndpointHost { get; set; }
     
     [Required]
+    [MaxLength(255)]
+    public string InterfaceName { get; set; }
+    
+    [Required]
     [MaxLength(500)]
     public string PublicKey { get; set; }
     

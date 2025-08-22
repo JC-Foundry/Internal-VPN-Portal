@@ -63,6 +63,14 @@ public class PeerService
         
         valid = await _context.DevicePeers.AnyAsync(dp => dp.VpnServerId == vpnServerId && dp.DeviceId == deviceId);
         if(valid) return (false, string.Empty);
+
+        var server = await _context.VpnServers
+            .Include(v => v.DnsPool)
+            .FirstOrDefaultAsync(v => v.VpnServerId == vpnServerId);
+        var usedReservations = await _context.DnsReservations
+            .CountAsync(r => r.DnsPoolId == server!.DnsPoolId && r.ReleasedUtc == null);
+        var maxRes = (server!.DnsPool!.MaxHost - server!.DnsPool!.MinHost) + 1;
+        if(usedReservations >= maxRes) return (false, string.Empty);
         
         var peer = new DevicePeer
         {
@@ -84,15 +92,7 @@ public class PeerService
          var res = await _vpnService.RemovePeerFromRouter(peer);
          if(!res) return false;
         
-        //Delete config:
-        res = _vpnConfigService.TryDeleteConfig(peer);
-        if(!res) return false;
-        
-        //Delete keys:
-        res = _keyGenerationService.TryDeleteKeys(peer);
-        if(!res) return false;
-        
-        //Delete reservations:
+        //Release reservations:
         res = await _reservationService.TryRelease(peer);
         if(!res) return false;
         
@@ -100,18 +100,10 @@ public class PeerService
         var tokens = await _context.DownloadTokens
             .Where(t => t.UserId == _userInfo.UserId && t.PeerId == peerId)
             .ToListAsync();
-        if (tokens.Count != 0)
+        foreach (var token in tokens)
         {
-            _context.DownloadTokens.RemoveRange(tokens);
-        }
-
-        //Clear events:
-        var events = await _context.DownloadEvents
-            .Where(de => de.PeerId == peerId && de.UserId == _userInfo.UserId)
-            .ToListAsync();
-        if (events.Count != 0)
-        {
-            _context.DownloadEvents.RemoveRange(events);
+            token.IsCleared = true;
+            _context.DownloadTokens.Update(token);   
         }
         
         _context.DevicePeers.Remove(peer);

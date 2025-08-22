@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<PeerToReservation> PeerToReservations { get; set; }
     
     public DbSet<VpnServer> VpnServers { get; set; }
+    public DbSet<VpnServerUser> VpnServerUsers { get; set; }
     public DbSet<DnsPool> DnsPools { get; set; }
     public DbSet<DnsReservation> DnsReservations { get; set; }
     

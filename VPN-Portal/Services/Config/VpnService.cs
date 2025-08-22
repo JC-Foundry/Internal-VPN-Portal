@@ -34,7 +34,7 @@ public class VpnService
         await connection.OpenAsync(_config["ROUTER_IP"], _config["ROS_Username"], _config["ROS_Password"]);
 
         var cmd = connection.CreateCommandAndParameters("/interface/wireguard/peers/add",
-            "interface", "wg-vpn",
+            "interface", peer.VpnServer?.InterfaceName ?? "wg-vpn",
             "public-key", publicKey,
             "allowed-address", $"{allowedIp}/32",
             "responder", "yes",

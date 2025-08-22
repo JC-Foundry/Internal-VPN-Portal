@@ -78,4 +78,29 @@ public class DnsManagementService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<List<DnsReservation>> GetDnsReservations(bool asNoTracking = true, int take = 10)
+    {
+        var query = _context.DnsReservations
+            .Include(r => r.DnsPool)
+            .Include(r => r.PeerToReservations)
+            .AsQueryable();
+        
+        if (asNoTracking) query = query.AsNoTracking();
+        if(take > 0) query = query.Take(take);
+
+        var reservations = await query.OrderByDescending(r => r.ReservedUtc).ToListAsync();
+        foreach (var res in reservations)
+        {
+            res.PeerToReservations = await _context.PeerToReservations
+                .Include(ptr => ptr.Peer)
+                .ThenInclude(p => p.Device)
+                .ThenInclude(d => d.User)
+                .Where(ptr => ptr.ReservationId == res.ReservationId)
+                .ToListAsync();
+            
+        }
+        
+        return reservations;
+    }
 }

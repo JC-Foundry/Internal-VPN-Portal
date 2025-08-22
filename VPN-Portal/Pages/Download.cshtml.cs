@@ -16,7 +16,7 @@ public class Download : PageModel
         _downloadTokenService = downloadTokenService;
     }
     
-    public string QrSvg { get; set; }
+    public string ImgUrl { get; set; }
     public string? ErrorTitle { get; set; }
     public string? ErrorMessage { get; set; }
     public bool IsError => !string.IsNullOrEmpty(ErrorMessage);
@@ -29,9 +29,14 @@ public class Download : PageModel
             case DownloadOutcome.NotFound:
                 return NotFound();
             case DownloadOutcome.Success when result.Purpose == DownloadTokenPurpose.Config:
+                Response.Cookies.Append("dl", "1", new CookieOptions
+                {
+                    MaxAge = TimeSpan.FromSeconds(3), SameSite = SameSiteMode.Strict
+                });
+                TempData["SuccessMessage"] = "Config file downloaded successfully.";
                 return File(result.ConfigBytes!, "text/plain", result.FileName);
             case DownloadOutcome.Success:
-                QrSvg = _downloadTokenService.GenerateQrCode(result.Config!);
+                ImgUrl = _downloadTokenService.GenerateQrCode(result.Config!);
                 return Page();
         }
 
