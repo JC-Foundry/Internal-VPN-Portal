@@ -11,7 +11,7 @@ public class UserViewModel
     public string? PhoneNumber { get; set; }
     
     public DateTime? LastLogin { get; set; }
-    public uint? MaxDevices { get; set; }
+    public uint? MaxPeers { get; set; }
     
     public List<string?> Roles { get; set; }
 
@@ -27,7 +27,7 @@ public class UserViewModel
         Email = user.Email;
         PhoneNumber = user.PhoneNumber;
         LastLogin = user.LastLogin;
-        MaxDevices = user.MaxDevices;
+        MaxPeers = user.MaxPeers;
         Roles = roles;
     }
 }

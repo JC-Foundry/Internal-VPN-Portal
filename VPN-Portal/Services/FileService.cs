@@ -18,7 +18,8 @@ public class FileService
     {
         Config,
         PrivateKey,
-        PublicKey
+        PublicKey,
+        Security
     }
 
     private string GetSubPath()
@@ -27,6 +28,7 @@ public class FileService
             FileType.Config => "Device-Configs",
             FileType.PrivateKey => Path.Combine("Keys", "Private"),
             FileType.PublicKey => Path.Combine("Keys", "Public"),
+            FileType.Security => "Security",
             _ => throw new ArgumentOutOfRangeException()
         };
 

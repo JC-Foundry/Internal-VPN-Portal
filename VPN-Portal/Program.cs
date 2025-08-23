@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VPN_Portal.Areas.Admin.Services;
+using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Authentication;
 using VPN_Portal.Authentication.UserClaims;
 using VPN_Portal.Data;
@@ -48,6 +49,15 @@ builder.Services.AddScoped<VpnConfigService>();
 builder.Services.AddScoped<PeerService>();
 builder.Services.AddScoped<DownloadTokenService>();
 builder.Services.AddTransient<KeyGenerationService>();
+builder.Services.AddScoped<SecurityService>();
+builder.Services.AddScoped<SecurityActionService>();
+builder.Services.AddSingleton<SecurityCache>(sp =>
+{
+    var cache = new SecurityCache(sp, sp.GetRequiredService<IConfiguration>());
+    cache.BuildCache().Wait();
+    return cache;
+});
+
 
 builder.Services.AddRazorPages();
 
@@ -128,4 +138,10 @@ async Task HostDefaults()
     {
         await userManager.AddToRoleAsync(adminUser, SystemRoles.SystemAdmin);
     }
+    
+    //Load valid-users (assume DB is clean)
+    var securityCache = sp.GetRequiredService<SecurityCache>();
+    var userIds = await context.Users.Select(u => (ApplicationUser)u)
+        .Where(u => !u.IsDeactivated).Select(u => u.Id).ToListAsync();
+    await securityCache.UpdateValidUsersFile(userIds);
 }

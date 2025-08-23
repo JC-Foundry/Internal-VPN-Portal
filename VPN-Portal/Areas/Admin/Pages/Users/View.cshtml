@@ -79,6 +79,71 @@
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-gradient-primary text-white">
         <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-network-wired me-2"></i> Peer Settings
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="mb-3">
+                    <i class="fa-solid fa-users-gear me-2 text-primary"></i> Maximum Peers Configuration
+                </h5>
+                <form method="post" asp-page-handler="UpdateMaxPeers">
+                    <div class="mb-3">
+                        <label asp-for="MaxPeers" class="form-label fw-semibold">Maximum Number of Peers</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-hashtag"></i>
+                            </span>
+                            <input type="number" 
+                                   asp-for="MaxPeers"
+                                   class="form-control" 
+                                   value="@Model.User.MaxPeers" 
+                                   min="0" 
+                                   max="100"
+                                   placeholder="Enter max peers (1-100). 0 for unlimited.">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-save me-2"></i> Update
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">
+                            Current limit: <strong>@Model.User.MaxPeers</strong> peers
+                        </small>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <h5 class="mb-3">
+                    <i class="fa-solid fa-chart-simple me-2 text-primary"></i> Peer Usage Statistics
+                </h5>
+                <div class="alert alert-info">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span><i class="fa-solid fa-ethernet me-2"></i>Active Peers:</span>
+                        <span class="badge bg-primary">@Model.UserPeers.Count / @(Model.User.MaxPeers?.ToString() ?? "Unlimited")</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" 
+                             style="width: calc((@(Model.UserPeers.Count) / @(Model.User.MaxPeers)) * 100%)"
+                             aria-valuenow="Model.UserPeers.Count" 
+                             aria-valuemin="0" 
+                             aria-valuemax="@Model.User.MaxPeers">
+                            @Model.UserPeers.Count / @(Model.User.MaxPeers?.ToString() ?? "Unlimited") peers used
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted small">
+                    <i class="fa-solid fa-info-circle me-1"></i>
+                    This user can create up to <strong>@(Model.User.MaxPeers?.ToString() ?? "Unlimited")</strong> peer connections across all devices.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
             <i class="fa-solid fa-shield-halved me-2"></i> Role Management
         </h4>
     </div>
@@ -161,12 +226,7 @@
                 DeviceName = d.DeviceName,
                 DeviceType = d.DeviceType.ToString(),
                 CreatedUtc = d.CreatedUtc.ToLocalTime(),
-                LastSeenUtc = d.LastSeenUtc.ToLocalTime(),
-                PeerCount = d.Peers?.Count ?? 0,
-                Peers = d.Peers?.Select(p => new {
-                    VpnServer = p.VpnServer?.Name ?? "Unknown",
-                    AssignedIp = p.AssignedIp() ?? "N/A"
-                }).ToList()
+                LastSeenUtc = d.LastSeenUtc.ToLocalTime()
             }).ToList();
             
             <ejs-grid id="devicesGrid" dataSource="@deviceData" allowPaging="true" allowSorting="true" allowFiltering="true"
@@ -179,7 +239,6 @@
                     <e-grid-column field="CreatedUtc" headerText="Created"></e-grid-column>
                     <e-grid-column field="LastSeenUtc" headerText="Last Seen"></e-grid-column>
                     <e-grid-column field="PeerCount" headerText="Peers" width="80" textAlign="Center"></e-grid-column>
-                    <e-grid-column field="Peers" headerText="Peer Details" template="#peerDetailsTemplate"></e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
         }
@@ -188,6 +247,44 @@
             <div class="text-center py-4">
                 <i class="fa-solid fa-laptop fa-3x text-muted mb-3"></i>
                 <p class="text-muted">No devices found for this user.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h4 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-ethernet me-2"></i> User Peers
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        @if (Model.UserPeers.Any())
+        {
+            var peerData = Model.UserPeers.Select(p => new {
+                DeviceName = p.Device!.DeviceName,
+                AssignedIp = p.AssignedIp() ?? "Unknown",
+                CreatedUtc = p.CreatedUtc.ToLocalTime(),
+                VpnServer = p.VpnServer!.Name
+            }).ToList();
+            
+            <ejs-grid id="peerGrid" dataSource="@peerData" allowPaging="true" allowSorting="true" allowFiltering="true"
+                      clipMode="EllipsisWithTooltip">
+                <e-grid-pagesettings pageSize="10"></e-grid-pagesettings>
+                <e-grid-filtersettings type="Excel"></e-grid-filtersettings>
+                <e-grid-columns>
+                    <e-grid-column field="DeviceName" headerText="Device Name"></e-grid-column>
+                    <e-grid-column field="AssignedIp" headerText="IP Address"></e-grid-column>
+                    <e-grid-column field="VpnServer" headerText="VPN Server"></e-grid-column>
+                    <e-grid-column field="CreatedUtc" headerText="Created"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="fa-solid fa-ethernet fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No device peers found for this user.</p>
             </div>
         }
     </div>
@@ -228,18 +325,6 @@
 </div>
 
 <partial name="Shared/_UserActions" model="1"/>
-
-<script id="peerDetailsTemplate" type="text/x-template">
-    <div class="peer-details">
-        ${if(Peers && Peers.length > 0)}
-            <ul class="list-unstyled mb-0">
-            ${Peers.map(p => `<li><small><strong>${p.VpnServer}</strong> - IP: ${p.AssignedIp}</small></li>`).join('')}
-            </ul>
-        ${else}
-            <span class="text-muted">No peers configured</span>
-        ${/if}
-    </div>
-</script>
 
 <style>
     .peer-details ul {

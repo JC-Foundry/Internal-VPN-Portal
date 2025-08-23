@@ -1,0 +1,154 @@
+@using Microsoft.AspNetCore.Identity
+@using VPN_Portal.Authentication
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Security Centre</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/VPN_Portal.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Syncfusion CSS -->
+    <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/material.css" />
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-info security-nav">
+            <div class="container-fluid">
+                <!-- Back Button -->
+                <a class="btn btn-outline-light btn-back me-3" asp-area="Admin" asp-page="/Users/Index">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to Admin
+                </a>
+                
+                <!-- Security Centre Brand -->
+                <a class="navbar-brand" asp-area="Security" asp-page="/Index">
+                    <i class="fa-solid fa-shield-halved me-2"></i>
+                    Security Centre
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#securityNavbar" 
+                        aria-controls="securityNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="securityNavbar">
+                    <ul class="navbar-nav ms-auto">
+                        <!-- Security Events Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle nav-hover-effect" href="#" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-exclamation-triangle me-2"></i>Security Events
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" asp-area="Security" asp-page="/Events/Index" asp-route-type="all">
+                                        <i class="fa-solid fa-list me-2"></i>All Events
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-header">Event Types</li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Security" asp-page="/Events/Index" asp-route-type="CreateUser">
+                                        <i class="fa-solid fa-user-plus me-2 text-info"></i>User Creation
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Security" asp-page="/Events/Index" asp-route-type="AddRouterPeer">
+                                        <i class="fa-solid fa-globe me-2 text-info"></i>Router Peer Added
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Security" asp-page="/Events/Index" asp-route-type="InvalidToken">
+                                        <i class="fa-solid fa-key me-2 text-warning"></i>Invalid Tokens
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Security" asp-page="/Events/Index" asp-route-type="PeerAbuse">
+                                        <i class="fa-solid fa-user-slash me-2 text-warning"></i>Peer Abuse
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Security" asp-page="/Events/Index" asp-route-type="InvalidLoginAttempt">
+                                        <i class="fa-solid fa-user-xmark me-2 text-danger"></i>Invalid Login Attempts
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Security" asp-page="/Events/Index" asp-route-type="UnauthorisedVpnPeer">
+                                        <i class="fa-solid fa-ethernet me-2 text-danger"></i>Unauthorised VPN Peer
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Security" asp-page="/Events/Index" asp-route-type="UnauthorisedVpnToken">
+                                        <i class="fa-solid fa-unlock me-2 text-danger"></i>Unauthorised VPN Token
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Security Actions -->
+                        <li class="nav-item">
+                            <a class="nav-link nav-hover-effect" asp-area="Security" asp-page="/Actions/Index">
+                                <i class="fa-solid fa-gavel me-2"></i>Actions Taken
+                            </a>
+                        </li>
+                        
+                        <!-- User Info -->
+                        <li class="nav-item dropdown ms-3">
+                            <a class="nav-link dropdown-toggle nav-hover-effect" href="#" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-user-shield me-2"></i>@User.Identity?.Name
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-page="/Index">
+                                        <i class="fa-solid fa-gauge me-2"></i>Admin Dashboard
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" 
+                                          asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fa-solid fa-sign-out-alt me-2"></i>Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <div class="container-fluid py-4">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+    
+    <footer class="footer text-muted">
+        <div class="container text-center">
+            &copy; 2025 - VPN Portal Security Centre - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Syncfusion Scripts -->
+    <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>
+    <ejs-scripts></ejs-scripts>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

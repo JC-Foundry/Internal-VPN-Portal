@@ -39,7 +39,7 @@ public class UserInfoMiddleware
                 var lastLogin = context.User.FindFirst(UserClaims.LastLoginClaim)?.Value;
                 userInfo.LastLogin = lastLogin != null ? DateTime.Parse(lastLogin) : DateTime.Now;
                 
-                var maxDeviceCountStr = context.User.FindFirst(UserClaims.MaxDeviceCountClaim)?.Value;
+                var maxDeviceCountStr = context.User.FindFirst(UserClaims.MaxPeerCountClaim)?.Value;
                 uint? maxDeviceCount = null;
                 if (maxDeviceCountStr?.ToUpper() != "UNLIMITED")
                 {

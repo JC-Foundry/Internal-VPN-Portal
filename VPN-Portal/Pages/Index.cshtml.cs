@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Models.Devices;
+using VPN_Portal.Models.Security;
 using VPN_Portal.Services;
 
 namespace VPN_Portal.Pages;
@@ -12,14 +14,20 @@ public class IndexModel : PageModel
     private readonly ILogger<IndexModel> _logger;
     private readonly DeviceService _deviceService;
     private readonly PeerService _peerService;
+    private readonly SecurityActionService _securityActionService;
+    private readonly UserInfo _userInfo;
 
     public IndexModel(ILogger<IndexModel> logger,
         DeviceService deviceService,
-        PeerService peerService)
+        PeerService peerService,
+        SecurityActionService securityActionService,
+        UserInfo userInfo)
     {
         _logger = logger;
         _deviceService = deviceService;
         _peerService = peerService;
+        _securityActionService = securityActionService;
+        _userInfo = userInfo;
     }
 
     public List<Device> Devices { get; set; } = new();
@@ -64,6 +72,7 @@ public class IndexModel : PageModel
         var res = await _peerService.TryDeletePeer(peerId);
         if (res)
         {
+            _ = await _securityActionService.PerformRouterPeerRemoved(peerId, _userInfo.UserId, TakenByType.User, true);
             TempData["SuccessMessage"] = "Peer deleted successfully.";
             _logger.LogInformation("Peer {PeerId} deleted successfully", peerId);
             return RedirectToPage();

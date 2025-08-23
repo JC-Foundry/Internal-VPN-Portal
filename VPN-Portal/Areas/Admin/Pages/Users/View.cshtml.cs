@@ -16,20 +16,28 @@ public class View : PageModel
 {
     private readonly AdminService _adminService;
     private readonly DeviceService _deviceService;
+    private readonly PeerService _peerService;
 
-    public View(AdminService adminService, DeviceService deviceService)
+    public View(AdminService adminService, 
+        DeviceService deviceService,
+        PeerService peerService)
     {
         _adminService = adminService;
         _deviceService = deviceService;
+        _peerService = peerService;
     }
     
     public UserViewModel User { get; set; }
     public List<SelectListItem> AddRoles { get; set; }
     public List<SelectListItem> RemoveRoles { get; set; }
     public List<Device> UserDevices { get; set; } = new();
+    public List<DevicePeer> UserPeers { get; set; } = new();
     
     [BindProperty]
     public string SelectedRole { get; set; } = string.Empty;
+    
+    [BindProperty]
+    public int MaxPeers { get; set; }
 
     private async Task<IActionResult?> SetupPage(string userId)
     {
@@ -48,6 +56,7 @@ public class View : PageModel
         
         // Get user's devices
         UserDevices = await _deviceService.GetDevicesForUser(userId, includeRevoked: false);
+        UserPeers = await _peerService.GetUserPeers(userId);
         
         return null;
     }
@@ -56,6 +65,25 @@ public class View : PageModel
     {
         var res = await SetupPage(userId);
         return res ?? Page();
+    }
+
+    public async Task<IActionResult> OnPostUpdateMaxPeersAsync(string userId)
+    {
+        var res = await SetupPage(userId);
+        if (res != null) return res;
+        
+        ModelState.Remove("SelectedRole");
+        if(!ModelState.IsValid) return Page();
+        
+        var success = await _adminService.TryChangeMaxPeers(userId, MaxPeers);
+        if (success)
+        {
+            TempData["SuccessMessage"] = $"Maximum number of peers has been updated successfully.";
+            return RedirectToPage();
+        }
+        
+        TempData["ErrorMessage"] = "Failed to update maximum number of peers. Please try again.";
+        return Page();   
     }
 
     public async Task<IActionResult> OnPostAddRoleAsync(string userId)

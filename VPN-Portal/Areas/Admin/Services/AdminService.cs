@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using tik4net.Objects.User;
 using VPN_Portal.Areas.Admin.Models;
+using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Authentication;
 using VPN_Portal.Data;
 using VPN_Portal.Helpers;
+using VPN_Portal.Models.Security;
 
 namespace VPN_Portal.Areas.Admin.Services;
 
@@ -12,12 +14,18 @@ public class AdminService
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SecurityService _securityService;
+    private readonly IConfiguration _config;
 
     public AdminService(ApplicationDbContext context,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        SecurityService securityService,
+        IConfiguration config)
     {
         _context = context;
         _userManager = userManager;
+        _securityService = securityService;
+        _config = config;
     }
 
     private async Task<List<string?>> GetRoles(ApplicationUser user)
@@ -70,6 +78,24 @@ public class AdminService
         
         var roles = await GetRoles((ApplicationUser)user);
         return new UserViewModel((ApplicationUser)user, roles);
+    }
+
+    public async Task<bool> TryChangeMaxPeers(string userId, int maxPeers)
+    {
+        var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (identityUser == null) return false;
+
+        var user = (ApplicationUser)identityUser;
+        uint? max = maxPeers switch
+        {
+            < 1 => null,
+            _ => (uint)maxPeers
+        };
+        
+        user.MaxPeers = max;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<string> TryResetPassword(string userId)
@@ -146,6 +172,8 @@ public class AdminService
         if (!result.Succeeded) return (false, string.Empty);
         
         result = await _userManager.AddToRoleAsync(user, SystemRoles.StandardUser);
+        //Create security event:
+        _ = await _securityService.GenerateCreateUserEvent(user.Id, CreatedUserType.Admin, TakenByType.System, _config["CU_KEY"]);
         return (result.Succeeded, result.Succeeded ? password : string.Empty);
     }
 }

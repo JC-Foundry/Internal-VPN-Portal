@@ -27,7 +27,12 @@ public class DeviceService
             .Where(d => d.UserId == _userInfo.UserId && !d.IsRevoked);
         
         if (asNoTracking) query = query.AsNoTracking();
-        return await query.OrderBy(d => d.DeviceName).ToListAsync();
+        var devices = await query.OrderBy(d => d.DeviceName).ToListAsync();
+        foreach (var device in devices)
+        {
+            device.Peers = device.Peers!.Where(p => !p.IsDeleted).ToList();
+        }
+        return devices;
     }
     
     public async Task<List<Device>> GetDevicesForUser(string userId, bool includeRevoked = false, bool asNoTracking = true)

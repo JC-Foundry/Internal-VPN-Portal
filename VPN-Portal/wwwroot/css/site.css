@@ -114,6 +114,7 @@ body {
   padding: 0.5rem 0;
   min-width: 200px;
   animation: slideDown 0.3s ease;
+  z-index: 1050;
 }
 
 @keyframes slideDown {
@@ -264,4 +265,200 @@ body {
 /* Show validation summaries when they have errors */
 .validation-summary-errors {
   display: block;
+}
+
+/* ===== Consolidated Styles from Pages ===== */
+
+/* From Download.cshtml */
+.bg-gradient-success {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+
+/* From WireGuardGuide.cshtml */
+.hover-shadow {
+  transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+.step-card {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  height: 100%;
+}
+
+/* From Config.cshtml */
+.hover-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+/* From Users/View.cshtml */
+.peer-details ul {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.peer-details li {
+  padding: 2px 0;
+}
+
+/* ===== Bootstrap Gradient Definitions ===== */
+
+/* Info - Light Blue */
+.bg-gradient-info {
+  background: linear-gradient(135deg, #5ee7df 0%, #66a6ff 100%);
+}
+
+/* Warning - Orange/Yellow */
+.bg-gradient-warning {
+  background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+}
+
+/* Danger - Red */
+.bg-gradient-danger {
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+}
+
+/* Secondary - Gray */
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, #8e9eab 0%, #eef2f3 100%);
+}
+
+/* Dark - Dark Gray/Black */
+.bg-gradient-dark {
+  background: linear-gradient(135deg, #434343 0%, #000000 100%);
+}
+
+/* Light - Light Gray/White */
+.bg-gradient-light {
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+}
+
+/* ===== Security Centre Specific Styles ===== */
+
+/* Security Severity Gradients */
+.bg-gradient-severity-info {
+  background: linear-gradient(135deg, #5ee7df 0%, #66a6ff 100%);
+}
+
+.bg-gradient-severity-low {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+
+.bg-gradient-severity-medium {
+  background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+}
+
+.bg-gradient-severity-high {
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+}
+
+.bg-gradient-severity-critical {
+  background: linear-gradient(135deg, #8b0000 0%, #2c0000 100%);
+}
+
+/* Security Centre Card Styles */
+.security-stat-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+
+.security-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.security-stat-card .display-4 {
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Security Navigation Styles */
+.security-nav {
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  z-index: 1030;
+  position: relative;
+}
+
+.security-nav .navbar-brand {
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.security-nav .btn-back {
+  transition: all 0.3s ease;
+}
+
+.security-nav .btn-back:hover {
+  transform: translateX(-5px);
+}
+
+/* Security Event Type Cards */
+.event-type-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: white;
+  position: relative;
+}
+
+.event-type-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.event-type-badge {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Event Type Card Gradient Borders */
+.event-type-card.border-info {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #5ee7df 0%, #66a6ff 100%) border-box;
+  border: 3px solid transparent;
+}
+
+.event-type-card.border-warning {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #f2994a 0%, #f2c94c 100%) border-box;
+  border: 3px solid transparent;
+}
+
+.event-type-card.border-danger {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #eb3349 0%, #f45c43 100%) border-box;
+  border: 3px solid transparent;
+}
+
+.event-type-card.border-info:hover {
+  box-shadow: 0 5px 20px rgba(102, 166, 255, 0.3);
+  border: 6px solid transparent;
+}
+
+.event-type-card.border-warning:hover {
+  box-shadow: 0 5px 20px rgba(242, 201, 76, 0.3);
+  border: 6px solid transparent;
+}
+
+.event-type-card.border-danger:hover {
+  box-shadow: 0 5px 20px rgba(244, 92, 67, 0.3);
+  border: 6px solid transparent;
+}
+
+.badge{
+  font-size: 0.9rem !important;
 }

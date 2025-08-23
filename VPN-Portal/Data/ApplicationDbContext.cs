@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using VPN_Portal.Models;
 using VPN_Portal.Models.Devices;
+using VPN_Portal.Models.Security;
 using VPN_Portal.Models.VpnServers;
 using VPN_Portal.Services;
 
@@ -25,6 +26,20 @@ public class ApplicationDbContext : IdentityDbContext
     
     public DbSet<DownloadToken> DownloadTokens { get; set; }
     public DbSet<DownloadEvent> DownloadEvents { get; set; }
+
+    #region Security
+
+    public DbSet<SecurityEvent> SecurityEvents { get; set; }
+    public DbSet<AddRouterPeerEvent> AddRouterPeerEvents { get; set; }
+    public DbSet<CreateUserEvent> CreateUserEvents { get; set; }
+    public DbSet<InvalidLoginAttemptEvent> InvalidLoginAttemptEvents { get; set; }
+    public DbSet<InvalidTokenEvent> InvalidTokenEvents { get; set; }
+    public DbSet<UnauthorisedVpnPeerEvent> UnauthorisedVpnPeerEvents { get; set; }
+    public DbSet<UnauthorisedVpnTokenEvent> UnauthorisedVpnTokenEvents { get; set; }
+    public DbSet<PeerAbuseEvent> PeerAbuseEvents { get; set; }
+    public DbSet<SecurityAction> SecurityActions { get; set; }
+ 
+    #endregion
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +94,32 @@ public class ApplicationDbContext : IdentityDbContext
             .HasOne(de => de.Token)
             .WithMany()
             .HasForeignKey(de => de.TokenId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        // Fix cascade issues for UnauthorisedVpnPeerEvent
+        modelBuilder.Entity<UnauthorisedVpnPeerEvent>()
+            .HasOne(u => u.VpnServer)
+            .WithMany()
+            .HasForeignKey(u => u.VpnServerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<UnauthorisedVpnPeerEvent>()
+            .HasOne(u => u.Peer)
+            .WithMany()
+            .HasForeignKey(u => u.PeerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        // Fix cascade issues for UnauthorisedVpnTokenEvent
+        modelBuilder.Entity<UnauthorisedVpnTokenEvent>()
+            .HasOne(u => u.VpnServer)
+            .WithMany()
+            .HasForeignKey(u => u.VpnServerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<UnauthorisedVpnTokenEvent>()
+            .HasOne(u => u.Peer)
+            .WithMany()
+            .HasForeignKey(u => u.PeerId)
             .OnDelete(DeleteBehavior.Restrict);
         
     }

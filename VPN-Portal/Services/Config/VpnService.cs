@@ -1,5 +1,6 @@
 using tik4net;
 using tik4net.Objects;
+using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Data;
 using VPN_Portal.Helpers;
 using VPN_Portal.Models.Devices;

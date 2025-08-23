@@ -11,10 +11,15 @@
         if (User.IsInRole(SystemRoles.SystemAdmin))
         {
             <li class="nav-item">
+                <a class="nav-link nav-hover-effect px-3" asp-area="Security" asp-page="/Index">
+                    <i class="fa-solid fa-shield-halved me-1"></i> Security
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link nav-hover-effect px-3" asp-area="Admin" asp-page="/Users/Index">
                     <i class="fa-solid fa-user-tie me-1"></i> Admin
                 </a>
-            </li>    
+            </li>
         }
         
         <li class="nav-item dropdown">

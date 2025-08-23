@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using VPN_Portal.Areas.Admin.Services;
+using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Authentication;
 using VPN_Portal.Data;
 using VPN_Portal.Models.Devices;
@@ -17,15 +18,18 @@ public class CreatePeerModel : PageModel
     private readonly DeviceService _deviceService;
     private readonly VpnManagementService _vpnManagementService;
     private readonly PeerService _peerService;
+    private readonly SecurityService _securityService;
 
     public CreatePeerModel(
         DeviceService deviceService,
         VpnManagementService vpnManagementService,
-        PeerService peerService)
+        PeerService peerService,
+        SecurityService securityService)
     {
         _deviceService = deviceService;
         _vpnManagementService = vpnManagementService;
         _peerService = peerService;
+        _securityService = securityService;
     }
 
     public Device Device { get; set; }
@@ -60,13 +64,13 @@ public class CreatePeerModel : PageModel
             return RedirectToPage("/Index");
         }
 
-        success = await _peerService.ProvisionPeerConfig(peerId);
-        if (!success)
+        var result = await _peerService.ProvisionPeerConfig(peerId);
+        if (!result.Success)
         {
             TempData["ErrorMessage"] = $"Failed to provision peer config for device '{Device.DeviceName}'. Please try again.";
             return RedirectToPage("/Index");
         }
-        
+        _ = await _securityService.GenerateAddRouterPeerEvent(result.Peer!.Device!.UserId, result.Peer!.PeerId, result.PublicKey!, result.AllowedIp!);
         TempData["SuccessMessage"] = $"Peer created successfully for device '{Device.DeviceName}'.";
         return RedirectToPage($"/Devices/Config", new { peerId });
     }
@@ -74,7 +78,7 @@ public class CreatePeerModel : PageModel
     private async Task LoadVpnServers()
     {
         var vpnServers = (await _vpnManagementService.GetVpnServers(includePeers: true, includePool: true, excludeFullServers: true, filterVpnUsers: true))
-            .Where(v => !v.Peers!.Select(p => p.DeviceId).Contains(Device.DeviceId));
+            .Where(v => !v.Peers!.Where(p => !p.IsDeleted).Select(p => p.DeviceId).Contains(Device.DeviceId));
         
         VpnServersData = vpnServers.Select(server => 
         {

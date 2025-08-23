@@ -17,7 +17,8 @@ public class ApplicationUser : IdentityUser
     public DateTime? LastLogin { get; set; }
     
     [Range(0, int.MaxValue)]
-    public uint? MaxDevices { get; set; }
+    public uint? MaxPeers { get; set; }
+    public bool IsDeactivated { get; set; }
     
     public virtual ICollection<Device> Devices { get; set; }
 }

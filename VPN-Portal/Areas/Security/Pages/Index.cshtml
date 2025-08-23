@@ -1,0 +1,291 @@
+@page
+@model VPN_Portal.Areas.Security.Pages.Index
+
+@{
+    ViewData["Title"] = "Security Centre Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Main Title -->
+    <div class="text-center mb-5">
+        <h1 class="display-3 fw-bold">
+            <i class="fa-solid fa-shield-halved text-info me-3"></i>Security Centre
+        </h1>
+        <p class="lead text-muted">Monitor and manage security events</p>
+    </div>
+    
+    <!-- Severity Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3">
+                <i class="fa-solid fa-chart-line me-2"></i>Event Severity Overview
+            </h3>
+        </div>
+        
+        <div class="col-md col-sm-6 mb-3">
+            <div class="card security-stat-card bg-gradient-severity-info">
+                <div class="card-body text-center text-white">
+                    <i class="fa-solid fa-info-circle fa-2x mb-2"></i>
+                    <h5 class="card-title">Info</h5>
+                    <p class="display-4">@Model.InfoCount</p>
+                    <small>Informational Events</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md col-sm-6 mb-3">
+            <div class="card security-stat-card bg-gradient-severity-low">
+                <div class="card-body text-center text-white">
+                    <i class="fa-solid fa-shield fa-2x mb-2"></i>
+                    <h5 class="card-title">Low</h5>
+                    <p class="display-4">@Model.LowCount</p>
+                    <small>Low Priority</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md col-sm-6 mb-3">
+            <div class="card security-stat-card bg-gradient-severity-medium">
+                <div class="card-body text-center text-white">
+                    <i class="fa-solid fa-triangle-exclamation fa-2x mb-2"></i>
+                    <h5 class="card-title">Medium</h5>
+                    <p class="display-4">@Model.MediumCount</p>
+                    <small>Moderate Risk</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md col-sm-6 mb-3">
+            <div class="card security-stat-card bg-gradient-severity-high">
+                <div class="card-body text-center text-white">
+                    <i class="fa-solid fa-exclamation-triangle fa-2x mb-2"></i>
+                    <h5 class="card-title">High</h5>
+                    <p class="display-4">@Model.HighCount</p>
+                    <small>High Risk</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md col-sm-6 mb-3">
+            <div class="card security-stat-card bg-gradient-severity-critical">
+                <div class="card-body text-center text-white">
+                    <i class="fa-solid fa-skull-crossbones fa-2x mb-2"></i>
+                    <h5 class="card-title">Critical</h5>
+                    <p class="display-4">@Model.CriticalCount</p>
+                    <small>Immediate Action</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Event Type Statistics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3">
+                <i class="fa-solid fa-layer-group me-2"></i>Event Types Distribution
+            </h3>
+        </div>
+        
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card event-type-card border-info">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-user-plus text-info fa-2x mb-2"></i>
+                    <h6 class="card-title">User Creation</h6>
+                    <p class="event-type-badge text-info">@Model.CreateUserCount</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card event-type-card border-info">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-globe text-info fa-2x mb-2"></i>
+                    <h6 class="card-title">Router Peer</h6>
+                    <p class="event-type-badge text-info">@Model.AddRouterPeerCount</p>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card event-type-card border-warning">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-key text-warning fa-2x mb-2"></i>
+                    <h6 class="card-title">Invalid Token</h6>
+                    <p class="event-type-badge text-warning">@Model.InvalidTokenCount</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card event-type-card border-warning">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-user-slash text-warning fa-2x mb-2"></i>
+                    <h6 class="card-title">Peer Abuse</h6>
+                    <p class="event-type-badge text-warning">@Model.PeerAbuseCount</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card event-type-card border-danger">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-user-xmark text-danger fa-2x mb-2"></i>
+                    <h6 class="card-title">Invalid Login</h6>
+                    <p class="event-type-badge text-danger">@Model.InvalidLoginCount</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card event-type-card border-danger">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-ethernet text-danger fa-2x mb-2"></i>
+                    <h6 class="card-title">Unauthorised Peer</h6>
+                    <p class="event-type-badge text-danger">@Model.UnauthorisedPeerCount</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card event-type-card border-danger">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-unlock text-danger fa-2x mb-2"></i>
+                    <h6 class="card-title">Unauthorised Token</h6>
+                    <p class="event-type-badge text-danger">@Model.UnauthorisedTokenCount</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card event-type-card border-danger">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-crown text-danger fa-2x mb-2"></i>
+                    <h6 class="card-title">Role Elevation</h6>
+                    <p class="event-type-badge text-danger">@Model.RoleElevationCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Security Events Grid -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-info text-white">
+                    <h4 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-list-check me-2"></i>Recent Security Events
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <ejs-grid id="securityEventsGrid" 
+                              dataSource="Model.SecurityEvents"
+                              allowPaging="true" 
+                              allowSorting="true" 
+                              allowFiltering="true"
+                              showColumnChooser="true"
+                              toolbar="@(new List<string>() { "Search", "ColumnChooser" })">
+                        <e-grid-pagesettings pageSize="20"></e-grid-pagesettings>
+                        <e-grid-filtersettings type="Excel"></e-grid-filtersettings>
+                        <e-grid-columns>
+                            <e-grid-column field="EventType" headerText="Type" template="#eventTypeTemplate"></e-grid-column>
+                            <e-grid-column field="Severity" headerText="Severity" template="#severityTemplate"></e-grid-column>
+                            <e-grid-column field="Status" headerText="Status" template="#statusTemplate"></e-grid-column>
+N                            <e-grid-column field="UserName" headerText="User"></e-grid-column>
+                            <e-grid-column field="CreatedAt" headerText="Created" width="250" format="dd/MM/yyyy hh:mm"></e-grid-column>
+                            <e-grid-column field="NumberOfActions" headerText="No. Actions" width="160"></e-grid-column>
+                        </e-grid-columns>
+                    </ejs-grid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Syncfusion Grid Templates -->
+<script id="eventTypeTemplate" type="text/x-template">  
+    ${if(EventType == 'Create User')}
+        <span class="badge bg-info">${EventType}</span>
+    ${else if(EventType == 'Add Router Peer')}
+        <span class="badge bg-info">${EventType}</span>
+    ${else if(EventType == 'Invalid Token')}
+        <span class="badge bg-warning">${EventType}</span>
+    ${else if(EventType == 'Peer Abuse')}
+        <span class="badge bg-warning">${EventType}</span>
+    ${else if(EventType == 'Invalid Login Attempt')}
+        <span class="badge bg-danger">${EventType}</span>
+    ${else if(EventType == EventType == 'Unauthorised Vpn Peer')}
+        <span class="badge bg-danger">${EventType}</span>
+    ${else if(EventType == EventType == 'Unauthorised Vpn Token')}
+        <span class="badge bg-danger">${EventType}</span>
+    ${else if(EventType == EventType == 'Role Elevation')}
+        <span class="badge bg-danger">${EventType}</span>
+    ${else}
+        <span class="badge bg-secondary">${EventType}</span>
+    ${/if}
+</script>
+
+<script id="severityTemplate" type="text/x-template">
+    ${if(Severity == 'Info')}
+        <span class="badge bg-info">Info</span>
+    ${else if(Severity == 'Low')}
+        <span class="badge bg-success">Low</span>
+    ${else if(Severity == 'Medium')}
+        <span class="badge bg-warning">Medium</span>
+    ${else if(Severity == 'High')}
+        <span class="badge bg-danger">High</span>
+    ${else if(Severity == 'Critical')}
+        <span class="badge bg-dark">Critical</span>
+    ${else}
+        <span class="badge bg-secondary">${Severity}</span>
+    ${/if}
+</script>
+
+<script id="statusTemplate" type="text/x-template">
+    ${if(Status == 'Open')}
+        <span class="badge bg-warning">Open</span>
+    ${else if(Status == 'Acknowledged')}
+        <span class="badge bg-info">Acknowledged</span>
+    ${else if(Status == 'Suppressed')}
+        <span class="badge bg-secondary">Suppressed</span>
+    ${else if(Status == 'Resolved')}
+        <span class="badge bg-success">Resolved</span>
+    ${else if(Status == 'Closed')}
+        <span class="badge bg-dark">Closed</span>
+    ${else}
+        <span class="badge bg-secondary">${Status}</span>
+    ${/if}
+</script>
+
+<script id="actionsTemplate" type="text/x-template">
+    <a class="btn btn-sm btn-primary" href="/Security/Events/Details?id=${EventId}">
+        <i class="fa-solid fa-eye"></i> View
+    </a>
+</script>
+
+<script>
+    // Initialize any additional JavaScript for the Security Centre
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-refresh every 30 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+        
+        // Add click handlers to stat cards for filtering
+        document.querySelectorAll('.security-stat-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                // Navigate to filtered view based on severity
+                const severity = this.querySelector('.card-title').innerText;
+                window.location.href = `/Security/Events/Index?severity=${severity}`;
+            });
+        });
+        
+        document.querySelectorAll('.event-type-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                // Navigate to filtered view based on event type
+                const eventType = this.querySelector('.card-title').innerText.replace(/ /g, '');
+                window.location.href = `/Security/Events/Index?type=${eventType}`;
+            });
+        });
+    });
+</script>
