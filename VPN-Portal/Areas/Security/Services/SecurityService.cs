@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VPN_Portal.Authentication;
 using VPN_Portal.Data;
 using VPN_Portal.Models;
 using VPN_Portal.Models.Security;
@@ -11,16 +13,19 @@ public class SecurityService
     private readonly ApplicationDbContext _context;
     private readonly SecurityCache _cache;
     private readonly SecurityActionService _actionService;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _config;
 
     public SecurityService(ApplicationDbContext context,
         SecurityCache cache,
         SecurityActionService actionService,
+        UserManager<ApplicationUser> userManager,
         IConfiguration config)
     {
         _context = context;
         _cache = cache;
         _actionService = actionService;
+        _userManager = userManager;
         _config = config;
     }
 
@@ -81,7 +86,7 @@ public class SecurityService
         return true;
     }
 
-    public async Task<bool> GenerateAddRouterPeerEvent(string userId, string peerId, string publicKey, string? ipAddress, TakenByType takenBy = TakenByType.System)
+    public async Task<bool> GenerateAddRouterPeerEvent(string userId, string peerId, string publicKey, string? ipAddress)
     {
         var persisted = await PersistedUser(userId);
         if(!persisted) return false;
@@ -110,7 +115,7 @@ public class SecurityService
         return true;
     }
 
-    public async Task<bool> GenerateInvalidTokenEvent(string userId, string tokenId, string peerId,
+    public async Task<bool> GenerateInvalidTokenEvent(string userId, string? tokenId, string? peerId,
         DownloadOutcome outcome, DownloadTokenPurpose purpose)
     {
         var persisted = await PersistedUser(userId);
@@ -137,6 +142,68 @@ public class SecurityService
         
         await _context.SecurityEvents.AddAsync(securityEvent);
         await _context.InvalidTokenEvents.AddAsync(invalidTokenEvent);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> GeneratePeerAbuseEvent()
+    {
+        return false;
+    }
+
+    public async Task<bool> GenerateInvalidLoginEvent(string targetUsername, TakenByType takenBy = TakenByType.System)
+    {
+        var user = await _userManager.FindByNameAsync(targetUsername);
+        string? userId = null;
+        if(user != null) userId = user.Id;
+
+        var existingEvent = await _context.InvalidLoginAttemptEvents
+            .FirstOrDefaultAsync(ila => ila.TargetUsername == targetUsername
+                                        && ila.LastSeenUtc >= DateTime.UtcNow.AddMinutes(-10));
+        SecurityEvent? securityEvent = null;
+        if (existingEvent != null && !string.IsNullOrEmpty(userId))
+        {
+            securityEvent = await _context.SecurityEvents.FirstOrDefaultAsync(e => e.EventId == existingEvent.EventId);
+            if(securityEvent == null) return false;
+            
+            var validUser = await PersistedUser(userId);
+            if (validUser)
+            {
+                existingEvent.Attempts++;
+                existingEvent.LastSeenUtc = DateTime.UtcNow;
+
+                if (existingEvent.Attempts >= 8)
+                {
+                    securityEvent.ElevatedSeverity = ThreatSeverity.High;
+                    _ = await _actionService.PerformAccountDisable(userId, securityEvent.EventId, takenBy);
+                }
+                else if (existingEvent.Attempts >= 5)
+                {
+                    securityEvent.ElevatedSeverity = ThreatSeverity.Medium;
+                }
+                
+                _context.InvalidLoginAttemptEvents.Update(existingEvent);
+                _context.SecurityEvents.Update(securityEvent);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+        }
+        
+        securityEvent ??= new SecurityEvent
+        {
+            EventType = EventType.InvalidLoginAttempt,
+            UserId = userId,
+            ElevatedSeverity = string.IsNullOrEmpty(userId) ? ThreatSeverity.Medium : null,
+        };
+        existingEvent = new InvalidLoginAttemptEvent
+        {
+            EventId = securityEvent.EventId,
+            TargetUsername = targetUsername,
+            Attempts = 1
+        };
+        
+        await _context.SecurityEvents.AddAsync(securityEvent);
+        await _context.InvalidLoginAttemptEvents.AddAsync(existingEvent);
         await _context.SaveChangesAsync();
         return true;
     }

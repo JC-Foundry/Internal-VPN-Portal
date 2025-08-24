@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QRCoder;
+using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Data;
 using VPN_Portal.Models;
 using VPN_Portal.Services.Config;
@@ -12,16 +13,19 @@ public class DownloadTokenService
     private readonly UserInfo _userInfo;
     private readonly VpnConfigService _vpnConfigService;
     private readonly PeerService _peerService;
+    private readonly SecurityService _securityService;
 
     public DownloadTokenService(ApplicationDbContext context,
         UserInfo userInfo,
         VpnConfigService vpnConfigService,
-        PeerService peerService)
+        PeerService peerService,
+        SecurityService securityService)
     {
         _context = context;
         _userInfo = userInfo;
         _vpnConfigService = vpnConfigService;
         _peerService = peerService;
+        _securityService = securityService;
     }
 
     public async Task<(bool Result, string? TokenId)> TryCreateToken(string peerId, DownloadTokenPurpose purpose = DownloadTokenPurpose.Config)
@@ -75,6 +79,7 @@ public class DownloadTokenService
         //Token missing
         if (token?.Peer == null)
         {
+            _ = await _securityService.GenerateInvalidTokenEvent(_userInfo.UserId, null, null, DownloadOutcome.NotFound, purpose);
             _ = await CreateDownloadEvent(null, null, purpose, DownloadOutcome.NotFound);
             return new DownloadRedeemResult("Token not found.")
             {
@@ -87,6 +92,7 @@ public class DownloadTokenService
         //Token passed NotFoundUtc
         if (now > token.NotFoundUtc)
         {
+            _ = await _securityService.GenerateInvalidTokenEvent(_userInfo.UserId, tokenId, token.PeerId, DownloadOutcome.NotFound, token.Purpose);
             _ = await CreateDownloadEvent(token.PeerId, tokenId, token.Purpose, DownloadOutcome.NotFound);
             return new DownloadRedeemResult("Token not found.")
             {
@@ -101,6 +107,7 @@ public class DownloadTokenService
         //Token expired
         if (now > token.ExpiresUtc)
         {
+            _ = await _securityService.GenerateInvalidTokenEvent(_userInfo.UserId, tokenId, token.PeerId, DownloadOutcome.TokenExpired, token.Purpose);
             _ = await CreateDownloadEvent(token.PeerId, tokenId, token.Purpose, DownloadOutcome.TokenExpired);
             return new DownloadRedeemResult("Token expired.")
             {
@@ -115,6 +122,7 @@ public class DownloadTokenService
         //Token used
         if (token.IsUsed)
         {
+            _ = await _securityService.GenerateInvalidTokenEvent(_userInfo.UserId, tokenId, token.PeerId, DownloadOutcome.TokenAlreadyUsed, token.Purpose);
             _ = await CreateDownloadEvent(token.PeerId, tokenId, token.Purpose, DownloadOutcome.TokenAlreadyUsed);
             return new DownloadRedeemResult("Token already used.")
             {
@@ -130,6 +138,7 @@ public class DownloadTokenService
         var (configBytes, config) = await _vpnConfigService.GetConfig(token.Peer);
         if (config == null || configBytes == null)
         {
+            _ = await _securityService.GenerateInvalidTokenEvent(_userInfo.UserId, tokenId, token.PeerId, DownloadOutcome.NoConfigFound, token.Purpose);
             _ = await CreateDownloadEvent(token.PeerId, tokenId, token.Purpose, DownloadOutcome.NoConfigFound);
             return new DownloadRedeemResult("Failed to fetch config.")
             {

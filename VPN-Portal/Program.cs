@@ -83,6 +83,11 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseStaticFiles();
+
+app.UseAuthentication();
+app.UseUserInfo();
+app.UseAccountDisabled();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -103,7 +108,6 @@ async Task HostDefaults()
     var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
     
     await context.Database.MigrateAsync();
-    app.UseUserInfo();
     
     async Task ConfirmRoleSetup(string role)
     {

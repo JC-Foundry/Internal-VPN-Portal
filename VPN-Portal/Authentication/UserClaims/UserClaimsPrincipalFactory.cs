@@ -13,6 +13,7 @@ public class UserClaimsPrincipalFactory : UserClaimsPrincipalFactory<Application
         defaultClaims.AddClaim((new Claim(UserClaims.DisplayNameClaim, user.DisplayName ?? "")));
         defaultClaims.AddClaim((new Claim(UserClaims.LastLoginClaim, user.LastLogin?.ToString("G") ?? string.Empty)));
         defaultClaims.AddClaim((new Claim(UserClaims.MaxPeerCountClaim, user.MaxPeers.ToString() ?? "UNLIMITED")));
+        defaultClaims.AddClaim((new Claim(UserClaims.IsDisabled, user.IsDeactivated.ToString())));
 
         return defaultClaims;
     }

@@ -1,0 +1,50 @@
+@page
+@model VPN_Portal.Areas.Identity.Pages.Account.Disabled
+
+@{
+    ViewData["Title"] = "Account Disabled";
+}
+
+<div class="container">
+    <div class="row justify-content-center align-items-center my-5">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-gradient-danger text-white text-center py-4 rounded-top-4">
+                    <h2 class="mb-1 fw-bold">
+                        <i class="fa-solid fa-user-lock me-2"></i>Account Disabled
+                    </h2>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="mb-4">
+                        <i class="fa-solid fa-circle-exclamation text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h4 class="mb-3 text-secondary">Access Restricted</h4>
+                    
+                    <p class="text-muted mb-4">
+                        Your account has been temporarily disabled for security reasons. 
+                        This may be due to multiple failed login attempts or administrative action.
+                    </p>
+                    
+                    <p class="text-muted mb-4">
+                        Please contact your system administrator to restore access to your account.
+                    </p>
+                    
+                    <hr class="my-4" />
+                    
+                    <button class="btn btn-outline-danger btn-lg rounded-3 w-100"
+                            onclick="location.assign('/Identity/Account/Logout')">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                    </button>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3 rounded-bottom-4">
+                    <small class="text-muted">
+                        <i class="fa-solid fa-shield-halved me-1"></i>VPN Portal Security
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

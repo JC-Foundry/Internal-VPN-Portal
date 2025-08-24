@@ -5,4 +5,5 @@ public class UserClaims
     public const string DisplayNameClaim = "VPNP_DN";
     public const string LastLoginClaim = "VPNP_LL";
     public const string MaxPeerCountClaim = "VPNP_MDC";
+    public const string IsDisabled = "VPNP_ISD";
 }

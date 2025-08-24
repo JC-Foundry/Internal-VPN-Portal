@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using VPN_Portal.Authentication.UserClaims
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -25,7 +26,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarMain">
-                @if(User?.Identity?.IsAuthenticated ?? false)
+                @if((User?.Identity?.IsAuthenticated ?? false) && User.HasClaim(UserClaims.IsDisabled, "False"))
                 {
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                             <li class="nav-item">

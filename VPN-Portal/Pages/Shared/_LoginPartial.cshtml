@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using VPN_Portal.Authentication
+@using VPN_Portal.Authentication.UserClaims
 @using VPN_Portal.Services
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -28,12 +29,15 @@
                 <span> @(UserInfo.DisplayName ?? User.Identity?.Name)</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" aria-labelledby="userDropdown">
-                <li>
-                    <a class="dropdown-item py-2" asp-area="Identity" asp-page="/Account/Manage/Index">
-                        <i class="fa-solid fa-user-gear me-2 text-primary"></i> My Account
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
+                @if (User.HasClaim(UserClaims.IsDisabled, "False"))
+                {
+                    <li>
+                        <a class="dropdown-item py-2" asp-area="Identity" asp-page="/Account/Manage/Index">
+                            <i class="fa-solid fa-user-gear me-2 text-primary"></i> My Account
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                }
                 <li>
                     <form class="px-3" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
                         <button type="submit" class="btn btn-danger btn-sm w-100">

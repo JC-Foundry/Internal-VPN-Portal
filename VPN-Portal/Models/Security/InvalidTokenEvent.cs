@@ -17,10 +17,9 @@ public class InvalidTokenEvent
     [ForeignKey(nameof(TokenId))]
     public virtual DownloadToken? Token { get; set; }
     
-    [Required]
-    public string PeerId { get; set; }
+    public string? PeerId { get; set; }
     [ForeignKey(nameof(PeerId))]
-    public virtual DevicePeer Peer { get; set; }
+    public virtual DevicePeer? Peer { get; set; }
     
     [Required]
     [Column(TypeName = "int")]

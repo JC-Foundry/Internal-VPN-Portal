@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Authentication;
 using VPN_Portal.Data;
 
@@ -25,13 +26,16 @@ namespace VPN_Portal.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly SecurityService _securityService;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ILogger<LoginModel> logger, ApplicationDbContext context)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ILogger<LoginModel> logger, 
+            ApplicationDbContext context, SecurityService securityService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
             _context = context;
+            _securityService = securityService;
         }
 
         /// <summary>
@@ -119,6 +123,7 @@ namespace VPN_Portal.Areas.Identity.Pages.Account
                 var user = await _userManager.FindByNameAsync(Input.Username);
                 if (user == null)
                 {
+                    _ = await _securityService.GenerateInvalidLoginEvent(Input.Username);
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
@@ -146,6 +151,7 @@ namespace VPN_Portal.Areas.Identity.Pages.Account
                 }
                 else
                 {
+                    _ = await _securityService.GenerateInvalidLoginEvent(Input.Username);
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }

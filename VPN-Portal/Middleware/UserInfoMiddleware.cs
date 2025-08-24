@@ -37,7 +37,7 @@ public class UserInfoMiddleware
                 userInfo.UserName = context.User.Identity.Name;
                 userInfo.DisplayName = context.User.FindFirst(UserClaims.DisplayNameClaim)?.Value;
                 var lastLogin = context.User.FindFirst(UserClaims.LastLoginClaim)?.Value;
-                userInfo.LastLogin = lastLogin != null ? DateTime.Parse(lastLogin) : DateTime.Now;
+                userInfo.LastLogin = !string.IsNullOrEmpty(lastLogin) ? DateTime.Parse(lastLogin) : DateTime.Now;
                 
                 var maxDeviceCountStr = context.User.FindFirst(UserClaims.MaxPeerCountClaim)?.Value;
                 uint? maxDeviceCount = null;
