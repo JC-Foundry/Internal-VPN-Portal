@@ -32,16 +32,29 @@ public class Index : PageModel
     public uint RoleElevationCount { get; set; }
     
     public List<SecurityEventViewModel> SecurityEvents { get; set; } = [];
+    public EventType? ShownEventType { get; set; }
     
-    public async Task OnGet()
+    public async Task OnGet(EventType? type = null)
     {
+        ShownEventType = type;
         var events = await _securityService.GetSecurityEvents();
+        
         //Severity Counts:
-        InfoCount = (uint)events.Count(e => (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Info && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        LowCount = (uint)events.Count(e => (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Low && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        MediumCount = (uint)events.Count(e => (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Medium && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        HighCount = (uint)events.Count(e => (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.High && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        CriticalCount = (uint)events.Count(e => (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Critical && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
+        InfoCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
+                                            && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Info 
+                                            && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
+        LowCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
+                                           && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Low 
+                                           && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
+        MediumCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
+                                              && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Medium 
+                                              && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
+        HighCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
+                                            && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.High 
+                                            && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
+        CriticalCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
+                                                && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Critical 
+                                                && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
         
         //Type counts:
         CreateUserCount = (uint)events.Count(e => e is { EventType: EventType.CreateUser, Status: EventStatus.Open or EventStatus.Acknowledged });

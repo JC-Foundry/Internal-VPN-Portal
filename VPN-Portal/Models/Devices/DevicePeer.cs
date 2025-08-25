@@ -25,9 +25,14 @@ public class DevicePeer
     [ForeignKey(nameof(VpnServerId))]
     public virtual VpnServer? VpnServer { get; set; }
     
+    [Required]
+    [Column(TypeName = "datetime2")]
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     
     public bool IsDeleted { get; set; }
+    
+    [Column(TypeName = "datetime2")]
+    public DateTime? DeletedUtc { get; set; }
 
     public string? AssignedIp()
     {

@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VPN_Portal.Areas.Admin.Services;
@@ -5,6 +6,7 @@ using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Authentication;
 using VPN_Portal.Authentication.UserClaims;
 using VPN_Portal.Data;
+using VPN_Portal.Hangfire;
 using VPN_Portal.Middleware;
 using VPN_Portal.Services;
 using VPN_Portal.Services.Config;
@@ -19,6 +21,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString)
         .EnableSensitiveDataLogging()
         .LogTo(Console.WriteLine, LogLevel.Information));
+var hangfireConnection = builder.Configuration.GetConnectionString("HangfireConnection") ??
+                         throw new InvalidOperationException("Connection string 'HangfireConnection' not found.");
+builder.Services.AddHangfire(config => config.UseSqlServerStorage(hangfireConnection));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     {
@@ -58,7 +63,13 @@ builder.Services.AddSingleton<SecurityCache>(sp =>
     return cache;
 });
 
+//Hangfire jobs:
+builder.Services.AddScoped<RecurringJobs>();
+builder.Services.AddScoped<UpdateJobs>();
+builder.Services.AddScoped<MaintenanceJobs>();
+builder.Services.AddScoped<SecurityJobs>();
 
+builder.Services.AddHangfireServer();
 builder.Services.AddRazorPages();
 
 // Add Syncfusion services
@@ -90,6 +101,8 @@ app.UseUserInfo();
 app.UseAccountDisabled();
 app.UseAuthorization();
 
+app.UseHangfireDashboard(options: new DashboardOptions{Authorization = [new HangfireAuthorisationFilter(SystemRoles.SystemAdmin)]});
+
 app.MapStaticAssets();
 app.MapRazorPages()
     .WithStaticAssets();
@@ -103,6 +116,9 @@ async Task HostDefaults()
     using var scope = app.Services.CreateScope();
     var sp = scope.ServiceProvider;
     var context = sp.GetRequiredService<ApplicationDbContext>();
+    var jobs = sp.GetRequiredService<RecurringJobs>();
+    
+    jobs.RegisterJobs();
     
     var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
@@ -146,6 +162,6 @@ async Task HostDefaults()
     //Load valid-users (assume DB is clean)
     var securityCache = sp.GetRequiredService<SecurityCache>();
     var userIds = await context.Users.Select(u => (ApplicationUser)u)
-        .Where(u => !u.IsDeactivated).Select(u => u.Id).ToListAsync();
+        .Select(u => u.Id).ToListAsync();
     await securityCache.UpdateValidUsersFile(userIds);
 }

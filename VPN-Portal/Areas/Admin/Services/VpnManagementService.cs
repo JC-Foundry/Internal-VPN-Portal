@@ -29,7 +29,7 @@ public class VpnManagementService
 
         if (excludeFullServers && includeReservations && includePool) 
         {
-            query = query.Where(v => (v.DnsPool!.Reservations!.Count < (v.DnsPool!.MaxHost - v.DnsPool!.MinHost) + 1) || v.DnsPool!.Reservations.Count == 0);
+            query = query.Where(v => (v.DnsPool!.Reservations!.Count(r => r.ReleasedUtc == null) < (v.DnsPool!.MaxHost - v.DnsPool!.MinHost) + 1) || v.DnsPool!.Reservations!.Count == 0);
         }
         
         if (asNoTracking) query = query.AsNoTracking();

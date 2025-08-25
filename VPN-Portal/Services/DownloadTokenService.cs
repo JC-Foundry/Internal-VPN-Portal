@@ -155,7 +155,7 @@ public class DownloadTokenService
         await _context.SaveChangesAsync();
         
         //Return success:
-        var fileName = purpose == DownloadTokenPurpose.Config ? $"{token.Peer.Device?.DeviceName}-VPN.conf" : null;
+        var fileName = purpose == DownloadTokenPurpose.Config ? $"{token.Peer.Device?.DeviceName.Replace('-', '_')}_VPN.conf" : null;
         _ = await CreateDownloadEvent(token.PeerId, tokenId, token.Purpose, DownloadOutcome.Success);
         return new DownloadRedeemResult(fileName, config, configBytes)
         {

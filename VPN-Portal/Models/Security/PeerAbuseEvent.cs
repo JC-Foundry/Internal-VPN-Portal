@@ -16,8 +16,9 @@ public class PeerAbuseEvent
     [Column(TypeName = "datetime2")]
     public DateTime StartTimeUtc { get; set; } = DateTime.UtcNow;
     
+    [Required]
     [Column(TypeName = "datetime2")]
-    public DateTime? EndTimeUtc { get; set; }
+    public DateTime LastSeenUtc { get; set; } = DateTime.UtcNow;
     
     [Required]
     public uint PeersMade { get; set; }

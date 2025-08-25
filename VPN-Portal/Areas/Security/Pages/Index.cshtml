@@ -1,4 +1,4 @@
-@page
+@page "{type?}"
 @model VPN_Portal.Areas.Security.Pages.Index
 
 @{
@@ -79,94 +79,97 @@
     </div>
     
     <!-- Event Type Statistics -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">
-                <i class="fa-solid fa-layer-group me-2"></i>Event Types Distribution
-            </h3>
-        </div>
-        
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <div class="card event-type-card border-info">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-user-plus text-info fa-2x mb-2"></i>
-                    <h6 class="card-title">User Creation</h6>
-                    <p class="event-type-badge text-info">@Model.CreateUserCount</p>
+    @if (Model.ShownEventType == null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="mb-3">
+                    <i class="fa-solid fa-layer-group me-2"></i>Event Types Distribution
+                </h3>
+            </div>
+            
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="card event-type-card border-info">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-user-plus text-info fa-2x mb-2"></i>
+                        <h6 class="card-title">User Creation</h6>
+                        <p class="event-type-badge text-info">@Model.CreateUserCount</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="card event-type-card border-info">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-globe text-info fa-2x mb-2"></i>
+                        <h6 class="card-title">Router Peer</h6>
+                        <p class="event-type-badge text-info">@Model.AddRouterPeerCount</p>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="card event-type-card border-warning">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-key text-warning fa-2x mb-2"></i>
+                        <h6 class="card-title">Invalid Token</h6>
+                        <p class="event-type-badge text-warning">@Model.InvalidTokenCount</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="card event-type-card border-warning">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-user-slash text-warning fa-2x mb-2"></i>
+                        <h6 class="card-title">Peer Abuse</h6>
+                        <p class="event-type-badge text-warning">@Model.PeerAbuseCount</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="card event-type-card border-danger">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-user-xmark text-danger fa-2x mb-2"></i>
+                        <h6 class="card-title">Invalid Login</h6>
+                        <p class="event-type-badge text-danger">@Model.InvalidLoginCount</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="card event-type-card border-danger">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-ethernet text-danger fa-2x mb-2"></i>
+                        <h6 class="card-title">Unauthorised Peer</h6>
+                        <p class="event-type-badge text-danger">@Model.UnauthorisedPeerCount</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="card event-type-card border-danger">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-unlock text-danger fa-2x mb-2"></i>
+                        <h6 class="card-title">Unauthorised Token</h6>
+                        <p class="event-type-badge text-danger">@Model.UnauthorisedTokenCount</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="card event-type-card border-danger">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-crown text-danger fa-2x mb-2"></i>
+                        <h6 class="card-title">Role Elevation</h6>
+                        <p class="event-type-badge text-danger">@Model.RoleElevationCount</p>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <div class="card event-type-card border-info">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-globe text-info fa-2x mb-2"></i>
-                    <h6 class="card-title">Router Peer</h6>
-                    <p class="event-type-badge text-info">@Model.AddRouterPeerCount</p>
-                </div>
-            </div>
-        </div>
-        
-        
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <div class="card event-type-card border-warning">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-key text-warning fa-2x mb-2"></i>
-                    <h6 class="card-title">Invalid Token</h6>
-                    <p class="event-type-badge text-warning">@Model.InvalidTokenCount</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <div class="card event-type-card border-warning">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-user-slash text-warning fa-2x mb-2"></i>
-                    <h6 class="card-title">Peer Abuse</h6>
-                    <p class="event-type-badge text-warning">@Model.PeerAbuseCount</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <div class="card event-type-card border-danger">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-user-xmark text-danger fa-2x mb-2"></i>
-                    <h6 class="card-title">Invalid Login</h6>
-                    <p class="event-type-badge text-danger">@Model.InvalidLoginCount</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <div class="card event-type-card border-danger">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-ethernet text-danger fa-2x mb-2"></i>
-                    <h6 class="card-title">Unauthorised Peer</h6>
-                    <p class="event-type-badge text-danger">@Model.UnauthorisedPeerCount</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <div class="card event-type-card border-danger">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-unlock text-danger fa-2x mb-2"></i>
-                    <h6 class="card-title">Unauthorised Token</h6>
-                    <p class="event-type-badge text-danger">@Model.UnauthorisedTokenCount</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <div class="card event-type-card border-danger">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-crown text-danger fa-2x mb-2"></i>
-                    <h6 class="card-title">Role Elevation</h6>
-                    <p class="event-type-badge text-danger">@Model.RoleElevationCount</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    }
     
     <!-- Security Events Grid -->
     <div class="row">

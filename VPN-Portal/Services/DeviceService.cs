@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using VPN_Portal.Areas.Security.Services;
 using VPN_Portal.Data;
+using VPN_Portal.Models.Security;
 using Device = VPN_Portal.Models.Devices.Device;
 
 namespace VPN_Portal.Services;
@@ -9,13 +11,19 @@ public class DeviceService
 {
     private readonly ApplicationDbContext _context;
     private readonly UserInfo _userInfo;
+    private readonly PeerService _peerService;
+    private readonly SecurityActionService _securityActionService;
 
 
     public DeviceService(ApplicationDbContext context,
-        UserInfo userInfo)
+        UserInfo userInfo,
+        PeerService peerService,
+        SecurityActionService securityActionService)
     {
         _context = context;
         _userInfo = userInfo;
+        _peerService = peerService;
+        _securityActionService = securityActionService;
     }
     
 
@@ -103,11 +111,17 @@ public class DeviceService
 
     public async Task<bool> RevokeDevice(string deviceId)
     {
-        var device = await GetDevice(deviceId);
+        var device = await GetDevice(deviceId, false);
         if (device == null) return false;
+
+        var peers = await _peerService.GetUserPeers(device.UserId, false, false);
+        foreach (var peer in peers.Where(p => p.DeviceId == deviceId))
+        {
+            var res = await _peerService.TryDeletePeer(peer.PeerId, device.UserId);
+            if(res) await _securityActionService.PerformRouterPeerRemoved(peer.PeerId, _userInfo.UserId, TakenByType.User, true);
+        }
         
         device.RevokeDevice();
-        _context.Devices.Update(device);
         await _context.SaveChangesAsync();
         return true;
     }

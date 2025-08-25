@@ -52,7 +52,7 @@ public class SecurityService
         };
         
         if (createdBy != CreatedUserType.Admin) securityEvent.ElevatedSeverity = ThreatSeverity.Critical;
-        if(createKey != _config["CU_KEY"]) securityEvent.ElevatedSeverity = ThreatSeverity.High;
+        if(createKey != _config["CU_KEY"] && securityEvent.ElevatedSeverity == null) securityEvent.ElevatedSeverity = ThreatSeverity.High;
 
         
         switch (securityEvent.ElevatedSeverity)
@@ -146,9 +146,51 @@ public class SecurityService
         return true;
     }
 
-    public async Task<bool> GeneratePeerAbuseEvent()
+    public async Task<bool> GeneratePeerAbuseEvent(string userId, uint peersMade, params string[] peerIds)
     {
-        return false;
+        var persisted = await PersistedUser(userId);
+        if(!persisted) return false;
+        
+        var abuseEvent = await _context.PeerAbuseEvents
+            .Include(pa => pa.SecurityEvent)
+            .FirstOrDefaultAsync(pa => pa.SecurityEvent.UserId == userId 
+                                       && pa.LastSeenUtc >= DateTime.UtcNow.AddMinutes(-10));
+        
+        var securityEvent = abuseEvent?.SecurityEvent;
+        if (abuseEvent != null && securityEvent != null)
+        {
+            abuseEvent.PeersMade = peersMade;
+            abuseEvent.PeerIds = string.Join(PeerAbuseEvent.Delimiter, peerIds);
+
+            if (abuseEvent.PeersMade >= 10)
+            {
+                securityEvent.ElevatedSeverity = ThreatSeverity.High;
+                _ = await _actionService.PerformAccountDisable(userId, securityEvent.EventId, TakenByType.System);
+            }
+            
+            _context.Update(abuseEvent);
+            _context.Update(securityEvent);
+        }
+        else
+        {
+            securityEvent = new SecurityEvent
+            {
+                UserId = userId,
+                EventType = EventType.PeerAbuse
+            };
+            abuseEvent = new PeerAbuseEvent
+            {
+                EventId = securityEvent.EventId,
+                PeersMade = peersMade,
+                PeerIds = string.Join(PeerAbuseEvent.Delimiter, peerIds)
+            };
+            
+            await _context.SecurityEvents.AddAsync(securityEvent);
+            await _context.PeerAbuseEvents.AddAsync(abuseEvent);
+        }
+        
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> GenerateInvalidLoginEvent(string targetUsername, TakenByType takenBy = TakenByType.System)

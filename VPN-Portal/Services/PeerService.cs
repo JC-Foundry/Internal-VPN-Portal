@@ -34,7 +34,6 @@ public class PeerService
     public async Task<List<DevicePeer>> GetUserPeers(string userId, bool asNoTracking = true, bool includeVpnServer = true)
     {
         var query = _context.DevicePeers
-            .Include(p => p.Device)
             .Include(p => p.PeerToReservations)
             .ThenInclude(ptr => ptr.DnsReservation)
             .Where(p => p.Device!.UserId == userId);
@@ -97,7 +96,7 @@ public class PeerService
         return (true, peer.PeerId);
     }
 
-    public async Task<bool> TryDeletePeer(string peerId, string? userId = null)
+    public async Task<bool> TryDeletePeer(string peerId, string? userId = null, bool saveNow = true)
     {
         var peer = await _context.DevicePeers.FirstOrDefaultAsync(p => p.PeerId == peerId);
         if (peer == null) return false;
@@ -122,8 +121,9 @@ public class PeerService
         }
         
         peer.IsDeleted = true;
+        peer.DeletedUtc = DateTime.UtcNow;
         _context.DevicePeers.Update(peer);
-        await _context.SaveChangesAsync();
+        if(saveNow) await _context.SaveChangesAsync();
         return true;
     }
 
