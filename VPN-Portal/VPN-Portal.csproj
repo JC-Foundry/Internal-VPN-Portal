@@ -32,4 +32,8 @@
       <Folder Include="Areas\Admin\Pages\VPN\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Areas\Security\Pages\CreateUserEvent\Index.cshtml" />
+    </ItemGroup>
+
 </Project>

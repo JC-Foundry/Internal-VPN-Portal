@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using VPN_Portal.Authentication;
 using VPN_Portal.Data;
@@ -35,6 +36,17 @@ public class SecurityService
             .Include(e => e.User)
             .Include(e => e.Actions)
             .ToListAsync();
+
+    public async Task<SecurityEvent?> GetSecurityEvent(string id)
+        => await _context.SecurityEvents
+            .Include(e => e.User)
+            .Include(e => e.Actions)
+            .FirstOrDefaultAsync(se => se.EventId == id);
+
+    public async Task<T?> GetSpecificSecurityEvent<T>(string id)
+        where T : class, ISecurityEvent
+        => await _context.Set<T>()
+            .FirstOrDefaultAsync(e => e.EventId == id);
     
     
     private async Task<bool> PersistedUser(string userId)

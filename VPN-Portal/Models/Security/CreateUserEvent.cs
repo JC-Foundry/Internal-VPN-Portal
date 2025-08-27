@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VPN_Portal.Models.Security;
 
-public class CreateUserEvent
+public class CreateUserEvent : ISecurityEvent
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     [MaxLength(50)]
     public string EventId { get; set; }
     [ForeignKey(nameof(EventId))]
-    public virtual SecurityEvent SecurityEvent { get; set; }
+    public SecurityEvent SecurityEvent { get; set; }
     
     public CreatedUserType CreatedBy { get; set; } = CreatedUserType.Unknown;
 }
