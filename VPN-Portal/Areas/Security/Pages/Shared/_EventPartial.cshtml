@@ -1,2 +1,364 @@
 @model (VPN_Portal.Models.Security.SecurityEvent SecurityEvent, List<VPN_Portal.Models.Security.SecurityAction> SecurityActions)
 
+@{
+    var severity = Model.SecurityEvent.ElevatedSeverity ?? Model.SecurityEvent.BaseSeverity;
+    var severityClass = severity switch
+    {
+        VPN_Portal.Models.Security.ThreatSeverity.Info => "info",
+        VPN_Portal.Models.Security.ThreatSeverity.Low => "success",
+        VPN_Portal.Models.Security.ThreatSeverity.Medium => "warning",
+        VPN_Portal.Models.Security.ThreatSeverity.High => "danger",
+        VPN_Portal.Models.Security.ThreatSeverity.Critical => "dark",
+        _ => "secondary"
+    };
+    
+    var statusClass = Model.SecurityEvent.Status switch
+    {
+        VPN_Portal.Models.Security.EventStatus.Open => "warning",
+        VPN_Portal.Models.Security.EventStatus.Acknowledged => "info",
+        VPN_Portal.Models.Security.EventStatus.Suppressed => "secondary",
+        VPN_Portal.Models.Security.EventStatus.Resolved => "success",
+        VPN_Portal.Models.Security.EventStatus.Closed => "dark",
+        _ => "secondary"
+    };
+    
+    var takenActions = Model.SecurityActions.Where(a => a.CreatedUtc <= DateTime.UtcNow).OrderByDescending(a => a.CreatedUtc).ToList();
+    var availableActions = GetAvailableActions(Model.SecurityEvent, takenActions);
+}
+
+<div class="container-fluid">
+    <!-- Severity and Status Card -->
+    <div class="card border-0 shadow-lg mb-4">
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-6 text-center border-end">
+                    <h5 class="text-uppercase text-muted mb-3">Severity Level</h5>
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 120px;">
+                        <div class="text-center">
+                            <i class="fa-solid @GetSeverityIcon(severity) fa-4x text-@severityClass mb-3"></i>
+                            <h2 class="display-6 fw-bold text-@severityClass">@severity.ToString()</h2>
+                            @if (Model.SecurityEvent.ElevatedSeverity != null)
+                            {
+                                <small class="text-muted">Elevated from @Model.SecurityEvent.BaseSeverity</small>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <h5 class="text-uppercase text-muted mb-3">Current Status</h5>
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 120px;">
+                        <div class="text-center">
+                            <i class="fa-solid @GetStatusIcon(Model.SecurityEvent.Status) fa-4x text-@statusClass mb-3"></i>
+                            <h2 class="display-6 fw-bold text-@statusClass">@Model.SecurityEvent.Status.ToString()</h2>
+                            <small class="text-muted">Since @Model.SecurityEvent.CreatedUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="row">
+        <!-- Actions Taken Column -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-clipboard-check me-2"></i>Actions Taken
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (takenActions.Any())
+                    {
+                        <div class="timeline">
+                            @foreach (var action in takenActions)
+                            {
+                                <div class="timeline-item mb-3 pb-3 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fa-solid @GetActionIcon(action.ActionType) text-primary me-2"></i>
+                                                <strong>@GetActionDisplayName(action.ActionType)</strong>
+                                            </div>
+                                            <div class="small text-muted">
+                                                <i class="fa-regular fa-clock me-1"></i>@action.CreatedUtc.ToString("MMM dd, yyyy HH:mm") UTC
+                                            </div>
+                                            <div class="small text-muted mt-1">
+                                                <span class="badge bg-@GetTakenByClass(action.TakenByType)">
+                                                    @action.TakenByType
+                                                </span>
+                                                @if (action.User != null)
+                                                {
+                                                    <span class="ms-2">by @action.User.DisplayName</span>
+                                                }
+                                            </div>
+                                            @if (action.IsReversible)
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="badge bg-info">
+                                                        <i class="fa-solid fa-undo me-1"></i>Reversible
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No actions have been taken yet</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Actions Column -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-gradient-info text-white">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-tools me-2"></i>Available Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (availableActions.Any())
+                    {
+                        <div class="d-grid gap-2">
+                            @foreach (var action in availableActions)
+                            {
+                                <button type="button" 
+                                        class="btn btn-outline-@GetActionButtonClass(action) text-start"
+                                        onclick="executeAction('@Model.SecurityEvent.EventId', '@action')">
+                                    <i class="fa-solid @GetActionIcon(action) me-2"></i>
+                                    <span>@GetActionDisplayName(action)</span>
+                                    <small class="d-block text-muted mt-1">@GetActionDescription(action)</small>
+                                </button>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-check-circle fa-3x text-success mb-3"></i>
+                            <p class="text-muted">All available actions have been taken</p>
+                        </div>
+                    }
+                    
+                    <!-- Status Change Actions -->
+                    <hr class="my-4">
+                    <h6 class="text-muted mb-3">Status Management</h6>
+                    <div class="btn-group d-flex" role="group">
+                        @if (Model.SecurityEvent.Status != VPN_Portal.Models.Security.EventStatus.Acknowledged)
+                        {
+                            <button type="button" class="btn btn-outline-info" onclick="changeStatus('@Model.SecurityEvent.EventId', 'Acknowledged')">
+                                <i class="fa-solid fa-eye me-1"></i>Acknowledge
+                            </button>
+                        }
+                        @if (Model.SecurityEvent.Status != VPN_Portal.Models.Security.EventStatus.Suppressed)
+                        {
+                            <button type="button" class="btn btn-outline-secondary" onclick="changeStatus('@Model.SecurityEvent.EventId', 'Suppressed')">
+                                <i class="fa-solid fa-volume-mute me-1"></i>Suppress
+                            </button>
+                        }
+                        @if (Model.SecurityEvent.Status != VPN_Portal.Models.Security.EventStatus.Resolved)
+                        {
+                            <button type="button" class="btn btn-outline-success" onclick="changeStatus('@Model.SecurityEvent.EventId', 'Resolved')">
+                                <i class="fa-solid fa-check me-1"></i>Resolve
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetSeverityIcon(VPN_Portal.Models.Security.ThreatSeverity severity) => severity switch
+    {
+        VPN_Portal.Models.Security.ThreatSeverity.Info => "fa-info-circle",
+        VPN_Portal.Models.Security.ThreatSeverity.Low => "fa-shield",
+        VPN_Portal.Models.Security.ThreatSeverity.Medium => "fa-triangle-exclamation",
+        VPN_Portal.Models.Security.ThreatSeverity.High => "fa-exclamation-triangle",
+        VPN_Portal.Models.Security.ThreatSeverity.Critical => "fa-skull-crossbones",
+        _ => "fa-question-circle"
+    };
+
+    string GetStatusIcon(VPN_Portal.Models.Security.EventStatus status) => status switch
+    {
+        VPN_Portal.Models.Security.EventStatus.Open => "fa-folder-open",
+        VPN_Portal.Models.Security.EventStatus.Acknowledged => "fa-eye",
+        VPN_Portal.Models.Security.EventStatus.Suppressed => "fa-volume-mute",
+        VPN_Portal.Models.Security.EventStatus.Resolved => "fa-check-circle",
+        VPN_Portal.Models.Security.EventStatus.Closed => "fa-lock",
+        _ => "fa-question-circle"
+    };
+
+    string GetActionIcon(VPN_Portal.Models.Security.ActionType action) => action switch
+    {
+        VPN_Portal.Models.Security.ActionType.AccountDisabled => "fa-user-slash",
+        VPN_Portal.Models.Security.ActionType.AccountDeleted => "fa-user-xmark",
+        VPN_Portal.Models.Security.ActionType.AccountEnabled => "fa-user-check",
+        VPN_Portal.Models.Security.ActionType.RouterPeerRemoved => "fa-network-wired",
+        VPN_Portal.Models.Security.ActionType.PeerSoftRemoved => "fa-trash",
+        VPN_Portal.Models.Security.ActionType.PeerRestored => "fa-trash-restore",
+        VPN_Portal.Models.Security.ActionType.PeerHardRemoved => "fa-trash-can",
+        VPN_Portal.Models.Security.ActionType.RoleRemoved => "fa-user-shield",
+        _ => "fa-cog"
+    };
+
+    string GetActionDisplayName(VPN_Portal.Models.Security.ActionType action) => action switch
+    {
+        VPN_Portal.Models.Security.ActionType.AccountDisabled => "Account Disabled",
+        VPN_Portal.Models.Security.ActionType.AccountDeleted => "Account Deleted",
+        VPN_Portal.Models.Security.ActionType.AccountEnabled => "Account Enabled",
+        VPN_Portal.Models.Security.ActionType.RouterPeerRemoved => "Router Peer Removed",
+        VPN_Portal.Models.Security.ActionType.PeerSoftRemoved => "Peer Soft Deleted",
+        VPN_Portal.Models.Security.ActionType.PeerRestored => "Peer Restored",
+        VPN_Portal.Models.Security.ActionType.PeerHardRemoved => "Peer Permanently Deleted",
+        VPN_Portal.Models.Security.ActionType.RoleRemoved => "Role Removed",
+        _ => action.ToString()
+    };
+
+    string GetActionDescription(VPN_Portal.Models.Security.ActionType action) => action switch
+    {
+        VPN_Portal.Models.Security.ActionType.AccountDisabled => "Temporarily disable user access",
+        VPN_Portal.Models.Security.ActionType.AccountDeleted => "Permanently delete user account",
+        VPN_Portal.Models.Security.ActionType.AccountEnabled => "Restore user access",
+        VPN_Portal.Models.Security.ActionType.RouterPeerRemoved => "Remove router peer connection",
+        VPN_Portal.Models.Security.ActionType.PeerSoftRemoved => "Soft delete peer (recoverable)",
+        VPN_Portal.Models.Security.ActionType.PeerRestored => "Restore soft-deleted peer",
+        VPN_Portal.Models.Security.ActionType.PeerHardRemoved => "Permanently delete peer",
+        VPN_Portal.Models.Security.ActionType.RoleRemoved => "Remove elevated role",
+        _ => "Execute security action"
+    };
+
+    string GetTakenByClass(VPN_Portal.Models.Security.TakenByType type) => type switch
+    {
+        VPN_Portal.Models.Security.TakenByType.Administrator => "danger",
+        VPN_Portal.Models.Security.TakenByType.User => "primary",
+        VPN_Portal.Models.Security.TakenByType.System => "warning",
+        _ => "secondary"
+    };
+
+    string GetActionButtonClass(VPN_Portal.Models.Security.ActionType action) => action switch
+    {
+        VPN_Portal.Models.Security.ActionType.AccountEnabled => "success",
+        VPN_Portal.Models.Security.ActionType.PeerRestored => "success",
+        VPN_Portal.Models.Security.ActionType.AccountDisabled => "warning",
+        VPN_Portal.Models.Security.ActionType.PeerSoftRemoved => "warning",
+        VPN_Portal.Models.Security.ActionType.RoleRemoved => "warning",
+        VPN_Portal.Models.Security.ActionType.AccountDeleted => "danger",
+        VPN_Portal.Models.Security.ActionType.PeerHardRemoved => "danger",
+        VPN_Portal.Models.Security.ActionType.RouterPeerRemoved => "info",
+        _ => "primary"
+    };
+
+    List<VPN_Portal.Models.Security.ActionType> GetAvailableActions(VPN_Portal.Models.Security.SecurityEvent securityEvent, List<VPN_Portal.Models.Security.SecurityAction> takenActions)
+    {
+        var available = new List<VPN_Portal.Models.Security.ActionType>();
+        var takenTypes = takenActions.Select(a => a.ActionType).ToHashSet();
+
+        // Logic based on event type and what actions have been taken
+        switch (securityEvent.EventType)
+        {
+            case VPN_Portal.Models.Security.EventType.InvalidLoginAttempt:
+            case VPN_Portal.Models.Security.EventType.UnauthorisedVpnPeer:
+            case VPN_Portal.Models.Security.EventType.UnauthorisedVpnToken:
+                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDisabled) && 
+                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDeleted))
+                {
+                    available.Add(VPN_Portal.Models.Security.ActionType.AccountDisabled);
+                }
+                if (takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDisabled) && 
+                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDeleted))
+                {
+                    available.Add(VPN_Portal.Models.Security.ActionType.AccountEnabled);
+                    available.Add(VPN_Portal.Models.Security.ActionType.AccountDeleted);
+                }
+                break;
+                
+            case VPN_Portal.Models.Security.EventType.PeerAbuse:
+                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.PeerSoftRemoved) &&
+                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.PeerHardRemoved))
+                {
+                    available.Add(VPN_Portal.Models.Security.ActionType.PeerSoftRemoved);
+                }
+                if (takenTypes.Contains(VPN_Portal.Models.Security.ActionType.PeerSoftRemoved) &&
+                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.PeerHardRemoved))
+                {
+                    available.Add(VPN_Portal.Models.Security.ActionType.PeerRestored);
+                    available.Add(VPN_Portal.Models.Security.ActionType.PeerHardRemoved);
+                }
+                break;
+                
+            case VPN_Portal.Models.Security.EventType.RoleElevation:
+            case VPN_Portal.Models.Security.EventType.ElevationToAdmin:
+                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.RoleRemoved))
+                {
+                    available.Add(VPN_Portal.Models.Security.ActionType.RoleRemoved);
+                }
+                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDisabled) && 
+                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDeleted))
+                {
+                    available.Add(VPN_Portal.Models.Security.ActionType.AccountDisabled);
+                }
+                break;
+                
+            case VPN_Portal.Models.Security.EventType.AddRouterPeer:
+                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.RouterPeerRemoved))
+                {
+                    available.Add(VPN_Portal.Models.Security.ActionType.RouterPeerRemoved);
+                }
+                break;
+        }
+
+        return available;
+    }
+}
+
+<script>
+    function executeAction(eventId, actionType) {
+        if (confirm('Are you sure you want to execute this action?')) {
+            // TODO: Implement AJAX call to execute action
+            console.log('Executing action:', actionType, 'for event:', eventId);
+        }
+    }
+    
+    function changeStatus(eventId, newStatus) {
+        if (confirm('Are you sure you want to change the status to ' + newStatus + '?')) {
+            // TODO: Implement AJAX call to change status
+            console.log('Changing status to:', newStatus, 'for event:', eventId);
+        }
+    }
+</script>
+
+<style>
+    .timeline-item:last-child {
+        border-bottom: none !important;
+    }
+    
+    .btn-outline-primary:hover,
+    .btn-outline-info:hover,
+    .btn-outline-success:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-danger:hover,
+    .btn-outline-secondary:hover {
+        transform: translateX(5px);
+        transition: transform 0.2s ease;
+    }
+    
+    .card {
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

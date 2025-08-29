@@ -5,7 +5,7 @@ using VPN_Portal.Models.VpnServers;
 
 namespace VPN_Portal.Models.Security;
 
-public class UnauthorisedVpnTokenEvent
+public class UnauthorisedVpnTokenEvent : ISecurityEvent
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]

@@ -4,7 +4,7 @@ using VPN_Portal.Models.Devices;
 
 namespace VPN_Portal.Models.Security;
 
-public class InvalidTokenEvent
+public class InvalidTokenEvent : ISecurityEvent
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]

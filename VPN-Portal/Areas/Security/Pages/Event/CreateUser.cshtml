@@ -5,3 +5,49 @@
     ViewData["Title"] = "Create User Event";
 }
 
+<div class="container-fluid">
+    <!-- Event Details Card -->
+    <div class="card border-0 shadow-lg mb-4">
+        <div class="card-header bg-gradient-info text-white">
+            <h3 class="mb-0 fw-bold">
+                <i class="fa-solid fa-user-plus me-3"></i>User Creation Event Details
+            </h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">Created By</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid @GetCreatedByIcon(Model.SecurityEvent.CreatedBy) me-2 text-primary"></i>
+                            <span class="badge bg-@GetCreatedByBadgeClass(Model.SecurityEvent.CreatedBy) fs-6">
+                                @Model.SecurityEvent.CreatedBy.ToString()
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Partial with Actions -->
+    <partial name="Shared/_EventPartial" model="(Model.BaseEvent, Model.SecurityActions)"/>
+</div>
+
+@functions {
+    string GetCreatedByIcon(VPN_Portal.Models.Security.CreatedUserType type) => type switch
+    {
+        VPN_Portal.Models.Security.CreatedUserType.Admin => "fa-user-shield",
+        VPN_Portal.Models.Security.CreatedUserType.Register => "fa-user-pen",
+        VPN_Portal.Models.Security.CreatedUserType.Unknown => "fa-question",
+        _ => "fa-question"
+    };
+
+    string GetCreatedByBadgeClass(VPN_Portal.Models.Security.CreatedUserType type) => type switch
+    {
+        VPN_Portal.Models.Security.CreatedUserType.Admin => "primary",
+        VPN_Portal.Models.Security.CreatedUserType.Register => "warning",
+        VPN_Portal.Models.Security.CreatedUserType.Unknown => "secondary",
+        _ => "secondary"
+    };
+}

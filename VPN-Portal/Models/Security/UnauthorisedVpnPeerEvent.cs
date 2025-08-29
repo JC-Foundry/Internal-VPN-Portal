@@ -5,7 +5,7 @@ using VPN_Portal.Models.VpnServers;
 
 namespace VPN_Portal.Models.Security;
 
-public class UnauthorisedVpnPeerEvent
+public class UnauthorisedVpnPeerEvent : ISecurityEvent
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]

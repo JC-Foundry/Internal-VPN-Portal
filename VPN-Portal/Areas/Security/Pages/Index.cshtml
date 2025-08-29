@@ -197,6 +197,7 @@
 N                            <e-grid-column field="UserName" headerText="User"></e-grid-column>
                             <e-grid-column field="CreatedAt" headerText="Created" width="250" format="dd/MM/yyyy hh:mm"></e-grid-column>
                             <e-grid-column field="NumberOfActions" headerText="No. Actions" width="160"></e-grid-column>
+                            <e-grid-column template="#eventBtn"></e-grid-column>
                         </e-grid-columns>
                     </ejs-grid>
                 </div>
@@ -260,10 +261,8 @@ N                            <e-grid-column field="UserName" headerText="User"><
     ${/if}
 </script>
 
-<script id="actionsTemplate" type="text/x-template">
-    <a class="btn btn-sm btn-primary" href="/Security/Events/Details?id=${EventId}">
-        <i class="fa-solid fa-eye"></i> View
-    </a>
+<script id="eventBtn" type="text/x-template">
+    <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/CreateUser/${EventId}')")">View</button>
 </script>
 
 <script>

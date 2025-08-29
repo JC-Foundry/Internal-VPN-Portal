@@ -4,7 +4,7 @@ using VPN_Portal.Models.Devices;
 
 namespace VPN_Portal.Models.Security;
 
-public class AddRouterPeerEvent
+public class AddRouterPeerEvent : ISecurityEvent
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]

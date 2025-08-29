@@ -10,7 +10,7 @@ public class CreateUserEvent : ISecurityEvent
     [MaxLength(50)]
     public string EventId { get; set; }
     [ForeignKey(nameof(EventId))]
-    public SecurityEvent SecurityEvent { get; set; }
+    public virtual SecurityEvent SecurityEvent { get; set; }
     
     public CreatedUserType CreatedBy { get; set; } = CreatedUserType.Unknown;
 }

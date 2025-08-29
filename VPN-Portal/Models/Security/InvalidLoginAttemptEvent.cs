@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VPN_Portal.Models.Security;
 
-public class InvalidLoginAttemptEvent
+public class InvalidLoginAttemptEvent : ISecurityEvent
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
