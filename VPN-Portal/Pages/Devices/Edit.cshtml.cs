@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,6 +10,7 @@ using VPN_Portal.Services;
 
 namespace VPN_Portal.Pages.Devices;
 
+[Authorize]
 public class Edit : PageModel
 {
     private readonly DeviceService _deviceService;

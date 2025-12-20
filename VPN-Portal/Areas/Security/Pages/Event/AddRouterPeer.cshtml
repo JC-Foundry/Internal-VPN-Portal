@@ -1,0 +1,53 @@
+@page "{eventId}"
+@model VPN_Portal.Areas.Security.Pages.Event.AddRouterPeer
+
+@{
+    ViewData["Title"] = "Add Router Peer Event";
+}
+
+<div class="container-fluid">
+    <div class="mb-3">
+        <a href="/Security" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Events
+        </a>
+    </div>
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-gradient-success text-white">
+            <h3 class="mb-0 fw-bold">
+                <i class="fa-solid fa-network-wired me-3"></i>Add Router Peer Event Details
+            </h3>
+        </div>
+        <div class="card-body p-4">
+            <!-- Event-Specific Properties (Centered) -->
+            <div class="text-center mb-4 pb-4 border-bottom">
+                <h5 class="text-uppercase text-muted mb-3">Event Details</h5>
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid fa-id-card fa-2x mb-2 text-primary"></i>
+                            <span class="badge bg-primary fs-6">@Model.SecurityEvent.PeerId</span>
+                            <div class="small text-muted mt-1">Peer ID</div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid fa-key fa-2x mb-2 text-success"></i>
+                            <span class="badge bg-success fs-6 font-monospace">@Model.SecurityEvent.PublicKey.Substring(0, Math.Min(20, Model.SecurityEvent.PublicKey.Length))...</span>
+                            <div class="small text-muted mt-1">Public Key</div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid fa-network-wired fa-2x mb-2 text-info"></i>
+                            <span class="badge bg-info fs-6">@Model.SecurityEvent.IpAssigned</span>
+                            <div class="small text-muted mt-1">IP Assigned</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Partial with Actions -->
+            <partial name="Shared/_EventPartial" model="(Model.BaseEvent, Model.SecurityActions)"/>
+        </div>
+    </div>
+</div>

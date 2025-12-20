@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using VPN_Portal.Authentication;
 namespace VPN_Portal.Areas.Identity.Pages.Account
 {
-    [Authorize]
     public class LoginWithRecoveryCodeModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -62,18 +61,16 @@ namespace VPN_Portal.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
-            return RedirectToPage("/Index");
-            // Original implementation commented out:
-            // // Ensure the user has gone through the username & password screen first
-            // var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            // if (user == null)
-            // {
-            //     throw new InvalidOperationException($"Unable to load two-factor authentication user.");
-            // }
+            // Ensure the user has gone through the username & password screen first
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null)
+            {
+                throw new InvalidOperationException($"Unable to load two-factor authentication user.");
+            }
 
-            // ReturnUrl = returnUrl;
+            ReturnUrl = returnUrl;
 
-            // return Page();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)

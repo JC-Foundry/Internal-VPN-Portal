@@ -1,0 +1,60 @@
+@page "{eventId}"
+@model VPN_Portal.Areas.Security.Pages.Event.PeerAbuse
+
+@{
+    ViewData["Title"] = "Peer Abuse Event";
+    var peerIdArray = Model.SecurityEvent.PeerIds.Split(VPN_Portal.Models.Security.PeerAbuseEvent.Delimiter, StringSplitOptions.RemoveEmptyEntries);
+}
+
+<div class="container-fluid">
+    <div class="mb-3">
+        <a href="/Security" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Events
+        </a>
+    </div>
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-gradient-danger text-white">
+            <h3 class="mb-0 fw-bold">
+                <i class="fa-solid fa-triangle-exclamation me-3"></i>Peer Abuse Event Details
+            </h3>
+        </div>
+        <div class="card-body p-4">
+            <!-- Event-Specific Properties (Centered) -->
+            <div class="text-center mb-4 pb-4 border-bottom">
+                <h5 class="text-uppercase text-muted mb-3">Event Details</h5>
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid fa-hashtag fa-2x mb-2 text-danger"></i>
+                            <span class="badge bg-danger fs-5">@Model.SecurityEvent.PeersMade</span>
+                            <div class="small text-muted mt-1">Peers Created</div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid fa-clock fa-2x mb-2 text-warning"></i>
+                            <span class="badge bg-warning fs-5">@((Model.SecurityEvent.LastSeenUtc - Model.SecurityEvent.StartTimeUtc).TotalMinutes.ToString("F1")) min</span>
+                            <div class="small text-muted mt-1">Duration</div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (peerIdArray.Length > 0)
+                {
+                    <div class="mt-3">
+                        <h6 class="text-muted mb-2">Affected Peer IDs:</h6>
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            @foreach (var peerId in peerIdArray)
+                            {
+                                <span class="badge bg-secondary fs-6">@peerId</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Event Partial with Actions -->
+            <partial name="Shared/_EventPartial" model="(Model.BaseEvent, Model.SecurityActions)"/>
+        </div>
+    </div>
+</div>

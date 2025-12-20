@@ -15,7 +15,6 @@ using VPN_Portal.Authentication;
 
 namespace VPN_Portal.Areas.Identity.Pages.Account
 {
-    [Authorize]
     public class LoginWith2faModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -77,20 +76,18 @@ namespace VPN_Portal.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnGetAsync(bool rememberMe, string returnUrl = null)
         {
-            return RedirectToPage("/Index");
-            // Original implementation commented out:
-            // // Ensure the user has gone through the username & password screen first
-            // var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            // Ensure the user has gone through the username & password screen first
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
-            // if (user == null)
-            // {
-            //     throw new InvalidOperationException($"Unable to load two-factor authentication user.");
-            // }
+            if (user == null)
+            {
+                throw new InvalidOperationException($"Unable to load two-factor authentication user.");
+            }
 
-            // ReturnUrl = returnUrl;
-            // RememberMe = rememberMe;
+            ReturnUrl = returnUrl;
+            RememberMe = rememberMe;
 
-            // return Page();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(bool rememberMe, string returnUrl = null)

@@ -80,23 +80,21 @@
                                 
                                 <div class="card bg-light border-0 mb-3">
                                     <div class="card-body text-center">
-                                        <div id="qrCode" class="mb-3"></div>
-                                        <div id="qrCodeData" data-url="@Model.AuthenticatorUri"></div>
-                                        
-                                        <div class="alert alert-info rounded-3 mb-3">
-                                            <i class="fa-solid fa-info-circle me-2"></i>
-                                            Learn how to <a href="https://go.microsoft.com/fwlink/?Linkid=852423" target="_blank" class="fw-bold">enable QR code generation</a>.
+                                        <!-- QR Code Image -->
+                                        <div class="mb-4">
+                                            <img src="@Model.SharedKey" alt="QR Code" class="img-fluid rounded shadow-sm" style="max-width: 250px;" />
                                         </div>
-                                        
+
+                                        <!-- Manual Entry Key -->
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">Manual Entry Key:</label>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <kbd class="flex-grow-1 p-2 bg-secondary text-white rounded">@Model.SharedKey</kbd>
-                                                <button type="button" class="btn btn-outline-primary btn-sm rounded-3" onclick="navigator.clipboard.writeText('@Model.SharedKey')">
+                                            <div class="d-flex align-items-center gap-2 justify-content-center">
+                                                <kbd class="p-2 bg-dark text-white rounded fs-6">@Model.FormattedKey</kbd>
+                                                <button type="button" class="btn btn-outline-primary btn-sm rounded-3" onclick="copyToClipboard('@Model.FormattedKey.Replace(" ", "")')">
                                                     <i class="fa-solid fa-copy"></i>
                                                 </button>
                                             </div>
-                                            <small class="text-muted">Spaces and casing do not matter</small>
+                                            <small class="text-muted d-block mt-2">Spaces and casing do not matter</small>
                                         </div>
                                     </div>
                                 </div>
@@ -183,4 +181,25 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success feedback
+                const button = event.target.closest('button');
+                const originalHtml = button.innerHTML;
+                button.innerHTML = '<i class="fa-solid fa-check"></i>';
+                button.classList.remove('btn-outline-primary');
+                button.classList.add('btn-success');
+
+                setTimeout(function() {
+                    button.innerHTML = originalHtml;
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-primary');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+    </script>
 }

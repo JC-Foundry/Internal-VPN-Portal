@@ -60,7 +60,7 @@ public class IndexModel : PageModel
         
         return RedirectToPage();
     }
-    
+
     public async Task<IActionResult> OnPostDeletePeerAsync(string peerId)
     {
         if (string.IsNullOrEmpty(peerId))
@@ -68,7 +68,7 @@ public class IndexModel : PageModel
             TempData["ErrorMessage"] = "Invalid peer ID.";
             return RedirectToPage();
         }
-        
+
         var res = await _peerService.TryDeletePeer(peerId);
         if (res)
         {
@@ -77,27 +77,10 @@ public class IndexModel : PageModel
             _logger.LogInformation("Peer {PeerId} deleted successfully", peerId);
             return RedirectToPage();
         }
-        
+
         TempData["ErrorMessage"] = "Failed to delete peer. Please try again.";
         _logger.LogWarning("Failed to delete peer {PeerId}", peerId);
-        
-        return RedirectToPage();
-    }
-    
-    public async Task<IActionResult> OnPostDownloadConfigAsync(string peerId)
-    {
-        if (string.IsNullOrEmpty(peerId))
-        {
-            TempData["ErrorMessage"] = "Invalid peer ID.";
-            return RedirectToPage();
-        }
-        
-        // TODO: Implement config generation and download
-        TempData["SuccessMessage"] = "Configuration download functionality will be implemented soon.";
-        _logger.LogInformation("Attempted to download config for peer {PeerId}", peerId);
-        
-        // For now, redirect back to the page
-        // In the future, this should return a File result with the WireGuard config
+
         return RedirectToPage();
     }
 }

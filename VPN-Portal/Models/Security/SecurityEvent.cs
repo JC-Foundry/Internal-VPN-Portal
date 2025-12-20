@@ -30,8 +30,6 @@ public class SecurityEvent
         EventType.UnauthorisedVpnPeer => ThreatSeverity.High,
         EventType.UnauthorisedVpnToken => ThreatSeverity.High,
         EventType.PeerAbuse => ThreatSeverity.Medium,
-        EventType.RoleElevation => ThreatSeverity.Medium,       //soon
-        EventType.ElevationToAdmin => ThreatSeverity.Critical,  //soon
         _ => throw new ArgumentOutOfRangeException()
     };
     
@@ -57,9 +55,7 @@ public enum EventType
     AddRouterPeer,
     UnauthorisedVpnPeer,
     UnauthorisedVpnToken,
-    PeerAbuse,
-    RoleElevation,
-    ElevationToAdmin
+    PeerAbuse
 }
 
 public enum ThreatSeverity

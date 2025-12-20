@@ -127,6 +127,22 @@ public class PeerService
         return true;
     }
 
+    public async Task<bool> TryRestorePeer(string peerId)
+    {
+        var peer = await _context.DevicePeers.FirstOrDefaultAsync(p => p.PeerId == peerId);
+        if(peer == null) return false;
+        
+        //Add back to the router:
+        var res = await _vpnService.AddPeerToRouter(peer);
+        if(!res) return false;
+        
+        peer.IsDeleted = false;
+        peer.DeletedUtc = null;
+        _context.DevicePeers.Update(peer);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<ProvisionPeerConfigResult> ProvisionPeerConfig(string peerId)
     {
         var peer = await GetPeer(peerId);

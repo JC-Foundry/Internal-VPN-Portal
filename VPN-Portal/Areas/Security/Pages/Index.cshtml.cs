@@ -29,44 +29,54 @@ public class Index : PageModel
     public uint InvalidLoginCount { get; set; }
     public uint UnauthorisedPeerCount { get; set; }
     public uint UnauthorisedTokenCount { get; set; }
-    public uint RoleElevationCount { get; set; }
     
     public List<SecurityEventViewModel> SecurityEvents { get; set; } = [];
     public EventType? ShownEventType { get; set; }
-    
-    public async Task OnGet(EventType? type = null)
+    public bool ShowResolved { get; set; }
+
+    public async Task OnGet(EventType? type = null, bool showResolved = false)
     {
         ShownEventType = type;
+        ShowResolved = showResolved;
         var events = await _securityService.GetSecurityEvents();
         
+        // Determine which statuses to count based on showResolved flag
+        var countStatuses = showResolved
+            ? new[] { EventStatus.Resolved }
+            : new[] { EventStatus.Open, EventStatus.Acknowledged };
+
         //Severity Counts:
-        InfoCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
-                                            && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Info 
-                                            && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        LowCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
-                                           && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Low 
-                                           && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        MediumCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
-                                              && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Medium 
-                                              && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        HighCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
-                                            && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.High 
-                                            && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        CriticalCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0) 
-                                                && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Critical 
-                                                && (e.Status is EventStatus.Open or EventStatus.Acknowledged));
-        
+        InfoCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0)
+                                            && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Info
+                                            && countStatuses.Contains(e.Status));
+        LowCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0)
+                                           && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Low
+                                           && countStatuses.Contains(e.Status));
+        MediumCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0)
+                                              && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Medium
+                                              && countStatuses.Contains(e.Status));
+        HighCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0)
+                                            && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.High
+                                            && countStatuses.Contains(e.Status));
+        CriticalCount = (uint)events.Count(e => (type != null ? e.EventType == type : e.EventType >= 0)
+                                                && (e.ElevatedSeverity ?? e.BaseSeverity) == ThreatSeverity.Critical
+                                                && countStatuses.Contains(e.Status));
+
         //Type counts:
-        CreateUserCount = (uint)events.Count(e => e is { EventType: EventType.CreateUser, Status: EventStatus.Open or EventStatus.Acknowledged });
-        AddRouterPeerCount = (uint)events.Count(e => e is { EventType: EventType.AddRouterPeer, Status: EventStatus.Open or EventStatus.Acknowledged });
-        InvalidTokenCount = (uint)events.Count(e => e is { EventType: EventType.InvalidToken, Status: EventStatus.Open or EventStatus.Acknowledged });
-        PeerAbuseCount = (uint)events.Count(e => e is { EventType: EventType.PeerAbuse, Status: EventStatus.Open or EventStatus.Acknowledged });
-        InvalidLoginCount = (uint)events.Count(e => e is { EventType: EventType.InvalidLoginAttempt, Status: EventStatus.Open or EventStatus.Acknowledged });
-        UnauthorisedPeerCount = (uint)events.Count(e => e is { EventType: EventType.UnauthorisedVpnPeer, Status: EventStatus.Open or EventStatus.Acknowledged });
-        UnauthorisedTokenCount = (uint)events.Count(e => e is { EventType: EventType.UnauthorisedVpnToken, Status: EventStatus.Open or EventStatus.Acknowledged });
-        RoleElevationCount = (uint)events.Count(e => e is { EventType: EventType.RoleElevation, Status: EventStatus.Open or EventStatus.Acknowledged });
-        
-        SecurityEvents = events.Where(e => e.CreatedUtc >= DateTime.UtcNow.AddDays(-30))
+        CreateUserCount = (uint)events.Count(e => e.EventType == EventType.CreateUser && countStatuses.Contains(e.Status));
+        AddRouterPeerCount = (uint)events.Count(e => e.EventType == EventType.AddRouterPeer && countStatuses.Contains(e.Status));
+        InvalidTokenCount = (uint)events.Count(e => e.EventType == EventType.InvalidToken && countStatuses.Contains(e.Status));
+        PeerAbuseCount = (uint)events.Count(e => e.EventType == EventType.PeerAbuse && countStatuses.Contains(e.Status));
+        InvalidLoginCount = (uint)events.Count(e => e.EventType == EventType.InvalidLoginAttempt && countStatuses.Contains(e.Status));
+        UnauthorisedPeerCount = (uint)events.Count(e => e.EventType == EventType.UnauthorisedVpnPeer && countStatuses.Contains(e.Status));
+        UnauthorisedTokenCount = (uint)events.Count(e => e.EventType == EventType.UnauthorisedVpnToken && countStatuses.Contains(e.Status));
+
+        // Filter events: show Open/Acknowledged/Suppressed by default, or Resolved if toggled
+        var displayStatuses = showResolved
+            ? new[] { EventStatus.Resolved }
+            : new[] { EventStatus.Open, EventStatus.Acknowledged, EventStatus.Suppressed };
+
+        SecurityEvents = events.Where(e => (e.EventType == type || type == null) && displayStatuses.Contains(e.Status))
             .Select(e => new SecurityEventViewModel(e))
             .OrderByDescending(e => e.CreatedAt)
             .ToList();

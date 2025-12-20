@@ -88,6 +88,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Network Section -->
+    <div class="accordion-item border-0">
+        <h2 class="accordion-header">
+            <button class="accordion-button px-3 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#networkSection" aria-expanded="true">
+                <i class="fa-solid fa-network-wired me-2 text-primary"></i>
+                <span class="fw-semibold">Network</span>
+            </button>
+        </h2>
+        <div id="networkSection" class="accordion-collapse collapse show">
+            <div class="accordion-body p-0">
+                <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action ps-5 py-2 @(AdminNavPages.PublicIpNavClass(ViewContext) == "active" ? "bg-primary bg-opacity-10 border-start border-primary border-3 text-dark fw-semibold" : "")"
+                       asp-area="Admin" asp-page="/PublicIp/Index">
+                        <i class="fa-solid fa-globe me-2 @(AdminNavPages.PublicIpNavClass(ViewContext) == "active" ? "text-primary" : "text-muted")"></i>
+                        Public IP Address
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Security Centre Link -->

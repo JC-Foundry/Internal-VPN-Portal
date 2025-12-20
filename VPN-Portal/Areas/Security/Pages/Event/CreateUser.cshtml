@@ -6,32 +6,36 @@
 }
 
 <div class="container-fluid">
-    <!-- Event Details Card -->
-    <div class="card border-0 shadow-lg mb-4">
+    <div class="mb-3">
+        <a href="/Security" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Events
+        </a>
+    </div>
+    <div class="card border-0 shadow-lg">
         <div class="card-header bg-gradient-info text-white">
             <h3 class="mb-0 fw-bold">
                 <i class="fa-solid fa-user-plus me-3"></i>User Creation Event Details
             </h3>
         </div>
         <div class="card-body p-4">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-secondary">Created By</label>
-                        <div class="d-flex align-items-center">
-                            <i class="fa-solid @GetCreatedByIcon(Model.SecurityEvent.CreatedBy) me-2 text-primary"></i>
-                            <span class="badge bg-@GetCreatedByBadgeClass(Model.SecurityEvent.CreatedBy) fs-6">
-                                @Model.SecurityEvent.CreatedBy.ToString()
-                            </span>
-                        </div>
+            <!-- Event-Specific Properties (Centered) -->
+            <div class="text-center mb-4 pb-4 border-bottom">
+                <h5 class="text-uppercase text-muted mb-3">Event Details</h5>
+                <div class="d-flex justify-content-center align-items-center">
+                    <i class="fa-solid @GetCreatedByIcon(Model.SecurityEvent.CreatedBy) fa-2x me-3 text-primary"></i>
+                    <div>
+                        <span class="badge bg-@GetCreatedByBadgeClass(Model.SecurityEvent.CreatedBy) fs-5">
+                            @Model.SecurityEvent.CreatedBy.ToString()
+                        </span>
+                        <div class="small text-muted mt-1">User Creation Method</div>
                     </div>
                 </div>
             </div>
+
+            <!-- Event Partial with Actions -->
+            <partial name="Shared/_EventPartial" model="(Model.BaseEvent, Model.SecurityActions)"/>
         </div>
     </div>
-
-    <!-- Event Partial with Actions -->
-    <partial name="Shared/_EventPartial" model="(Model.BaseEvent, Model.SecurityActions)"/>
 </div>
 
 @functions {
@@ -39,7 +43,6 @@
     {
         VPN_Portal.Models.Security.CreatedUserType.Admin => "fa-user-shield",
         VPN_Portal.Models.Security.CreatedUserType.Register => "fa-user-pen",
-        VPN_Portal.Models.Security.CreatedUserType.Unknown => "fa-question",
         _ => "fa-question"
     };
 
@@ -47,7 +50,6 @@
     {
         VPN_Portal.Models.Security.CreatedUserType.Admin => "primary",
         VPN_Portal.Models.Security.CreatedUserType.Register => "warning",
-        VPN_Portal.Models.Security.CreatedUserType.Unknown => "secondary",
         _ => "secondary"
     };
 }

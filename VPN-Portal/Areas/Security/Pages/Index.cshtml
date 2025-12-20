@@ -88,7 +88,7 @@
                 </h3>
             </div>
             
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="col-lg-4 col-md-4 col-sm-6 mb-3">
                 <div class="card event-type-card border-info">
                     <div class="card-body text-center">
                         <i class="fa-solid fa-user-plus text-info fa-2x mb-2"></i>
@@ -98,7 +98,7 @@
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="col-lg-4 col-md-4 col-sm-6 mb-3">
                 <div class="card event-type-card border-info">
                     <div class="card-body text-center">
                         <i class="fa-solid fa-globe text-info fa-2x mb-2"></i>
@@ -109,7 +109,7 @@
             </div>
             
             
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="col-lg-4 col-md-4 col-sm-6 mb-3">
                 <div class="card event-type-card border-warning">
                     <div class="card-body text-center">
                         <i class="fa-solid fa-key text-warning fa-2x mb-2"></i>
@@ -119,7 +119,7 @@
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="col-lg-4 col-md-4 col-sm-6 mb-3">
                 <div class="card event-type-card border-warning">
                     <div class="card-body text-center">
                         <i class="fa-solid fa-user-slash text-warning fa-2x mb-2"></i>
@@ -129,7 +129,7 @@
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="col-lg-4 col-md-4 col-sm-6 mb-3">
                 <div class="card event-type-card border-danger">
                     <div class="card-body text-center">
                         <i class="fa-solid fa-user-xmark text-danger fa-2x mb-2"></i>
@@ -139,32 +139,12 @@
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-                <div class="card event-type-card border-danger">
-                    <div class="card-body text-center">
-                        <i class="fa-solid fa-ethernet text-danger fa-2x mb-2"></i>
-                        <h6 class="card-title">Unauthorised Peer</h6>
-                        <p class="event-type-badge text-danger">@Model.UnauthorisedPeerCount</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="col-lg-4 col-md-4 col-sm-6 mb-3">
                 <div class="card event-type-card border-danger">
                     <div class="card-body text-center">
                         <i class="fa-solid fa-unlock text-danger fa-2x mb-2"></i>
-                        <h6 class="card-title">Unauthorised Token</h6>
-                        <p class="event-type-badge text-danger">@Model.UnauthorisedTokenCount</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-                <div class="card event-type-card border-danger">
-                    <div class="card-body text-center">
-                        <i class="fa-solid fa-crown text-danger fa-2x mb-2"></i>
-                        <h6 class="card-title">Role Elevation</h6>
-                        <p class="event-type-badge text-danger">@Model.RoleElevationCount</p>
+                        <h6 class="card-title">Unauthorised Access</h6>
+                        <p class="event-type-badge text-danger">@(Model.UnauthorisedPeerCount + Model.UnauthorisedTokenCount)</p>
                     </div>
                 </div>
             </div>
@@ -176,9 +156,33 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-gradient-info text-white">
-                    <h4 class="mb-0 fw-semibold">
-                        <i class="fa-solid fa-list-check me-2"></i>Recent Security Events
-                    </h4>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 fw-semibold">
+                            <i class="fa-solid fa-list-check me-2"></i>
+                            @if (Model.ShowResolved)
+                            {
+                                <span>Resolved Security Events</span>
+                            }
+                            else
+                            {
+                                <span>Active Security Events</span>
+                            }
+                        </h4>
+                        <div>
+                            @if (Model.ShowResolved)
+                            {
+                                <a href="/Security?type=@Model.ShownEventType&showResolved=false" class="btn btn-light btn-sm">
+                                    <i class="fa-solid fa-eye me-1"></i>View Active Events
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="/Security?type=@Model.ShownEventType&showResolved=true" class="btn btn-success btn-sm">
+                                    <i class="fa-solid fa-check-circle me-1"></i>View Resolved Events
+                                </a>
+                            }
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <ejs-grid id="securityEventsGrid" 
@@ -222,8 +226,6 @@ N                            <e-grid-column field="UserName" headerText="User"><
         <span class="badge bg-danger">${EventType}</span>
     ${else if(EventType == EventType == 'Unauthorised Vpn Token')}
         <span class="badge bg-danger">${EventType}</span>
-    ${else if(EventType == EventType == 'Role Elevation')}
-        <span class="badge bg-danger">${EventType}</span>
     ${else}
         <span class="badge bg-secondary">${EventType}</span>
     ${/if}
@@ -261,8 +263,24 @@ N                            <e-grid-column field="UserName" headerText="User"><
     ${/if}
 </script>
 
-<script id="eventBtn" type="text/x-template">
-    <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/CreateUser/${EventId}')")">View</button>
+<script id="eventBtn" type="text/x-template">   
+    ${if(EventType == 'Create User')}
+        <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/CreateUser/${EventId}')")">View</button>
+    ${else if(EventType == 'Add Router Peer')}
+        <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/AddRouterPeer/${EventId}')")">View</button>
+    ${else if(EventType == 'Invalid Token')}
+       <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/InvalidToken/${EventId}')")">View</button>
+    ${else if(EventType == 'Peer Abuse')}
+        <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/PeerAbuse/${EventId}')")">View</button>
+    ${else if(EventType == 'Invalid Login Attempt')}
+        <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/InvalidLoginAttempt/${EventId}')")">View</button>
+    ${else if(EventType == EventType == 'Unauthorised Vpn Peer')}
+        <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/UnauthorisedVpnPeer/${EventId}')")">View</button>
+    ${else if(EventType == EventType == 'Unauthorised Vpn Token')}
+        <button class="btn btn-sm btn-warning" onclick="@("location.assign('/Security/Event/UnauthorisedVpnToken/${EventId}')")">View</button>
+    ${else}
+        <span class="badge bg-secondary">No Event Page</span>
+    ${/if}
 </script>
 
 <script>

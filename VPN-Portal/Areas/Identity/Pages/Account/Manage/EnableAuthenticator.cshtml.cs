@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using VPN_Portal.Authentication;
+using VPN_Portal.Helpers;
 
 namespace VPN_Portal.Areas.Identity.Pages.Account.Manage
 {
@@ -40,6 +41,8 @@ namespace VPN_Portal.Areas.Identity.Pages.Account.Manage
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public string SharedKey { get; set; }
+        
+        public string FormattedKey { get; set; }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -153,10 +156,11 @@ namespace VPN_Portal.Areas.Identity.Pages.Account.Manage
                 unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
             }
 
-            SharedKey = FormatKey(unformattedKey);
-
             var email = await _userManager.GetEmailAsync(user);
             AuthenticatorUri = GenerateQrCodeUri(email, unformattedKey);
+            FormattedKey = FormatKey(unformattedKey);
+            
+            SharedKey = QrCodeHelper.GenerateQrCode(AuthenticatorUri);
         }
 
         private string FormatKey(string unformattedKey)
@@ -181,7 +185,7 @@ namespace VPN_Portal.Areas.Identity.Pages.Account.Manage
             return string.Format(
                 CultureInfo.InvariantCulture,
                 AuthenticatorUriFormat,
-                _urlEncoder.Encode("Microsoft.AspNetCore.Identity.UI"),
+                _urlEncoder.Encode("JC-VPN Portal"),
                 _urlEncoder.Encode(email),
                 unformattedKey);
         }

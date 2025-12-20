@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QRCoder.Extensions;
 using VPN_Portal.Extensions;
+using VPN_Portal.Helpers;
 using VPN_Portal.Models;
 using VPN_Portal.Services;
 
 namespace VPN_Portal.Pages;
 
+[Authorize]
 public class Download : PageModel
 {
     private readonly DownloadTokenService _downloadTokenService;
@@ -36,7 +39,7 @@ public class Download : PageModel
                 TempData["SuccessMessage"] = "Config file downloaded successfully.";
                 return File(result.ConfigBytes!, "text/plain", result.FileName);
             case DownloadOutcome.Success:
-                ImgUrl = _downloadTokenService.GenerateQrCode(result.Config!);
+                ImgUrl = QrCodeHelper.GenerateQrCode(result.Config!);
                 return Page();
         }
 

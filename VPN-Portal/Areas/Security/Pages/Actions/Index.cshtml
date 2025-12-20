@@ -1,0 +1,146 @@
+@page
+@model VPN_Portal.Areas.Security.Pages.Actions.Index
+
+@{
+    ViewData["Title"] = "Security Actions Log";
+    Layout = "~/Areas/Security/Pages/Shared/_SecurityLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="text-center mb-4">
+        <h1 class="display-4 fw-bold">
+            <i class="fa-solid fa-gavel text-primary me-3"></i>Security Actions Log
+        </h1>
+        <p class="lead text-muted">Audit trail of all security actions taken across all events</p>
+    </div>
+
+    <!-- Actions Grid -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-list-check me-2"></i>All Security Actions
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <ejs-grid id="securityActionsGrid"
+                              dataSource="Model.SecurityActions"
+                              allowPaging="true"
+                              allowSorting="true"
+                              allowFiltering="true"
+                              showColumnChooser="true"
+                              toolbar="@(new List<string>() { "Search", "ColumnChooser" })">
+                        <e-grid-pagesettings pageSize="25"></e-grid-pagesettings>
+                        <e-grid-filtersettings type="Excel"></e-grid-filtersettings>
+                        <e-grid-columns>
+                            <e-grid-column field="ActionType" headerText="Action" width="200" template="#actionTypeTemplate"></e-grid-column>
+                            <e-grid-column field="EventType" headerText="Event Type" width="180" template="#eventTypeTemplate"></e-grid-column>
+                            <e-grid-column field="UserName" headerText="User" width="150"></e-grid-column>
+                            <e-grid-column field="TakenBy" headerText="Taken By" width="130" template="#takenByTemplate"></e-grid-column>
+                            <e-grid-column field="CreatedAt" headerText="Timestamp" width="180"></e-grid-column>
+                            <e-grid-column field="IsReversible" headerText="Reversible" width="120" template="#reversibleTemplate"></e-grid-column>
+                            <e-grid-column template="#viewEventBtn" headerText="Event" width="120"></e-grid-column>
+                        </e-grid-columns>
+                    </ejs-grid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Syncfusion Grid Templates -->
+<script id="actionTypeTemplate" type="text/x-template">
+    ${if(ActionType == 'Account Disabled')}
+        <span class="badge bg-warning">${ActionType}</span>
+    ${else if(ActionType == 'Account Enabled')}
+        <span class="badge bg-success">${ActionType}</span>
+    ${else if(ActionType == 'Account Deleted')}
+        <span class="badge bg-danger">${ActionType}</span>
+    ${else if(ActionType == 'Router Peer Removed')}
+        <span class="badge bg-info">${ActionType}</span>
+    ${else if(ActionType == 'Peer Soft Removed')}
+        <span class="badge bg-warning">${ActionType}</span>
+    ${else if(ActionType == 'Peer Restored')}
+        <span class="badge bg-success">${ActionType}</span>
+    ${else if(ActionType == 'Peer Hard Removed')}
+        <span class="badge bg-danger">${ActionType}</span>
+    ${else}
+        <span class="badge bg-secondary">${ActionType}</span>
+    ${/if}
+</script>
+
+<script id="eventTypeTemplate" type="text/x-template">
+    ${if(EventType == 'Create User')}
+        <span class="badge bg-info">${EventType}</span>
+    ${else if(EventType == 'Add Router Peer')}
+        <span class="badge bg-info">${EventType}</span>
+    ${else if(EventType == 'Invalid Token')}
+        <span class="badge bg-warning">${EventType}</span>
+    ${else if(EventType == 'Peer Abuse')}
+        <span class="badge bg-warning">${EventType}</span>
+    ${else if(EventType == 'Invalid Login Attempt')}
+        <span class="badge bg-danger">${EventType}</span>
+    ${else if(EventType == 'Unauthorised Vpn Peer')}
+        <span class="badge bg-danger">${EventType}</span>
+    ${else if(EventType == 'Unauthorised Vpn Token')}
+        <span class="badge bg-danger">${EventType}</span>
+    ${else}
+        <span class="badge bg-secondary">${EventType}</span>
+    ${/if}
+</script>
+
+<script id="takenByTemplate" type="text/x-template">
+    ${if(TakenBy == 'Administrator')}
+        <span class="badge bg-danger"><i class="fa-solid fa-user-shield me-1"></i>${TakenBy}</span>
+    ${else if(TakenBy == 'System')}
+        <span class="badge bg-warning"><i class="fa-solid fa-robot me-1"></i>${TakenBy}</span>
+    ${else if(TakenBy == 'User')}
+        <span class="badge bg-primary"><i class="fa-solid fa-user me-1"></i>${TakenBy}</span>
+    ${else}
+        <span class="badge bg-secondary">${TakenBy}</span>
+    ${/if}
+</script>
+
+<script id="reversibleTemplate" type="text/x-template">
+    ${if(IsReversible)}
+        <span class="badge bg-info"><i class="fa-solid fa-rotate-left me-1"></i>Yes</span>
+    ${else}
+        <span class="badge bg-secondary"><i class="fa-solid fa-ban me-1"></i>No</span>
+    ${/if}
+</script>
+
+<script id="viewEventBtn" type="text/x-template">
+    ${if(EventType == 'Create User')}
+        <button class="btn btn-sm btn-outline-primary" onclick="@("location.assign('/Security/Event/CreateUser/${EventId}')")">
+            <i class="fa-solid fa-eye me-1"></i>View
+        </button>
+    ${else if(EventType == 'Add Router Peer')}
+        <button class="btn btn-sm btn-outline-primary" onclick="@("location.assign('/Security/Event/AddRouterPeer/${EventId}')")">
+            <i class="fa-solid fa-eye me-1"></i>View
+        </button>
+    ${else if(EventType == 'Invalid Token')}
+        <button class="btn btn-sm btn-outline-primary" onclick="@("location.assign('/Security/Event/InvalidToken/${EventId}')")">
+            <i class="fa-solid fa-eye me-1"></i>View
+        </button>
+    ${else if(EventType == 'Peer Abuse')}
+        <button class="btn btn-sm btn-outline-primary" onclick="@("location.assign('/Security/Event/PeerAbuse/${EventId}')")">
+            <i class="fa-solid fa-eye me-1"></i>View
+        </button>
+    ${else if(EventType == 'Invalid Login Attempt')}
+        <button class="btn btn-sm btn-outline-primary" onclick="@("location.assign('/Security/Event/InvalidLoginAttempt/${EventId}')")">
+            <i class="fa-solid fa-eye me-1"></i>View
+        </button>
+    ${else if(EventType == 'Unauthorised Vpn Peer')}
+        <button class="btn btn-sm btn-outline-primary" onclick="@("location.assign('/Security/Event/UnauthorisedVpnPeer/${EventId}')")">
+            <i class="fa-solid fa-eye me-1"></i>View
+        </button>
+    ${else if(EventType == 'Unauthorised Vpn Token')}
+        <button class="btn btn-sm btn-outline-primary" onclick="@("location.assign('/Security/Event/UnauthorisedVpnToken/${EventId}')")">
+            <i class="fa-solid fa-eye me-1"></i>View
+        </button>
+    ${else}
+        <span class="text-muted">-</span>
+    ${/if}
+</script>

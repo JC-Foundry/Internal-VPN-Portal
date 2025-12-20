@@ -18,16 +18,14 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString)
-        .EnableSensitiveDataLogging()
-        .LogTo(Console.WriteLine, LogLevel.Information));
+    options.UseSqlServer(connectionString));
 var hangfireConnection = builder.Configuration.GetConnectionString("HangfireConnection") ??
                          throw new InvalidOperationException("Connection string 'HangfireConnection' not found.");
 builder.Services.AddHangfire(config => config.UseSqlServerStorage(hangfireConnection));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     {
-        options.SignIn.RequireConfirmedAccount = false; //TODO: Implement email confirmation
+        options.SignIn.RequireConfirmedAccount = false;
         options.Password.RequireDigit = true;
         options.Password.RequireUppercase = true;
         options.Password.RequireLowercase = true;
@@ -140,19 +138,28 @@ async Task HostDefaults()
     var adminUser = await userManager.FindByNameAsync("portaladmin");
     if (adminUser == null)
     {
-        adminUser = new ApplicationUser
+        var email = builder.Configuration.GetSection("Admin:Email").Value;
+        var username = builder.Configuration.GetSection("Admin:Username").Value;
+        var password = builder.Configuration.GetSection("Admin:Password").Value;
+
+        if (!string.IsNullOrEmpty(email)
+            && !string.IsNullOrEmpty(username)
+            && !string.IsNullOrEmpty(password))
         {
-            Email = "jcraik23@gmail.com",
-            UserName = "portaladmin",
-            DisplayName = "Portal Admin",
-            LastLogin = DateTime.Now,
-            EmailConfirmed = true,
-            TwoFactorEnabled = false
-        };
-        await userManager.CreateAsync(adminUser);
-        await userManager.AddToRoleAsync(adminUser, SystemRoles.SystemAdmin);
-        var p = "PortalAdmin@23";
-        await userManager.AddPasswordAsync(adminUser, p);
+            adminUser = new ApplicationUser
+            {
+                Email = email,
+                UserName = username,
+                DisplayName = "Portal Admin",
+                LastLogin = DateTime.Now,
+                EmailConfirmed = true,
+                TwoFactorEnabled = false
+            };
+            await userManager.CreateAsync(adminUser);
+            await userManager.AddToRoleAsync(adminUser, SystemRoles.SystemAdmin);
+            var p = password;
+            await userManager.AddPasswordAsync(adminUser, p);
+        }
     }
     else if (!await userManager.IsInRoleAsync(adminUser, SystemRoles.SystemAdmin))
     {

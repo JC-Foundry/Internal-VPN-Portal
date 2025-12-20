@@ -42,8 +42,7 @@ public enum ActionType
     RouterPeerRemoved,
     PeerSoftRemoved,
     PeerRestored,
-    PeerHardRemoved,
-    RoleRemoved
+    PeerHardRemoved
 }
 
 public enum TakenByType

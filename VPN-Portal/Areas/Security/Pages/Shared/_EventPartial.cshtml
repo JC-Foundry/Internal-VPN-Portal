@@ -1,4 +1,9 @@
+@using VPN_Portal.Models.Security
 @model (VPN_Portal.Models.Security.SecurityEvent SecurityEvent, List<VPN_Portal.Models.Security.SecurityAction> SecurityActions)
+
+<form method="post">
+    @Html.AntiForgeryToken()
+</form>
 
 @{
     var severity = Model.SecurityEvent.ElevatedSeverity ?? Model.SecurityEvent.BaseSeverity;
@@ -39,8 +44,9 @@
                             <h2 class="display-6 fw-bold text-@severityClass">@severity.ToString()</h2>
                             @if (Model.SecurityEvent.ElevatedSeverity != null)
                             {
-                                <small class="text-muted">Elevated from @Model.SecurityEvent.BaseSeverity</small>
+                                <small class="text-muted d-block">Elevated from @Model.SecurityEvent.BaseSeverity</small>
                             }
+                            <small class="text-muted">Created on @Model.SecurityEvent.CreatedUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</small>
                         </div>
                     </div>
                 </div>
@@ -50,7 +56,6 @@
                         <div class="text-center">
                             <i class="fa-solid @GetStatusIcon(Model.SecurityEvent.Status) fa-4x text-@statusClass mb-3"></i>
                             <h2 class="display-6 fw-bold text-@statusClass">@Model.SecurityEvent.Status.ToString()</h2>
-                            <small class="text-muted">Since @Model.SecurityEvent.CreatedUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</small>
                         </div>
                     </div>
                 </div>
@@ -132,9 +137,9 @@
                         <div class="d-grid gap-2">
                             @foreach (var action in availableActions)
                             {
-                                <button type="button" 
+                                <button type="button"
                                         class="btn btn-outline-@GetActionButtonClass(action) text-start"
-                                        onclick="executeAction('@Model.SecurityEvent.EventId', '@action')">
+                                        onclick="executeAction('@Model.SecurityEvent.EventId', @((int)action))">
                                     <i class="fa-solid @GetActionIcon(action) me-2"></i>
                                     <span>@GetActionDisplayName(action)</span>
                                     <small class="d-block text-muted mt-1">@GetActionDescription(action)</small>
@@ -153,23 +158,35 @@
                     <!-- Status Change Actions -->
                     <hr class="my-4">
                     <h6 class="text-muted mb-3">Status Management</h6>
-                    <div class="btn-group d-flex" role="group">
-                        @if (Model.SecurityEvent.Status != VPN_Portal.Models.Security.EventStatus.Acknowledged)
+                    <div class="d-grid gap-2">
+                        @if (Model.SecurityEvent.Status != EventStatus.Open)
                         {
-                            <button type="button" class="btn btn-outline-info" onclick="changeStatus('@Model.SecurityEvent.EventId', 'Acknowledged')">
+                            <button type="button" class="btn btn-outline-warning" onclick="changeStatus('@Model.SecurityEvent.EventId', @((int)EventStatus.Open))">
+                                <i class="fa-solid fa-folder-open me-1"></i>Reopen
+                            </button>
+                        }
+                        @if (Model.SecurityEvent.Status != EventStatus.Acknowledged)
+                        {
+                            <button type="button" class="btn btn-outline-info" onclick="changeStatus('@Model.SecurityEvent.EventId', @((int)EventStatus.Acknowledged))">
                                 <i class="fa-solid fa-eye me-1"></i>Acknowledge
                             </button>
                         }
-                        @if (Model.SecurityEvent.Status != VPN_Portal.Models.Security.EventStatus.Suppressed)
+                        @if (Model.SecurityEvent.Status != EventStatus.Suppressed)
                         {
-                            <button type="button" class="btn btn-outline-secondary" onclick="changeStatus('@Model.SecurityEvent.EventId', 'Suppressed')">
-                                <i class="fa-solid fa-volume-mute me-1"></i>Suppress
+                            <button type="button" class="btn btn-outline-secondary" onclick="changeStatus('@Model.SecurityEvent.EventId', @((int)EventStatus.Suppressed))">
+                                <i class="fa-solid fa-volume-mute me-1"></i>Suppress (False Positive)
                             </button>
                         }
-                        @if (Model.SecurityEvent.Status != VPN_Portal.Models.Security.EventStatus.Resolved)
+                        @if (Model.SecurityEvent.Status != EventStatus.Resolved)
                         {
-                            <button type="button" class="btn btn-outline-success" onclick="changeStatus('@Model.SecurityEvent.EventId', 'Resolved')">
-                                <i class="fa-solid fa-check me-1"></i>Resolve
+                            <button type="button" class="btn btn-outline-success" onclick="changeStatus('@Model.SecurityEvent.EventId', @((int)EventStatus.Resolved))">
+                                <i class="fa-solid fa-check me-1"></i>Resolve (Fixed)
+                            </button>
+                        }
+                        @if (Model.SecurityEvent.Status != EventStatus.Closed)
+                        {
+                            <button type="button" class="btn btn-outline-dark" onclick="changeStatus('@Model.SecurityEvent.EventId', @((int)EventStatus.Closed))">
+                                <i class="fa-solid fa-lock me-1"></i>Close & Archive
                             </button>
                         }
                     </div>
@@ -209,7 +226,6 @@
         VPN_Portal.Models.Security.ActionType.PeerSoftRemoved => "fa-trash",
         VPN_Portal.Models.Security.ActionType.PeerRestored => "fa-trash-restore",
         VPN_Portal.Models.Security.ActionType.PeerHardRemoved => "fa-trash-can",
-        VPN_Portal.Models.Security.ActionType.RoleRemoved => "fa-user-shield",
         _ => "fa-cog"
     };
 
@@ -222,7 +238,6 @@
         VPN_Portal.Models.Security.ActionType.PeerSoftRemoved => "Peer Soft Deleted",
         VPN_Portal.Models.Security.ActionType.PeerRestored => "Peer Restored",
         VPN_Portal.Models.Security.ActionType.PeerHardRemoved => "Peer Permanently Deleted",
-        VPN_Portal.Models.Security.ActionType.RoleRemoved => "Role Removed",
         _ => action.ToString()
     };
 
@@ -235,7 +250,6 @@
         VPN_Portal.Models.Security.ActionType.PeerSoftRemoved => "Soft delete peer (recoverable)",
         VPN_Portal.Models.Security.ActionType.PeerRestored => "Restore soft-deleted peer",
         VPN_Portal.Models.Security.ActionType.PeerHardRemoved => "Permanently delete peer",
-        VPN_Portal.Models.Security.ActionType.RoleRemoved => "Remove elevated role",
         _ => "Execute security action"
     };
 
@@ -253,7 +267,6 @@
         VPN_Portal.Models.Security.ActionType.PeerRestored => "success",
         VPN_Portal.Models.Security.ActionType.AccountDisabled => "warning",
         VPN_Portal.Models.Security.ActionType.PeerSoftRemoved => "warning",
-        VPN_Portal.Models.Security.ActionType.RoleRemoved => "warning",
         VPN_Portal.Models.Security.ActionType.AccountDeleted => "danger",
         VPN_Portal.Models.Security.ActionType.PeerHardRemoved => "danger",
         VPN_Portal.Models.Security.ActionType.RouterPeerRemoved => "info",
@@ -268,53 +281,41 @@
         // Logic based on event type and what actions have been taken
         switch (securityEvent.EventType)
         {
-            case VPN_Portal.Models.Security.EventType.InvalidLoginAttempt:
-            case VPN_Portal.Models.Security.EventType.UnauthorisedVpnPeer:
-            case VPN_Portal.Models.Security.EventType.UnauthorisedVpnToken:
-                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDisabled) && 
-                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDeleted))
+            case EventType.InvalidLoginAttempt:
+            case EventType.UnauthorisedVpnPeer:
+            case EventType.UnauthorisedVpnToken:
+            case EventType.CreateUser:
+                if (!takenTypes.Contains(ActionType.AccountDisabled) && 
+                    !takenTypes.Contains(ActionType.AccountDeleted))
                 {
-                    available.Add(VPN_Portal.Models.Security.ActionType.AccountDisabled);
+                    available.Add(ActionType.AccountDisabled);
                 }
-                if (takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDisabled) && 
-                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDeleted))
+                if (takenTypes.Contains(ActionType.AccountDisabled) && 
+                    !takenTypes.Contains(ActionType.AccountDeleted))
                 {
-                    available.Add(VPN_Portal.Models.Security.ActionType.AccountEnabled);
-                    available.Add(VPN_Portal.Models.Security.ActionType.AccountDeleted);
-                }
-                break;
-                
-            case VPN_Portal.Models.Security.EventType.PeerAbuse:
-                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.PeerSoftRemoved) &&
-                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.PeerHardRemoved))
-                {
-                    available.Add(VPN_Portal.Models.Security.ActionType.PeerSoftRemoved);
-                }
-                if (takenTypes.Contains(VPN_Portal.Models.Security.ActionType.PeerSoftRemoved) &&
-                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.PeerHardRemoved))
-                {
-                    available.Add(VPN_Portal.Models.Security.ActionType.PeerRestored);
-                    available.Add(VPN_Portal.Models.Security.ActionType.PeerHardRemoved);
+                    available.Add(ActionType.AccountEnabled);
+                    available.Add(ActionType.AccountDeleted);
                 }
                 break;
                 
-            case VPN_Portal.Models.Security.EventType.RoleElevation:
-            case VPN_Portal.Models.Security.EventType.ElevationToAdmin:
-                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.RoleRemoved))
+            case EventType.PeerAbuse:
+                if (!takenTypes.Contains(ActionType.PeerSoftRemoved) &&
+                    !takenTypes.Contains(ActionType.PeerHardRemoved))
                 {
-                    available.Add(VPN_Portal.Models.Security.ActionType.RoleRemoved);
+                    available.Add(ActionType.PeerSoftRemoved);
                 }
-                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDisabled) && 
-                    !takenTypes.Contains(VPN_Portal.Models.Security.ActionType.AccountDeleted))
+                if (takenTypes.Contains(ActionType.PeerSoftRemoved) &&
+                    !takenTypes.Contains(ActionType.PeerHardRemoved))
                 {
-                    available.Add(VPN_Portal.Models.Security.ActionType.AccountDisabled);
+                    available.Add(ActionType.PeerRestored);
+                    available.Add(ActionType.PeerHardRemoved);
                 }
                 break;
                 
-            case VPN_Portal.Models.Security.EventType.AddRouterPeer:
-                if (!takenTypes.Contains(VPN_Portal.Models.Security.ActionType.RouterPeerRemoved))
+            case EventType.AddRouterPeer:
+                if (!takenTypes.Contains(ActionType.RouterPeerRemoved))
                 {
-                    available.Add(VPN_Portal.Models.Security.ActionType.RouterPeerRemoved);
+                    available.Add(ActionType.RouterPeerRemoved);
                 }
                 break;
         }
@@ -326,15 +327,80 @@
 <script>
     function executeAction(eventId, actionType) {
         if (confirm('Are you sure you want to execute this action?')) {
-            // TODO: Implement AJAX call to execute action
-            console.log('Executing action:', actionType, 'for event:', eventId);
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            fetch(window.location.pathname + '?handler=ExecuteAction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({
+                    eventId: eventId,
+                    actionType: actionType
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message and reload page
+                    alert(data.message || 'Action executed successfully!');
+                    window.location.reload();
+                } else {
+                    // Show error message
+                    alert(data.message || 'Failed to execute action');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while executing the action');
+            });
         }
     }
-    
+
     function changeStatus(eventId, newStatus) {
-        if (confirm('Are you sure you want to change the status to ' + newStatus + '?')) {
-            // TODO: Implement AJAX call to change status
-            console.log('Changing status to:', newStatus, 'for event:', eventId);
+        // Map enum values to friendly names
+        const statusNames = {
+            '-1': 'Closed',
+            '0': 'Open',
+            '1': 'Acknowledged',
+            '2': 'Suppressed',
+            '3': 'Resolved'
+        };
+
+        const statusName = statusNames[newStatus] || newStatus;
+
+        if (confirm('Are you sure you want to change the status to ' + statusName + '?')) {
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            fetch(window.location.pathname + '?handler=ChangeStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({
+                    eventId: eventId,
+                    newStatus: parseInt(newStatus)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message and reload page
+                    alert(data.message || 'Status changed successfully!');
+                    window.location.reload();
+                } else {
+                    // Show error message
+                    alert(data.message || 'Failed to change status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while changing the status');
+            });
         }
     }
 </script>

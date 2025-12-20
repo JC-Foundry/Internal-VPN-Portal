@@ -1,2 +1,91 @@
-﻿@page
+@page
 @model LoginWith2faModel
+
+@{
+    ViewData["Title"] = "Two-factor authentication";
+}
+
+<div class="container">
+    <div class="row justify-content-center align-items-center my-5">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-gradient-primary text-white text-center py-4 rounded-top-4">
+                    <h2 class="mb-1 fw-bold">
+                        <i class="fa-solid fa-shield-halved me-2"></i>VPN Portal
+                    </h2>
+                    <p class="mb-0 opacity-75">Two-Factor Authentication</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <i class="fa-solid fa-mobile-screen-button fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-semibold text-secondary mb-2">Enter Verification Code</h3>
+                        <p class="text-muted small">Open your authenticator app and enter the 6-digit code</p>
+                    </div>
+
+                    <form method="post">
+                        <input type="hidden" asp-for="RememberMe" />
+                        <input type="hidden" asp-for="ReturnUrl" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.TwoFactorCode"
+                                   class="form-control form-control-lg rounded-3 text-center"
+                                   autocomplete="off"
+                                   aria-required="true"
+                                   placeholder="000000"
+                                   maxlength="7"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*" />
+                            <label asp-for="Input.TwoFactorCode" class="text-muted">
+                                <i class="fa-solid fa-key me-1"></i>Authenticator Code
+                            </label>
+                            <span asp-validation-for="Input.TwoFactorCode" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" asp-for="Input.RememberMachine" />
+                            <label asp-for="Input.RememberMachine" class="form-check-label text-muted">
+                                <i class="fa-solid fa-laptop me-1"></i>Remember this device
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm">
+                                <i class="fa-solid fa-check me-2"></i>Verify & Sign In
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light text-center py-3 rounded-bottom-4">
+                    <small class="text-muted">
+                        <i class="fa-solid fa-shield-check me-1"></i>Protected by two-factor authentication
+                    </small>
+                </div>
+            </div>
+
+            <!-- Help Text -->
+            <div class="text-center mt-4">
+                <p class="text-muted small">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    Don't have access to your authenticator app? Contact your administrator.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Auto-focus on the code input
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.querySelector('input[name="Input.TwoFactorCode"]');
+            if (codeInput) {
+                codeInput.focus();
+            }
+        });
+    </script>
+}

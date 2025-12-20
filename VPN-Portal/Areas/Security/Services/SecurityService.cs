@@ -35,6 +35,7 @@ public class SecurityService
         => await _context.SecurityEvents
             .Include(e => e.User)
             .Include(e => e.Actions)
+            .Where(e => e.Status != EventStatus.Closed)
             .ToListAsync();
 
     public async Task<SecurityEvent?> GetSecurityEvent(string id)
@@ -47,6 +48,24 @@ public class SecurityService
         where T : class, ISecurityEvent
         => await _context.Set<T>()
             .FirstOrDefaultAsync(e => e.EventId == id);
+
+    public async Task<bool> TryUpdateSecurityEventStatus(string id, EventStatus status)
+    {
+        var securityEvent = await _context.SecurityEvents.FirstOrDefaultAsync(e => e.EventId == id);
+        if(securityEvent == null) return false;
+
+        securityEvent.Status = status;
+        _context.SecurityEvents.Update(securityEvent);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<List<SecurityAction>> GetSecurityActions()
+        => await _context.SecurityActions
+            .Include(a => a.SecurityEvent)
+            .ThenInclude(e => e.User)
+            .OrderByDescending(a => a.CreatedUtc)
+            .ToListAsync();
     
     
     private async Task<bool> PersistedUser(string userId)
@@ -66,6 +85,15 @@ public class SecurityService
         if (createdBy != CreatedUserType.Admin) securityEvent.ElevatedSeverity = ThreatSeverity.Critical;
         if(createKey != _config["CU_KEY"] && securityEvent.ElevatedSeverity == null) securityEvent.ElevatedSeverity = ThreatSeverity.High;
 
+        var createUserEvent = new CreateUserEvent
+        {
+            EventId = securityEvent.EventId,
+            CreatedBy = createdBy
+        };
+        
+        await _context.SecurityEvents.AddAsync(securityEvent);
+        await _context.CreateUserEvents.AddAsync(createUserEvent);
+        await _context.SaveChangesAsync();
         
         switch (securityEvent.ElevatedSeverity)
         {
@@ -85,16 +113,7 @@ public class SecurityService
                 await _cache.UpdateValidUsersFile(userId);
                 break;
         }
-
-        var createUserEvent = new CreateUserEvent
-        {
-            EventId = securityEvent.EventId,
-            CreatedBy = createdBy
-        };
         
-        await _context.SecurityEvents.AddAsync(securityEvent);
-        await _context.CreateUserEvents.AddAsync(createUserEvent);
-        await _context.SaveChangesAsync();
         return true;
     }
 

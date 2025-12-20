@@ -17,7 +17,10 @@ namespace VPN_Portal.Areas.Admin.Pages
         public static string DnsIndex => "DnsIndex";
         public static string DnsPools => "DnsPools";
         public static string AddPool => "AddPool";
-        
+
+        // Network Section
+        public static string PublicIp => "PublicIp";
+
         // Navigation Classes
         public static string UsersIndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, UsersIndex);
         public static string UsersCreateNavClass(ViewContext viewContext) => PageNavClass(viewContext, UsersCreate);
@@ -29,7 +32,9 @@ namespace VPN_Portal.Areas.Admin.Pages
         public static string DnsIndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, DnsIndex);
         public static string DnsPoolsNavClass(ViewContext viewContext) => PageNavClass(viewContext, DnsPools);
         public static string DnsAddPoolNavClass(ViewContext viewContext) => PageNavClass(viewContext, AddPool);
-        
+
+        public static string PublicIpNavClass(ViewContext viewContext) => PageNavClass(viewContext, PublicIp);
+
         private static string PageNavClass(ViewContext viewContext, string page)
         {
             var activePage = viewContext.ViewData["ActivePage"] as string

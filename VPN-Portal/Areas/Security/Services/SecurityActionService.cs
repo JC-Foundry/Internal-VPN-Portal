@@ -50,30 +50,17 @@ public class SecurityActionService
         var securityEvent = await _context.SecurityEvents.FirstOrDefaultAsync(e => e.EventId == eventId);
         if(securityEvent == null) return;
 
-        switch (actionType)
+        securityEvent.Status = actionType switch
         {
-            case ActionType.AccountDisabled:
-                securityEvent.Status = EventStatus.Acknowledged;
-                break;
-            case ActionType.AccountDeleted:
-                securityEvent.Status = EventStatus.Resolved;
-                break;
-            case ActionType.RouterPeerRemoved:
-                securityEvent.Status = EventStatus.Resolved;
-                break;
-            case ActionType.PeerSoftRemoved:
-                securityEvent.Status = EventStatus.Acknowledged;
-                break;
-            case ActionType.PeerHardRemoved:
-                securityEvent.Status = EventStatus.Resolved;
-                break;
-            case ActionType.RoleRemoved:
-                securityEvent.Status = EventStatus.Acknowledged;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null);
-        }
-        
+            ActionType.AccountDisabled or ActionType.PeerSoftRemoved
+                => EventStatus.Acknowledged,
+            ActionType.RouterPeerRemoved or ActionType.PeerHardRemoved or ActionType.AccountDeleted 
+                => EventStatus.Resolved,
+            ActionType.PeerRestored or ActionType.AccountEnabled
+                => securityEvent.Status,
+            _ => throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null)
+        };
+
         _context.SecurityEvents.Update(securityEvent);
     }
     
@@ -84,6 +71,7 @@ public class SecurityActionService
 
         _context.Remove(user);
         await CreateAction(userId, eventId, ActionType.AccountDeleted, takenBy, false);
+        await _context.SaveChangesAsync();
         return true;
     }
     
@@ -97,6 +85,7 @@ public class SecurityActionService
         
         _context.Users.Update(user);
         await CreateAction(userId, eventId, ActionType.AccountDisabled, takenBy);
+        await _context.SaveChangesAsync();
         return true;
     }
 
@@ -110,6 +99,7 @@ public class SecurityActionService
         
         _context.Users.Update(user);
         await CreateAction(userId, eventId, ActionType.AccountEnabled, takenBy);
+        await _context.SaveChangesAsync();
         return true;
     }
 
@@ -120,15 +110,24 @@ public class SecurityActionService
             .Include(p => p.Device)
             .FirstOrDefaultAsync(p => p.PeerId == peerId && p.Device!.UserId == userId);
         if (peer == null) return false;
-        
+
+        //Remove peer from router:
+        var res = await _vpnService.RemovePeerFromRouter(peer);
+        if (!res) return false;
+
+        //Soft delete peer for user:
+        peer.IsDeleted = true;
+        peer.DeletedUtc = DateTime.UtcNow;
+
         var events = await _context.AddRouterPeerEvents
             .Where(rp => rp.PeerId == peerId)
             .Select(rp => rp.EventId)
             .ToListAsync();
         foreach (var eventId in events)
         {
-            await CreateAction(userId, eventId, ActionType.RouterPeerRemoved, takenBy);
+            await CreateAction(userId, eventId, ActionType.RouterPeerRemoved, takenBy, isReversible: false);
         }
+
         if(saveNow) await _context.SaveChangesAsync();
         return true;
     }
@@ -139,6 +138,17 @@ public class SecurityActionService
         if(!res) return false;
         
         await CreateAction(userId, eventId, ActionType.PeerSoftRemoved, takenBy);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> PerformPeerRestore(string peerId, string userId, string eventId, TakenByType takenBy)
+    {
+        var res = await _peerService.TryRestorePeer(peerId);
+        if(!res) return false;
+        
+        await CreateAction(userId, eventId, ActionType.PeerRestored, takenBy);
+        await _context.SaveChangesAsync();
         return true;
     }
 
@@ -235,6 +245,7 @@ public class SecurityActionService
         //Remove peer:
         _context.DevicePeers.Remove(peer);
         await CreateAction(userId, eventId, ActionType.PeerHardRemoved, takenBy, false);
+        await _context.SaveChangesAsync();
         return true;
     }
 }

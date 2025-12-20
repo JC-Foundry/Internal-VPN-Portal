@@ -1,0 +1,63 @@
+@page "{eventId}"
+@model VPN_Portal.Areas.Security.Pages.Event.UnauthorisedVpnToken
+
+@{
+    ViewData["Title"] = "Unauthorised VPN Token Event";
+}
+
+<div class="container-fluid">
+    <div class="mb-3">
+        <a href="/Security" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Events
+        </a>
+    </div>
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-gradient-warning text-dark">
+            <h3 class="mb-0 fw-bold">
+                <i class="fa-solid fa-ban me-3"></i>Unauthorised VPN Token Event Details
+            </h3>
+        </div>
+        <div class="card-body p-4">
+            <!-- Event-Specific Properties (Centered) -->
+            <div class="text-center mb-4 pb-4 border-bottom">
+                <h5 class="text-uppercase text-muted mb-3">Event Details</h5>
+                <div class="row justify-content-center">
+                    @if (!string.IsNullOrEmpty(Model.SecurityEvent.TokenId))
+                    {
+                        <div class="col-auto">
+                            <div class="d-flex flex-column align-items-center mb-3">
+                                <i class="fa-solid fa-ticket fa-2x mb-2 text-warning"></i>
+                                <span class="badge bg-warning text-dark fs-6">@Model.SecurityEvent.TokenId</span>
+                                <div class="small text-muted mt-1">Token ID</div>
+                            </div>
+                        </div>
+                    }
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid fa-id-card fa-2x mb-2 text-primary"></i>
+                            <span class="badge bg-primary fs-6">@Model.SecurityEvent.PeerId</span>
+                            <div class="small text-muted mt-1">Peer ID</div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid fa-server fa-2x mb-2 text-success"></i>
+                            <span class="badge bg-success fs-6">@Model.SecurityEvent.VpnServerId</span>
+                            <div class="small text-muted mt-1">VPN Server</div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid fa-download fa-2x mb-2 text-info"></i>
+                            <span class="badge bg-info fs-6">@Model.SecurityEvent.TokenDownloadUtc.ToLocalTime().ToString("MMM dd, HH:mm")</span>
+                            <div class="small text-muted mt-1">Downloaded</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Partial with Actions -->
+            <partial name="Shared/_EventPartial" model="(Model.BaseEvent, Model.SecurityActions)"/>
+        </div>
+    </div>
+</div>

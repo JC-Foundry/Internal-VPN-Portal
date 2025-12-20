@@ -1,0 +1,95 @@
+@page "{eventId}"
+@model VPN_Portal.Areas.Security.Pages.Event.InvalidToken
+
+@{
+    ViewData["Title"] = "Invalid Token Event";
+}
+
+<div class="container-fluid">
+    <div class="mb-3">
+        <a href="/Security" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Events
+        </a>
+    </div>
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-gradient-warning text-dark">
+            <h3 class="mb-0 fw-bold">
+                <i class="fa-solid fa-ticket me-3"></i>Invalid Token Event Details
+            </h3>
+        </div>
+        <div class="card-body p-4">
+            <!-- Event-Specific Properties (Centered) -->
+            <div class="text-center mb-4 pb-4 border-bottom">
+                <h5 class="text-uppercase text-muted mb-3">Event Details</h5>
+                <div class="row justify-content-center">
+                    @if (!string.IsNullOrEmpty(Model.SecurityEvent.TokenId))
+                    {
+                        <div class="col-auto">
+                            <div class="d-flex flex-column align-items-center mb-3">
+                                <i class="fa-solid fa-ticket fa-2x mb-2 text-warning"></i>
+                                <span class="badge bg-warning text-dark fs-6">@Model.SecurityEvent.TokenId</span>
+                                <div class="small text-muted mt-1">Token ID</div>
+                            </div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.SecurityEvent.PeerId))
+                    {
+                        <div class="col-auto">
+                            <div class="d-flex flex-column align-items-center mb-3">
+                                <i class="fa-solid fa-id-card fa-2x mb-2 text-primary"></i>
+                                <span class="badge bg-primary fs-6">@Model.SecurityEvent.PeerId</span>
+                                <div class="small text-muted mt-1">Peer ID</div>
+                            </div>
+                        </div>
+                    }
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid @GetOutcomeIcon(Model.SecurityEvent.Outcome) fa-2x mb-2 text-@GetOutcomeColor(Model.SecurityEvent.Outcome)"></i>
+                            <span class="badge bg-@GetOutcomeColor(Model.SecurityEvent.Outcome) fs-6">@Model.SecurityEvent.Outcome.ToString()</span>
+                            <div class="small text-muted mt-1">Outcome</div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex flex-column align-items-center mb-3">
+                            <i class="fa-solid @GetPurposeIcon(Model.SecurityEvent.Purpose) fa-2x mb-2 text-info"></i>
+                            <span class="badge bg-info fs-6">@Model.SecurityEvent.Purpose.ToString()</span>
+                            <div class="small text-muted mt-1">Purpose</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Partial with Actions -->
+            <partial name="Shared/_EventPartial" model="(Model.BaseEvent, Model.SecurityActions)"/>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetOutcomeIcon(VPN_Portal.Models.DownloadOutcome outcome) => outcome switch
+    {
+        VPN_Portal.Models.DownloadOutcome.Success => "fa-circle-check",
+        VPN_Portal.Models.DownloadOutcome.NotFound => "fa-circle-xmark",
+        VPN_Portal.Models.DownloadOutcome.TokenExpired => "fa-clock",
+        VPN_Portal.Models.DownloadOutcome.TokenAlreadyUsed => "fa-rotate-left",
+        VPN_Portal.Models.DownloadOutcome.NoConfigFound => "fa-file-circle-xmark",
+        _ => "fa-question"
+    };
+
+    string GetOutcomeColor(VPN_Portal.Models.DownloadOutcome outcome) => outcome switch
+    {
+        VPN_Portal.Models.DownloadOutcome.Success => "success",
+        VPN_Portal.Models.DownloadOutcome.NotFound => "danger",
+        VPN_Portal.Models.DownloadOutcome.TokenExpired => "warning",
+        VPN_Portal.Models.DownloadOutcome.TokenAlreadyUsed => "secondary",
+        VPN_Portal.Models.DownloadOutcome.NoConfigFound => "danger",
+        _ => "secondary"
+    };
+
+    string GetPurposeIcon(VPN_Portal.Models.DownloadTokenPurpose purpose) => purpose switch
+    {
+        VPN_Portal.Models.DownloadTokenPurpose.Config => "fa-gear",
+        VPN_Portal.Models.DownloadTokenPurpose.Qr => "fa-qrcode",
+        _ => "fa-question"
+    };
+}

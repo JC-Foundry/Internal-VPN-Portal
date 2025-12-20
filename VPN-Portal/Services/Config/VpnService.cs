@@ -102,7 +102,7 @@ public class VpnService
         try
         {
             using var connection = ConnectionFactory.CreateConnection(TikConnectionType.Api);
-            await connection.OpenAsync(_config["ROS:IP"], _config["ROS:PORTAL-Username"], _config["ROS:PORTAL-Password"]);
+            await connection.OpenAsync(_config["ROS:IP"], _config["ROS:POLL-Username"], _config["ROS:POLL-Password"]);
 
             var cmd = connection.CreateCommandAndParameters("/interface/wireguard/peers/print");
             var rows = cmd.ExecuteList();
@@ -162,4 +162,38 @@ public class VpnService
             return false;       
         }
     }
+    
+    public async Task<string?> GetPublicIp()
+    {
+        try
+        {
+            using var connection = ConnectionFactory.CreateConnection(TikConnectionType.Api);
+            await connection.OpenAsync(_config["ROS:IP"], _config["ROS:POLL-Username"], _config["ROS:POLL-Password"]);
+
+            // Get the PPPoE interface name from config (default: pppoe-out1)
+            var pppoeInterface = _config["ROS:PPPoE-Interface"] ?? "pppoe-out1";
+
+            // Query /ip/address filtered by PPPoE interface
+            var cmd = connection.CreateCommandAndParameters(
+                "/ip/address/print",
+                "?interface", pppoeInterface);
+
+            var result = cmd.ExecuteList().FirstOrDefault();
+            if (result == null) return null;
+
+            // Get the address field (e.g., "81.x.x.x/32")
+            var success = result.TryGetResponseField("address", out var address);
+            if (!success || string.IsNullOrEmpty(address)) return null;
+
+            // Remove CIDR notation (the /32 or /xx part) to get just the IP
+            var ipAddress = address.Split('/')[0];
+            return ipAddress;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting public IP from PPPoE interface");
+            return null;
+        }
+    }
+
 }
