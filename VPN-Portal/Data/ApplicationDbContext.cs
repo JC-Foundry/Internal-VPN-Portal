@@ -48,13 +48,13 @@ public class ApplicationDbContext : IdentityDbContext
         // Fix the multiple cascade paths issue for SQL Server
         modelBuilder.Entity<PeerToReservation>()
             .HasOne(p => p.DnsReservation)
-            .WithMany()
+            .WithMany(r => r.PeerToReservations)
             .HasForeignKey(p => p.ReservationId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<PeerToReservation>()
             .HasOne(p => p.Peer)
-            .WithMany()
+            .WithMany(p => p.PeerToReservations)
             .HasForeignKey(p => p.PeerId)
             .OnDelete(DeleteBehavior.Cascade);
 

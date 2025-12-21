@@ -72,7 +72,8 @@ public class IndexModel : PageModel
         var res = await _peerService.TryDeletePeer(peerId);
         if (res)
         {
-            _ = await _securityActionService.PerformRouterPeerRemoved(peerId, _userInfo.UserId, TakenByType.User, true);
+            await _securityActionService.PerformUserDeletedPeer(peerId, _userInfo.UserId);
+            //_ = await _securityActionService.PerformRouterPeerRemoved(peerId, _userInfo.UserId, TakenByType.User, true);
             TempData["SuccessMessage"] = "Peer deleted successfully.";
             _logger.LogInformation("Peer {PeerId} deleted successfully", peerId);
             return RedirectToPage();

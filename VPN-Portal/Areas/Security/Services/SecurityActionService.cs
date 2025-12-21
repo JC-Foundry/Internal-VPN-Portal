@@ -248,4 +248,54 @@ public class SecurityActionService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task PerformUserDeletedPeer(string peerId, string userId)
+    {
+        var peerAddedEvents = await _context.AddRouterPeerEvents
+            .Where(rp => rp.PeerId == peerId)
+            .ToListAsync();
+        var peerAbuseEvents = await _context.PeerAbuseEvents
+            .Where(pa => pa.PeerIds.Contains(peerId))
+            .ToListAsync();
+        var unauthVpnPeerEvents = await _context.UnauthorisedVpnPeerEvents
+            .Where(up => up.PeerId == peerId)
+            .ToListAsync();
+        var unauthVpnTokenEvents = await _context.UnauthorisedVpnTokenEvents
+            .Where(upt => upt.PeerId == peerId)
+            .ToListAsync();
+        var invalidTokenEvents = await _context.InvalidTokenEvents
+            .Where(ite => ite.PeerId == peerId)
+            .ToListAsync();
+
+        foreach (var rp in peerAddedEvents)
+        {
+            await CreateAction(userId, rp.EventId, ActionType.PeerSoftRemoved, TakenByType.User);
+            await CreateAction(userId, rp.EventId, ActionType.RouterPeerRemoved, TakenByType.User, false);
+        }
+
+        foreach (var pa in peerAbuseEvents)
+        {
+            await CreateAction(userId, pa.EventId, ActionType.PeerSoftRemoved, TakenByType.User);
+        }
+
+        foreach (var up in unauthVpnPeerEvents)
+        {
+            await CreateAction(userId, up.EventId, ActionType.PeerSoftRemoved, TakenByType.User);
+            await CreateAction(userId, up.EventId, ActionType.RouterPeerRemoved, TakenByType.User, false);
+        }
+
+        foreach (var upt in unauthVpnTokenEvents)
+        {
+            await CreateAction(userId, upt.EventId, ActionType.PeerSoftRemoved, TakenByType.User);
+            await CreateAction(userId, upt.EventId, ActionType.RouterPeerRemoved, TakenByType.User, false);
+        }
+
+        foreach (var ite in invalidTokenEvents)
+        {
+            await CreateAction(userId, ite.EventId, ActionType.PeerSoftRemoved, TakenByType.User);
+            await CreateAction(userId, ite.EventId, ActionType.RouterPeerRemoved, TakenByType.User, false);
+        }
+        
+        await _context.SaveChangesAsync();
+    }
 }

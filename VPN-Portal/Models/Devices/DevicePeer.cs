@@ -43,7 +43,7 @@ public class DevicePeer
         {
             NetworkFamily.Net10 => "10.",
             NetworkFamily.Net172 => "172.",
-            NetworkFamily.Net192 => "192.168",
+            NetworkFamily.Net192 => "192.168.",
             _ => null
         };
         
@@ -53,7 +53,7 @@ public class DevicePeer
         if (activeReservation.DnsReservation.DnsPool.Family != NetworkFamily.Net192)
             ip += $"{activeReservation.DnsReservation.DnsPool.SecondOctet}.";
 
-        return $"{ip}.{activeReservation.DnsReservation.DnsPool.Subnet}.{activeReservation.DnsReservation.HostOctet}";
+        return $"{ip}{activeReservation.DnsReservation.DnsPool.Subnet}.{activeReservation.DnsReservation.HostOctet}";
     }
     
     public virtual ICollection<PeerToReservation> PeerToReservations { get; set; }

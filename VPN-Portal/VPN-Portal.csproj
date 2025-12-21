@@ -21,6 +21,7 @@
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="NSec.Cryptography" Version="25.4.0" />
+        <PackageReference Include="libsodium" Version="1.0.20.1" />
         <PackageReference Include="QRCoder" Version="1.6.0" />
         <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="30.2.5" />
         <PackageReference Include="Syncfusion.Licensing" Version="30.2.5" />

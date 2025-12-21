@@ -226,7 +226,8 @@
                 DeviceName = d.DeviceName,
                 DeviceType = d.DeviceType.ToString(),
                 CreatedUtc = d.CreatedUtc.ToLocalTime(),
-                LastSeenUtc = d.LastSeenUtc.ToLocalTime()
+                LastSeenUtc = d.LastSeenUtc.ToLocalTime(),
+                PeerCount = d.Peers?.Where(p => !p.IsDeleted).ToList().Count ?? 0
             }).ToList();
             
             <ejs-grid id="devicesGrid" dataSource="@deviceData" allowPaging="true" allowSorting="true" allowFiltering="true"
@@ -262,10 +263,10 @@
         @if (Model.UserPeers.Any())
         {
             var peerData = Model.UserPeers.Select(p => new {
-                DeviceName = p.Device!.DeviceName,
+                DeviceName = p.Device?.DeviceName ?? "Unknown",
                 AssignedIp = p.AssignedIp() ?? "Unknown",
                 CreatedUtc = p.CreatedUtc.ToLocalTime(),
-                VpnServer = p.VpnServer!.Name
+                VpnServer = p.VpnServer?.Name ?? "Unknown"
             }).ToList();
             
             <ejs-grid id="peerGrid" dataSource="@peerData" allowPaging="true" allowSorting="true" allowFiltering="true"

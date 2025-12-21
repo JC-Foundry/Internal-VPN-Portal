@@ -118,7 +118,10 @@ public class DeviceService
         foreach (var peer in peers.Where(p => p.DeviceId == deviceId))
         {
             var res = await _peerService.TryDeletePeer(peer.PeerId, device.UserId);
-            if(res) await _securityActionService.PerformRouterPeerRemoved(peer.PeerId, _userInfo.UserId, TakenByType.User, true);
+            if (!res) continue;
+            
+            await _securityActionService.PerformUserDeletedPeer(peer.PeerId, _userInfo.UserId);
+            //await _securityActionService.PerformRouterPeerRemoved(peer.PeerId, _userInfo.UserId, TakenByType.User, true);
         }
         
         device.RevokeDevice();

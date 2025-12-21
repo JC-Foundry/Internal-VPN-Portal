@@ -36,6 +36,8 @@ public class PeerService
         var query = _context.DevicePeers
             .Include(p => p.PeerToReservations)
             .ThenInclude(ptr => ptr.DnsReservation)
+            .ThenInclude(r => r.DnsPool)
+            .Include(p => p.Device)
             .Where(p => p.Device!.UserId == userId);
         if (asNoTracking) query = query.AsNoTracking();
         if (includeVpnServer) query = query.Include(p => p.VpnServer);
